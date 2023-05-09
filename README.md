@@ -3,14 +3,15 @@ Drumrox
 
 Drumrox is an LV2 sampler plugin to load Hydrogen drum kits. The main goal of Drumrox is to keep it compatible with modern Hydrogen kit format.
 
-Some history: It is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one save/load the preset by index, so when you install new kits or delete some, indexes are messing up. The falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but it some point it becomes uncompatible with new Hydrogen kits, and I've edit them manually to fix. Fresh install of Hydrogen converts my edited kits to the modern format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that I understand what I want to clean up the code, etc, etc. That how Drumrox continues DrMr.
+Some history: It is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one saveed/loaded the preset by index, so when you install new kits or delete some, indexes are messing up. The falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but it some point it becomes uncompatible with new Hydrogen kits, and I've edit them manually to fix. Fresh install of Hydrogen converts my edited kits to the modern format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that I understand what I want to clean up the code, etc, etc. That how Drumrox continues DrMr.
+
 
 
 About:
 -----
 
 - Control via midi
-- Scan for and load hydrogen drum kits (see note 2)
+- Scan for and load hydrogen drum kits
 - Multi-layer hydrogen kits (will pick layer based on that samples set gain)
 - LV2 controls for gain on first 32 samples of kit (see note 1 below)
 - LV2 controls for pan on first 32 samples of kit (see note 1 below)
