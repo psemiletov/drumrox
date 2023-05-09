@@ -392,7 +392,13 @@ s_kits* scan_kits()
   v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits/");
   v_kits_locations.push_back (get_home_dir() + "/.drumrox/drumkits/");
 
-  //std::vector <std::string> v_kits_dirs = files_get_list (const std::string &path);
+  std::vector <std::string> v_kits_dirs;
+
+  for (std::string i : v_kits_locations)
+      {
+       std::vector <std::string> v_kits_dirs_t = files_get_list (i);
+       v_kits_dirs.insert(v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
+      }
 
 
   while (cur_path)
