@@ -26,6 +26,10 @@
 #include <errno.h>
 #include <math.h>
 
+#include <string>
+#include <vector>
+
+
 #include "samplerate.h"
 #include "drumrox.h"
 #include "drumrox_hydrogen.h"
@@ -109,6 +113,33 @@ struct hp_info
   struct instrument_layer* cur_layer;
   struct kit_info* kit_info;
 };
+
+
+std::vector <std::string> files_get_list (const std::string &path) //ext with dot: ".txt"
+{
+  DIR *directory;
+  struct dirent *dir_entry;
+
+  std::vector <std::string> result;
+
+  directory = opendir(path.c_str());
+  if (! directory)
+     {
+      closedir (directory);
+      return result;
+     }
+
+   while (dir_entry = readdir (directory))
+         {
+          // std::cout << dir_entry->d_name << std::endl;
+          std::string t = dir_entry->d_name;
+          result.push_back (path + "/" + t);
+         }
+
+   closedir (directory);
+   return result;
+}
+
 
 
 static void XMLCALL
@@ -304,8 +335,37 @@ static char* expand_path (char* path, char* buf)
 };
 
 
+
+std::string get_home_dir()
+{
+  std::string result;
+
+#if !defined(_WIN32) || !defined(_WIN64)
+
+  const char *homedir = getenv ("HOME");
+
+  if (homedir != NULL)
+     result = homedir;
+
+#else
+
+  char homeDirStr[MAX_PATH];
+
+ if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homeDirStr)))
+   result = homeDirStr;
+
+
+#endif
+
+  return result;
+}
+
+
+
 s_kits* scan_kits()
 {
+
+
   FILE* file;
   XML_Parser parser;
   int done;
@@ -320,9 +380,24 @@ s_kits* scan_kits()
 
   ret->num_kits = 0;
 
+
+
+
+  std::vector <std::string> v_kits_locations;
+
+  v_kits_locations.push_back ("/usr/share/hydrogen/data/drumkits/");
+  v_kits_locations.push_back ("/usr/local/share/hydrogen/data/drumkits/");
+  v_kits_locations.push_back ("/usr/share/drmr/drumkits/");
+  v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits/");
+  v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits/");
+  v_kits_locations.push_back (get_home_dir() + "/.drumrox/drumkits/");
+
+  //std::vector <std::string> v_kits_dirs = files_get_list (const std::string &path);
+
+
   while (cur_path)
         {
-         cur_path = expand_path(cur_path,path_buf);
+         cur_path = expand_path (cur_path, path_buf);
          if (! cur_path)
             {
              cur_path = default_drumkit_locations[cp++];
@@ -424,6 +499,7 @@ s_kits* scan_kits()
     }
     else if (errno != ENOENT)
       fprintf(stderr,"Couldn't open %s: %s\n",cur_path,strerror(errno));
+
     cur_path = default_drumkit_locations[cp++];
   }
 
