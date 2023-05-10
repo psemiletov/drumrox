@@ -28,7 +28,7 @@
 
 #include <string>
 #include <vector>
-
+#include <algorithm>
 
 #include "samplerate.h"
 #include "drumrox.h"
@@ -361,7 +361,7 @@ std::string get_home_dir()
 }
 
 
-
+/*
 s_kits* scan_kits()
 {
 
@@ -394,7 +394,7 @@ s_kits* scan_kits()
 
   std::vector <std::string> v_kits_dirs;
 
-  for (std::string i : v_kits_locations)
+  for (std::string i :v_kits_locations)
       {
        std::vector <std::string> v_kits_dirs_t = files_get_list (i);
        v_kits_dirs.insert(v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
@@ -424,7 +424,7 @@ s_kits* scan_kits()
 	                     continue;
 	                    }
 
-                     file = fopen (buf,"r");
+                     file = fopen (buf, "r");
 	                 if (! file)
                         continue; // couldn't open file
 
@@ -507,7 +507,7 @@ s_kits* scan_kits()
       fprintf(stderr,"Couldn't open %s: %s\n",cur_path,strerror(errno));
 
     cur_path = default_drumkit_locations[cp++];
-  }
+  } //WHILE
 
   // valid kits are in scanned_kits at this point
   cp = 0;
@@ -522,8 +522,6 @@ s_kits* scan_kits()
        }
 
        //SORT BY NAME HERE!!!!!!!!!!!!!!!
-
-
 
 
   printf("found %i kits\n",cp);
@@ -550,6 +548,185 @@ s_kits* scan_kits()
 
   return ret;
 }
+
+*/
+
+
+
+s_kits* scan_kits()
+{
+
+  FILE* file;
+  XML_Parser parser;
+  int done;
+  struct hp_info info;
+  struct kit_info kit_info;
+  struct dirent *ep;
+  int cp = 0;
+  char* cur_path = default_drumkit_locations[cp++];
+  s_kits* ret = (s_kits*) malloc(sizeof(s_kits));
+  struct kit_list* scanned_kits = NULL;
+  char buf[BUFSIZ], path_buf[BUFSIZ];
+
+  ret->num_kits = 0;
+
+  std::vector <std::string> v_kits_locations;
+
+  v_kits_locations.push_back ("/usr/share/hydrogen/data/drumkits/");
+  v_kits_locations.push_back ("/usr/local/share/hydrogen/data/drumkits/");
+  v_kits_locations.push_back ("/usr/share/drmr/drumkits/");
+  v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits/");
+  v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits/");
+  v_kits_locations.push_back (get_home_dir() + "/.drumrox/drumkits/");
+
+  std::vector <std::string> v_kits_dirs;
+
+  for (std::string i :v_kits_locations)
+      {
+       std::vector <std::string> v_kits_dirs_t = files_get_list (i);
+       v_kits_dirs.insert(v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
+      }
+
+
+  std::sort(v_kits_dirs.begin(), v_kits_dirs.end());
+
+  for (std::string kd :v_kits_dirs)
+      {
+       if (kd[0]=='.')
+          continue;
+
+       std::string fname = kd + "/drumkit.xml";
+
+       file = fopen (fname.c_str(), "r");
+       if (! file)
+           continue; // couldn't open file
+
+       parser = XML_ParserCreate (NULL);
+       memset (&info, 0, sizeof (struct hp_info));
+       memset (&kit_info, 0, sizeof (struct kit_info));
+       info.kit_info = &kit_info;
+       info.scan_only = 1;
+       XML_SetUserData (parser, &info);
+       XML_SetElementHandler(parser, startElement, endElement);
+	   XML_SetCharacterDataHandler(parser, charData);
+
+	   do
+         {
+	      int len = (int) fread (buf, 1, sizeof (buf), file);
+          done = len < sizeof(buf);
+
+          if (XML_Parse (parser, buf, len, done) == XML_STATUS_ERROR)
+             {
+              fprintf (stderr, "%s at line %lu\n", XML_ErrorString(XML_GetErrorCode(parser)), XML_GetCurrentLineNumber(parser));
+               break;
+	         }
+	     }
+	    while (! done);
+
+	   XML_ParserFree (parser);
+
+       if (info.kit_info->name)
+          {
+	       int i = 0;
+	       scanned_kit* kit = (scanned_kit*) malloc (sizeof (scanned_kit));
+	       struct kit_list* node = (kit_list*) malloc(sizeof(struct kit_list));
+	       memset (kit, 0, sizeof(scanned_kit));
+	       memset (node, 0, sizeof(struct kit_list));
+           kit->name = info.kit_info->name;
+	       kit->desc = info.kit_info->desc;
+
+	       struct instrument_info *cur_i = info.kit_info->instruments;
+	       while (cur_i)
+                 {
+	              kit->samples++;
+	              cur_i = cur_i->next;
+	             }
+
+	       kit->sample_names = (char**) malloc(kit->samples*sizeof(char*));
+           cur_i = info.kit_info->instruments;
+
+	       while (cur_i)
+                 {
+	              struct instrument_info *to_free = cur_i;
+
+	              if (cur_i->name)
+	                 kit->sample_names[i++] = cur_i->name;
+	              else
+	                  kit->sample_names[i++] = unknownstr;
+
+	              cur_i = cur_i->next;
+	              free (to_free);
+
+                 }
+
+        //snprintf(buf,BUFSIZ,"%s/%s/",cur_path,ep->d_name);
+
+        //kit->path = realpath(buf,NULL); // realpath will malloc for us
+
+        //kit->path = strdup (fname.c_str());
+        // kit->path = strdup (kd.c_str());
+
+       kit->path = realpath(kd.c_str(),NULL); // realpath will malloc for us
+
+
+        node->skit = kit;
+
+	    struct kit_list *cur_k = scanned_kits;
+
+	    if (cur_k)
+           {
+	        while (cur_k->next)
+                   cur_k = cur_k->next;
+
+	        cur_k->next = node;
+	       }
+	    else
+	        scanned_kits = node;
+	   }
+      }
+
+  // valid kits are in scanned_kits at this point
+
+
+  cp = 0;
+  struct kit_list *cur_k = scanned_kits;
+
+
+  while (cur_k)
+        {
+     //printf("found kit: %s\nat:%s\n\n",cur_k->skit->name,cur_k->skit->path);
+        cur_k = cur_k->next;
+        cp++;
+       }
+
+       //SORT BY NAME HERE!!!!!!!!!!!!!!!
+
+
+  printf("found %i kits\n",cp);
+  ret->num_kits = cp;
+  ret->kits =(scanned_kit*) malloc(cp*sizeof(scanned_kit));
+
+  cur_k = scanned_kits;
+  cp = 0;
+
+  while (cur_k)
+        {
+         ret->kits[cp].name = cur_k->skit->name;
+         ret->kits[cp].desc = cur_k->skit->desc;
+         ret->kits[cp].path = cur_k->skit->path;
+         ret->kits[cp].samples = cur_k->skit->samples;
+         ret->kits[cp].sample_names = cur_k->skit->sample_names;
+         cp++;
+         free (cur_k->skit);
+         cur_k = cur_k->next;
+         // free each node as we go along
+         free(scanned_kits);
+         scanned_kits = cur_k;
+        }
+
+  return ret;
+}
+
 
 void free_samples(drmr_sample* samples, int num_samples) {
   int i,j;
@@ -781,6 +958,7 @@ drmr_sample* load_hydrogen_kit(char *path, double rate, int *num_samples) {
   *num_samples = num_inst;
   return samples;
 }
+
 
 #ifdef _TEST_HYDROGEN_PARSER
 

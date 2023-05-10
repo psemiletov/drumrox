@@ -6,7 +6,7 @@ project (drumrox)
 set(LV2_INSTALL_DIR lib/lv2 CACHE PATH "Specifies where the LV2 libraries should be installed")
 set(CMAKE_C_FLAGS "-Wall")
 
-# Availble options
+# Available options
 option(USE_NKNOB  "Use custom NKnob widgets for gain/pan instead of Gtk sliders" ON)
 SET(SAMP_ZERO_POS "0" CACHE STRING "Default sample zero position 0=top left (tl) 1=bl 2=tr 3=br")
 
