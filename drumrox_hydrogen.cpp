@@ -45,6 +45,7 @@
  * environment variable.  NB: only a ~ at the start of a string
  * will be expanded, ones in the middle will be left in place.
  */
+/*
 static char* default_drumkit_locations[] = {
   "/usr/share/hydrogen/data/drumkits/",
   "/usr/local/share/hydrogen/data/drumkits/",
@@ -55,7 +56,7 @@ static char* default_drumkit_locations[] = {
 
   NULL
 };
-
+*/
 // Quality of conversion for libsamplerate.
 // See http://www.mega-nerd.com/SRC/api_misc.html#Converters
 // for info about availble qualities
@@ -129,7 +130,7 @@ std::vector <std::string> files_get_list (const std::string &path) //ext with do
       return result;
      }
 
-   while (dir_entry = readdir (directory))
+   while ((dir_entry = readdir (directory)))
          {
           // std::cout << dir_entry->d_name << std::endl;
           std::string t = dir_entry->d_name;
@@ -153,9 +154,9 @@ startElement(void *userData, const char *name, const char **atts)
       if (info->in_instrument)
          if (!strcmp (name,"layer") && !info->scan_only)
             {
-	         info->in_layer = 1;
-	         info->cur_layer = (instrument_layer*) malloc(sizeof(struct instrument_layer));
-	         memset(info->cur_layer,0,sizeof(struct instrument_layer));
+             info->in_layer = 1;
+             info->cur_layer = (instrument_layer*) malloc(sizeof(struct instrument_layer));
+             memset(info->cur_layer,0,sizeof(struct instrument_layer));
             }
 
       if (info->in_instrument_list)
@@ -563,7 +564,7 @@ s_kits* scan_kits()
   struct kit_info kit_info;
   struct dirent *ep;
   int cp = 0;
-  char* cur_path = default_drumkit_locations[cp++];
+  //char* cur_path = default_drumkit_locations[cp++];
   s_kits* ret = (s_kits*) malloc(sizeof(s_kits));
   struct kit_list* scanned_kits = NULL;
   char buf[BUFSIZ], path_buf[BUFSIZ];
@@ -608,32 +609,32 @@ s_kits* scan_kits()
        info.scan_only = 1;
        XML_SetUserData (parser, &info);
        XML_SetElementHandler(parser, startElement, endElement);
-	   XML_SetCharacterDataHandler(parser, charData);
+       XML_SetCharacterDataHandler(parser, charData);
 
-	   do
+      do
          {
-	      int len = (int) fread (buf, 1, sizeof (buf), file);
+          int len = (int) fread (buf, 1, sizeof (buf), file);
           done = len < sizeof(buf);
 
           if (XML_Parse (parser, buf, len, done) == XML_STATUS_ERROR)
              {
               fprintf (stderr, "%s at line %lu\n", XML_ErrorString(XML_GetErrorCode(parser)), XML_GetCurrentLineNumber(parser));
                break;
-	         }
-	     }
-	    while (! done);
+             }
+         }
+      while (! done);
 
-	   XML_ParserFree (parser);
+      XML_ParserFree (parser);
 
-       if (info.kit_info->name)
-          {
-	       int i = 0;
-	       scanned_kit* kit = (scanned_kit*) malloc (sizeof (scanned_kit));
-	       struct kit_list* node = (kit_list*) malloc(sizeof(struct kit_list));
-	       memset (kit, 0, sizeof(scanned_kit));
-	       memset (node, 0, sizeof(struct kit_list));
-           kit->name = info.kit_info->name;
-	       kit->desc = info.kit_info->desc;
+     if (info.kit_info->name)
+        {
+         int i = 0;
+         scanned_kit* kit = (scanned_kit*) malloc (sizeof (scanned_kit));
+         struct kit_list* node = (kit_list*) malloc(sizeof(struct kit_list));
+         memset (kit, 0, sizeof(scanned_kit));
+         memset (node, 0, sizeof(struct kit_list));
+         kit->name = info.kit_info->name;
+         kit->desc = info.kit_info->desc;
 
 	       struct instrument_info *cur_i = info.kit_info->instruments;
 	       while (cur_i)
@@ -830,7 +831,9 @@ int load_sample(char* path, drmr_layer* layer, double target_rate)
   return 0;
 }
 
-drmr_sample* load_hydrogen_kit(char *path, double rate, int *num_samples) {
+
+drmr_sample* load_hydrogen_kit (char *path, double rate, int *num_samples)
+{
   FILE* file;
   char buf[BUFSIZ];
   XML_Parser parser;
@@ -841,102 +844,131 @@ drmr_sample* load_hydrogen_kit(char *path, double rate, int *num_samples) {
   struct instrument_info * cur_i, *i_to_free;
   int i = 0, num_inst = 0;
 
-  snprintf(buf,BUFSIZ,"%s/drumkit.xml",path);
+  snprintf (buf, BUFSIZ, "%s/drumkit.xml", path);
   
-  printf("trying to load: %s\n",buf);
+  printf ("trying to load: %s\n",buf);
 
   file = fopen(buf,"r");
-  if (!file) {
-    perror("Unable to open file:");
-    return NULL;
-  }
 
-  parser = XML_ParserCreate(NULL);
-  memset(&info,0,sizeof(struct hp_info));
-  memset(&kit_info,0,sizeof(struct kit_info));
+  if (! file)
+     {
+      perror ("Unable to open file:");
+      return NULL;
+     }
+
+  parser = XML_ParserCreate (NULL);
+  memset (&info, 0, sizeof (struct hp_info));
+  memset (&kit_info, 0, sizeof (struct kit_info));
 
   info.kit_info = &kit_info;
 
-  XML_SetUserData(parser, &info);
-  XML_SetElementHandler(parser, startElement, endElement);  
-  XML_SetCharacterDataHandler(parser, charData);
+  XML_SetUserData (parser, &info);
+  XML_SetElementHandler (parser, startElement, endElement);
+  XML_SetCharacterDataHandler (parser, charData);
 
-  do {
-    int len = (int)fread(buf, 1, sizeof(buf), file);
-    done = len < sizeof(buf);
-    if (XML_Parse(parser, buf, len, done) == XML_STATUS_ERROR) {
-      fprintf(stderr,
-              "%s at line %lu\n",
-              XML_ErrorString(XML_GetErrorCode(parser)),
-              XML_GetCurrentLineNumber(parser));
-      return NULL;
-    }
-  } while (!done);
-  XML_ParserFree(parser);
+  do
+    {
+     int len = (int) fread (buf, 1, sizeof(buf), file);
+     done = len < sizeof(buf);
 
-  printf("Read kit: %s\n",kit_info.name);
-  cur_i = kit_info.instruments;
-  while(cur_i) { // first count how many samples we have
-    num_inst ++;
-    cur_i = cur_i->next;
-  }
-  printf("Loading %i instruments\n",num_inst);
-  samples = (drmr_sample*) malloc(num_inst*sizeof(drmr_sample));
-  cur_i = kit_info.instruments;
-  while(cur_i) {
-    if (cur_i->filename) { // top level filename, just make one dummy layer
-      drmr_layer *layer = (drmr_layer *)malloc(sizeof(drmr_layer));
-      layer->min = 0;
-      layer->max = 1;
-      snprintf(buf,BUFSIZ,"%s/%s",path,cur_i->filename);
-      if (load_sample(buf,layer,rate)) {
-	fprintf(stderr,"Could not load sample: %s\n",buf);
-	// set limit to zero, will never try and play
-	layer->info = NULL;
-	layer->limit = 0;
-	layer->data = NULL;
-      }
-      samples[i].layer_count = 0;
-      samples[i].layers = NULL;
-      samples[i].offset = 0;
-      samples[i].info = layer->info;
-      samples[i].limit = layer->limit;
-      samples[i].data = layer->data;
-      free(layer);
-    } else if (cur_i->layers) {
-      int layer_count = 0;
-      int j;
-      struct instrument_layer *cur_l = cur_i->layers;
-      while(cur_l) {
-	layer_count++;
-	cur_l = cur_l->next;
-      }
-      samples[i].layer_count = layer_count;
-      samples[i].layers = (drmr_layer*)malloc(sizeof(drmr_layer)*layer_count);
-      cur_l = cur_i->layers;
-      j = 0;
-      while(cur_l) {
-	snprintf(buf,BUFSIZ,"%s/%s",path,cur_l->filename);
-	if (load_sample(buf,samples[i].layers+j,rate)) {
-	  fprintf(stderr,"Could not load sample: %s\n",buf);
-	  // set limit to zero, will never try and play
-	  samples[i].layers[j].info = NULL;
-	  samples[i].layers[j].limit = 0;
-	  samples[i].layers[j].data = NULL;
-	}
-	samples[i].layers[j].min = cur_l->min;
-	samples[i].layers[j].max = cur_l->max;
-	j++;
-	cur_l = cur_l->next;
-      }
-    } else { // no layer or file, empty inst
-      samples[i].layer_count = 0;
-      samples[i].layers = NULL;
-      samples[i].offset = 0;
-      samples[i].info = NULL;
-      samples[i].limit = 0;
-      samples[i].data = NULL;
+     if (XML_Parse (parser, buf, len, done) == XML_STATUS_ERROR)
+        {
+         fprintf (stderr, "%s at line %lu\n", XML_ErrorString(XML_GetErrorCode(parser)), XML_GetCurrentLineNumber(parser));
+         return NULL;
+       }
     }
+  while (! done);
+
+  XML_ParserFree (parser);
+
+  printf ("Read kit: %s\n", kit_info.name);
+
+  cur_i = kit_info.instruments;
+
+  while (cur_i)
+        { // first count how many samples we have
+         num_inst ++;
+         cur_i = cur_i->next;
+        }
+
+  printf ("Loading %i instruments\n", num_inst);
+
+  samples = (drmr_sample*) malloc (num_inst * sizeof (drmr_sample));
+
+  cur_i = kit_info.instruments;
+
+  while (cur_i)
+        {
+         if (cur_i->filename)
+            { // top level filename, just make one dummy layer
+             drmr_layer *layer = (drmr_layer *)malloc(sizeof(drmr_layer));
+             layer->min = 0;
+             layer->max = 1;
+             snprintf (buf, BUFSIZ, "%s/%s", path, cur_i->filename);
+
+             if (load_sample (buf, layer, rate))
+                {
+                 fprintf (stderr,"Could not load sample: %s\n",buf);
+                 // set limit to zero, will never try and play
+                 layer->info = NULL;
+                 layer->limit = 0;
+                 layer->data = NULL;
+               }
+
+            samples[i].layer_count = 0;
+            samples[i].layers = NULL;
+            samples[i].offset = 0;
+            samples[i].info = layer->info;
+            samples[i].limit = layer->limit;
+            samples[i].data = layer->data;
+            free (layer);
+           }
+           else
+               if (cur_i->layers)
+                  {
+                   int layer_count = 0;
+                   int j;
+                   struct instrument_layer *cur_l = cur_i->layers;
+
+                   while (cur_l)
+                         {
+                          layer_count++;
+                          cur_l = cur_l->next;
+                         }
+
+                  samples[i].layer_count = layer_count;
+                  samples[i].layers = (drmr_layer*)malloc(sizeof(drmr_layer)*layer_count);
+                  cur_l = cur_i->layers;
+                  j = 0;
+
+                  while (cur_l)
+                        {
+                         snprintf (buf, BUFSIZ, "%s/%s", path, cur_l->filename);
+                         if (load_sample (buf, samples[i].layers + j, rate))
+                            {
+                             fprintf (stderr, "Could not load sample: %s\n",buf);
+                              // set limit to zero, will never try and play
+                             samples[i].layers[j].info = NULL;
+                             samples[i].layers[j].limit = 0;
+                             samples[i].layers[j].data = NULL;
+                            }
+
+                        samples[i].layers[j].min = cur_l->min;
+                        samples[i].layers[j].max = cur_l->max;
+                        j++;
+                        cur_l = cur_l->next;
+                       }
+                }
+              else
+                  { // no layer or file, empty inst
+                   samples[i].layer_count = 0;
+                   samples[i].layers = NULL;
+                   samples[i].offset = 0;
+                   samples[i].info = NULL;
+                   samples[i].limit = 0;
+                   samples[i].data = NULL;
+                  }
+
     samples[i].active = 0;
     samples[i].dataoffset = 0;
     i_to_free = cur_i;
@@ -944,17 +976,25 @@ drmr_sample* load_hydrogen_kit(char *path, double rate, int *num_samples) {
 
     if (i_to_free->name) free(i_to_free->name);
     if (i_to_free->filename) free(i_to_free->filename);
-    if (samples[i].layer_count > 0) {
-      struct instrument_layer *ltf = i_to_free->layers;
-      while (ltf) {
-	free(ltf->filename);
-	ltf = ltf->next;
-      }
-    }
-    free(i_to_free);
+
+    if (samples[i].layer_count > 0)
+       {
+        struct instrument_layer *ltf = i_to_free->layers;
+
+        while (ltf)
+              {
+               free (ltf->filename);
+               ltf = ltf->next;
+              }
+       }
+
+    free (i_to_free);
     i++;
   }
-  if (kit_info.name) free(kit_info.name);
+
+  if (kit_info.name)
+     free (kit_info.name);
+
   *num_samples = num_inst;
   return samples;
 }

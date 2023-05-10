@@ -56,7 +56,7 @@ set_target_properties (drumrox
   COMPILE_FLAGS "-std=gnu99"
 )
 
-set (ui_compile_flags "-std=gnu99")
+#set (ui_compile_flags "-std=gnu99")
 
 if (NOT USE_NKNOB)
   set (ui_compile_flags "${ui_compile_flags} -DNO_NKNOB")
