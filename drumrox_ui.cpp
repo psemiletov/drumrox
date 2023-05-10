@@ -102,6 +102,8 @@ static void send_ui_msg(DrMrUi* ui, void (*add_data)(DrMrUi* ui, gpointer data),
   uint8_t msg_buf[1024];
   lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
   LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource
+ // LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_object
+
     (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
   (*add_data)(ui,data);
   lv2_atom_forge_pop(&ui->forge,&set_frame);
@@ -388,6 +390,7 @@ static gboolean kit_callback(gpointer data) {
   return FALSE; // don't keep calling
 }
 
+//lv2_atom_forge_object
 static LV2_Atom* build_path_message(DrMrUi *ui, const char* path) {
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource

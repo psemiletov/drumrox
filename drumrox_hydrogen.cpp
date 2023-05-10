@@ -590,6 +590,7 @@ s_kits* scan_kits()
 
 
   std::sort(v_kits_dirs.begin(), v_kits_dirs.end());
+  v_kits_dirs.erase( std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
 
   for (std::string kd :v_kits_dirs)
       {
