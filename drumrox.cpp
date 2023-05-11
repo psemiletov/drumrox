@@ -250,21 +250,28 @@ static inline LV2_Atom *build_midi_info_message (DrMr *drmr, uint8_t *data)
   return msg;
 }
 
-static inline void layer_to_sample(drmr_sample *sample, float gain) {
-  int i;
-  float mapped_gain = (1-(gain/GAIN_MIN));
-  if (mapped_gain > 1.0f) mapped_gain = 1.0f;
-  for(i = 0;i < sample->layer_count;i++) {
-    if (sample->layers[i].min <= mapped_gain &&
-	(sample->layers[i].max > mapped_gain ||
-	 (sample->layers[i].max == 1 && mapped_gain == 1))) {
-      sample->limit = sample->layers[i].limit;
-      sample->info = sample->layers[i].info;
-      sample->data = sample->layers[i].data;
-      return;
-    }
-  }
-  fprintf(stderr,"Couldn't find layer for gain %f in sample\n\n",gain);
+static inline void layer_to_sample (drmr_sample *sample, float gain)
+{
+  float mapped_gain = (1 - (gain / GAIN_MIN));
+
+  if (mapped_gain > 1.0f)
+     mapped_gain = 1.0f;
+
+  for (int i = 0; i < sample->layer_count; i++)
+      {
+       if (sample->layers[i].min <= mapped_gain &&
+          (sample->layers[i].max > mapped_gain ||
+          (sample->layers[i].max == 1 && mapped_gain == 1)))
+          {
+           sample->limit = sample->layers[i].limit;
+           sample->info = sample->layers[i].info;
+           sample->data = sample->layers[i].data;
+           return;
+          }
+       }
+
+  fprintf (stderr, "Couldn't find layer for gain %f in sample\n\n", gain);
+
   /* to avoid not playing something, and to deal with kits like the 
      k-27_trash_kit, let's just use the first layer */ 
   sample->limit = sample->layers[0].limit;
@@ -272,27 +279,37 @@ static inline void layer_to_sample(drmr_sample *sample, float gain) {
   sample->data = sample->layers[0].data;
 }
 
-static inline void trigger_sample(DrMr *drmr, int nn, uint8_t* const data, uint32_t offset) {
+
+static inline void trigger_sample (DrMr *drmr, int nn, uint8_t* const data, uint32_t offset)
+{
   // need to mutex this to avoid getting the samples array
   // changed after the check that the midi-note is valid
   pthread_mutex_lock(&drmr->load_mutex);
-  if (nn >= 0 && nn < drmr->num_samples) {
-    if (drmr->samples[nn].layer_count > 0) {
-      layer_to_sample(drmr->samples+nn,*(drmr->gains[nn]));
-      if (drmr->samples[nn].limit == 0)
-	fprintf(stderr,"Failed to find layer at: %i for %f\n",nn,*drmr->gains[nn]);
-    }
-    if (data) {
-      lv2_atom_forge_frame_time(&drmr->forge, 0);
-      build_midi_info_message(drmr,data);
-    }
-    drmr->samples[nn].active = 1;
-    drmr->samples[nn].offset = 0;
-    drmr->samples[nn].velocity = drmr->ignore_velocity?1.0f:((float)data[2])/VELOCITY_MAX;
-    drmr->samples[nn].dataoffset = offset;
-  }
-  pthread_mutex_unlock(&drmr->load_mutex);
+
+  if (nn >= 0 && nn < drmr->num_samples)
+     {
+      if (drmr->samples[nn].layer_count > 0)
+         {
+          layer_to_sample (drmr->samples + nn, *(drmr->gains[nn]));
+          if (drmr->samples[nn].limit == 0)
+              printf (stderr, "Failed to find layer at: %i for %f\n", nn, *drmr->gains[nn]);
+          }
+
+      if (data)
+         {
+          lv2_atom_forge_frame_time (&drmr->forge, 0);
+          build_midi_info_message (drmr, data);
+         }
+
+      drmr->samples[nn].active = 1;
+      drmr->samples[nn].offset = 0;
+      drmr->samples[nn].velocity = drmr->ignore_velocity ? 1.0f : ((float)data[2]) / VELOCITY_MAX;
+      drmr->samples[nn].dataoffset = offset;
+     }
+
+  pthread_mutex_unlock (&drmr->load_mutex);
 }
+
 
 static inline void untrigger_sample(DrMr *drmr, int nn, uint32_t offset) {
   pthread_mutex_lock(&drmr->load_mutex);
