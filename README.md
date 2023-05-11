@@ -37,12 +37,12 @@ Drumrox additions:
 
 Compilation and Install
 -----------------------
-Drumrox is built with [CMake](http://www.cmake.org).
+Drumrox is built with [CMake](http://www.cmake.org). Or you can install Drumrox from AUR (``yay -S drumrox``)
 
-To build it simply do (from this dir):
+To build from the source simply do (from this dir):
 
-    mkdir build
-    cd build
+    mkdir b
+    cd b
     cmake ..    (or "cmake -DUSE_NKNOB=OFF .." if you want old style sliders)
 
 Then do:

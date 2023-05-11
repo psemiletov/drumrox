@@ -292,7 +292,7 @@ static inline void trigger_sample (DrMr *drmr, int nn, uint8_t* const data, uint
          {
           layer_to_sample (drmr->samples + nn, *(drmr->gains[nn]));
           if (drmr->samples[nn].limit == 0)
-              printf (stderr, "Failed to find layer at: %i for %f\n", nn, *drmr->gains[nn]);
+              fprintf (stderr, "Failed to find layer at: %i for %f\n", nn, *drmr->gains[nn]);
           }
 
       if (data)
@@ -311,19 +311,26 @@ static inline void trigger_sample (DrMr *drmr, int nn, uint8_t* const data, uint
 }
 
 
-static inline void untrigger_sample(DrMr *drmr, int nn, uint32_t offset) {
-  pthread_mutex_lock(&drmr->load_mutex);
-  if (nn >= 0 && nn < drmr->num_samples) {
-    if (drmr->samples[nn].layer_count > 0) {
-      layer_to_sample(drmr->samples+nn,*(drmr->gains[nn]));
-      if (drmr->samples[nn].limit == 0)
-	fprintf(stderr,"Failed to find layer at: %i for %f\n",nn,*drmr->gains[nn]);
-    }
-    drmr->samples[nn].active = 0;
-    drmr->samples[nn].dataoffset = offset;
-  }
-  pthread_mutex_unlock(&drmr->load_mutex);
+static inline void untrigger_sample (DrMr *drmr, int nn, uint32_t offset)
+{
+  pthread_mutex_lock (&drmr->load_mutex);
+
+  if (nn >= 0 && nn < drmr->num_samples)
+     {
+      if (drmr->samples[nn].layer_count > 0)
+         {
+          layer_to_sample (drmr->samples+nn, * (drmr->gains[nn]));
+          if (drmr->samples[nn].limit == 0)
+              fprintf(stderr,"Failed to find layer at: %i for %f\n",nn,*drmr->gains[nn]);
+         }
+
+      drmr->samples[nn].active = 0;
+      drmr->samples[nn].dataoffset = offset;
+     }
+
+  pthread_mutex_unlock (&drmr->load_mutex);
 }
+
 
 #define DB3SCALE -0.8317830986718104f
 #define DB3SCALEPO 1.8317830986718104f
@@ -346,40 +353,50 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   LV2_Atom_Forge_Frame seq_frame;
   lv2_atom_forge_sequence_head (&drmr->forge, &seq_frame, 0);
 
-  LV2_ATOM_SEQUENCE_FOREACH(drmr->control_port, ev) {
-    if (ev->body.type == drmr->uris.midi_event) {
-      uint8_t nn;
-      uint8_t* const data = (uint8_t* const)(ev + 1);
-      uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
-      //int channel = *data & 15;
-      switch ((*data) >> 4) {
-      case 8:
-	if (!drmr->ignore_note_off) {
-	  nn = data[1];
-	  nn-=baseNote;
-	  untrigger_sample(drmr,nn,offset);
-	}
-	break;
-      case 9: {
-	nn = data[1];
-	nn-=baseNote;
-	trigger_sample(drmr,nn,data,offset);
-	break;
-      }
-      default:
-	//printf("Unhandeled status: %i\n",(*data)>>4);
-	break;
-      }
+  LV2_ATOM_SEQUENCE_FOREACH(drmr->control_port, ev)
+  {
+    if (ev->body.type == drmr->uris.midi_event)
+       {
+        uint8_t nn;
+        uint8_t* const data = (uint8_t* const)(ev + 1);
+        uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
+        //int channel = *data & 15;
+        switch ((*data) >> 4)
+               {
+                case 8:
+                       if (! drmr->ignore_note_off)
+                          {
+                           nn = data[1];
+                           nn -= baseNote;
+                           untrigger_sample (drmr, nn, offset);
+                          }
+                       break;
+
+               case 9:
+                      {
+                       nn = data[1];
+                       nn -= baseNote;
+                       trigger_sample (drmr, nn, data, offset);
+                       break;
+                       }
+
+              default:
+                     //printf("Unhandeled status: %i\n",(*data)>>4);
+                      break;
+             }
     } 
-    else if (ev->body.type == drmr->uris.atom_resource) {
-      const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
-      if (obj->body.otype == drmr->uris.ui_msg) {
-	const LV2_Atom* path = NULL;
-	const LV2_Atom* trigger = NULL;
-	const LV2_Atom* ignvel = NULL;
-	const LV2_Atom* ignno = NULL;
-	const LV2_Atom* zerop = NULL;
-	lv2_atom_object_get(obj,
+   else
+       if (ev->body.type == drmr->uris.atom_resource)
+          {
+           const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
+           if (obj->body.otype == drmr->uris.ui_msg)
+              {
+               const LV2_Atom* path = NULL;
+               const LV2_Atom* trigger = NULL;
+               const LV2_Atom* ignvel = NULL;
+               const LV2_Atom* ignno = NULL;
+               const LV2_Atom* zerop = NULL;
+               lv2_atom_object_get(obj,
 			    drmr->uris.kit_path, &path,
 			    drmr->uris.sample_trigger, &trigger,
 			    drmr->uris.velocity_toggle, &ignvel,
