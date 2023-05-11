@@ -1,29 +1,24 @@
 Drumrox
 =======
 
-Drumrox is an LV2 sampler plugin to load Hydrogen drum kits. The main goal of Drumrox is to keep it compatible with modern Hydrogen kit format.
+Drumrox is LV2 sampler plugin to load Hydrogen drum kits. The main goal of Drumrox is to keep it compatible with MODERN Hydrogen kit format.
 
-Some history: It is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one saveed/loaded the preset by index, so when you install new kits or delete some, indexes are messing up. The falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but it some point it becomes uncompatible with new Hydrogen kits, and I've edit them manually to fix. Fresh install of Hydrogen converts my edited kits to the modern format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that I understand what I want to clean up the code, etc, etc. That how Drumrox continues DrMr.
-
+Some history: Drumrox is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one can save/load the preset by index, so when you install new kits or delete some, indexes are messing up. falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but at the some point of time it becomes incompatible with new Hydrogen kits, and I've edited them manually to fix (removing some section in XML). Fresh install of Hydrogen converts my edited kits to the modern kit format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that, I understand that I want to clean up the code, etc, etc. That how Drumrox continues DrMr...
 
 
 About:
 -----
 
-- Control via midi
-- Scan for and load hydrogen drum kits
+- Loads as LV2 in the host (Ardour)
+- Scan for and load Hydrogen drum kits
 - Multi-layer hydrogen kits (will pick layer based on that samples set gain)
-- LV2 controls for gain on first 32 samples of kit (see note 1 below)
-- LV2 controls for pan on first 32 samples of kit (see note 1 below)
+- LV2 controls for gain on first 32 samples of kit
+- LV2 controls for pan on first 32 samples of kit
 - GTK ui that can select a kit and control gain/pan on each sample
-- Custom knob widget for GTK ui based on phatknob that is both functional and awesome looking. (see wiki for screenshot)
-- Sample grid can start in any corner of the window, to match the layout of your controller.
+- Custom knob widget for GTK ui based on phatknob that is both functional and awesome looking
 
-
-From falkTX's Regarding This Branch:
--------------------------------------
-
-New features include:
+From falkTX's DrMr "Regarding This Branch":
+-------------------------------------------
 
 - Kits are now selected via their path and not the hacky integer port as before
 - The kit path is now saved and restored using lv2-state, so you can install/remove/modify hydrogen kits and your state won't be messed up.
@@ -32,13 +27,17 @@ New features include:
 - Led indicator can be clicked to trigger sample for preview
 
 
-Download
---------
-Only via git for now, just check out this repo
+Drumrox additions:
+------------------
+
+- Compatibility with modern Hydrogen kit format
+- Presets are sorted in alphabetical order
+- Partial conversion from C to C++ to further development
+
 
 Compilation and Install
 -----------------------
-DrMr is built with [CMake](http://www.cmake.org).
+Drumrox is built with [CMake](http://www.cmake.org).
 
 To build it simply do (from this dir):
 
@@ -61,7 +60,7 @@ SAMP_ZERO_POS - Controls where sample zero will position itself in the sample ta
     1 - Bottom Right (This will align with many drum machines and MIDI pads)
     2 - Top Right
     3 - Bottom Right
-Any other value will emit a warning and use 0.
+    Any other value will emit a warning and use 0.
 
 LV2_INSTALL_DIR - The directory to install the DrMr plugin to. To install to your home directory, use "~/.lv2" and clear the CMAKE_INSTALL_PREFIX. This defaults to "lib/lv2" (this is relative to CMAKE_INSTALL_PREFIX, which is usually /usr/local)
 
@@ -80,7 +79,7 @@ You'll need the following libraries to build and install DrMr:
 - [libexpat](http://expat.sourceforge.net)
 - [gtk+ 2](http://www.gtk.org)
 
-DrMr scans the following directories for hydrogen drum kits:
+Drumrox scans the following directories for hydrogen drum kits:
 
 - /usr/share/hydrogen/data/drumkits/
 - /usr/local/share/hydrogen/data/drumkits/
@@ -92,7 +91,7 @@ DrMr scans the following directories for hydrogen drum kits:
 If you want to add others, add them to the default_drumkit_locations array at the top of drumrox_hydrogen.c
 
 ### Note 1
-DrMr is currently using a static ttl file.  This means I have to decide statically how many gain/pan controls to expose.  I've settled on 32 for the moment, but that is arbitrary.  At some point DrMr will probably move to using the LV2 Dynamic Manifest feature to expose the appropriate number of gain controls for the current sample set, although how force a host update of the manifest when the kit is changed is unclear (if you know how, please let me know)
+Drumrox is currently using a static ttl file.  This means I have to decide statically how many gain/pan controls to expose.  I've settled on 32 for the moment, but that is arbitrary.  At some point DrMr will probably move to using the LV2 Dynamic Manifest feature to expose the appropriate number of gain controls for the current sample set, although how force a host update of the manifest when the kit is changed is unclear (if you know how, please let me know)
 
 ### Note 2
-DrMr only currently supports a subset of things that can be specified in a hydrogen drumkit.xml file.  Specifically, DrMr will not use gain/pan/pitch/asdr information.  DrMr basically only uses the filename and layer min/max information to build it's internal sample representation.  Values specified in .xml files will be used as DrMr begins to support the features needed for those values to make sense.
+Drumrox only currently supports a subset of things that can be specified in a hydrogen drumkit.xml file.  Specifically, Drumrox will not use gain/pan/pitch/asdr information.  Drumrox basically only uses the filename and layer min/max information to build it's internal sample representation.

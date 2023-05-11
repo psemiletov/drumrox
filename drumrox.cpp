@@ -243,8 +243,7 @@ static inline LV2_Atom *build_state_message (DrMr *drmr)
 static inline LV2_Atom *build_midi_info_message (DrMr *drmr, uint8_t *data)
 {
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource
-    (&drmr->forge, &set_frame, 1, drmr->uris.midi_info);
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drmr->forge, &set_frame, 1, drmr->uris.midi_info);
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.midi_event,0);
   lv2_atom_forge_write(&drmr->forge, data, 3);
   lv2_atom_forge_pop(&drmr->forge,&set_frame);

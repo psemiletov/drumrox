@@ -1,7 +1,6 @@
 #CMake file for drumrox
-
-cmake_minimum_required(VERSION 2.6)
-project (drumrox)
+cmake_minimum_required(VERSION 3.0)
+project (drumrox VERSION 1.0.0 LANGUAGES CXX C)
 
 set(LV2_INSTALL_DIR lib/lv2 CACHE PATH "Specifies where the LV2 libraries should be installed")
 set(CMAKE_C_FLAGS "-Wall")
