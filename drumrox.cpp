@@ -27,52 +27,65 @@
 
 static int current_kit_changed = 0;
 
-static void* load_thread(void* arg)
+static void* load_thread (void* arg)
 {
   DrMr* drmr = (DrMr*)arg;
-  drmr_sample *loaded_samples,*old_samples;
+  drmr_sample *loaded_samples, *old_samples;
   int loaded_count, old_scount;
   char *request, *request_orig;
+
   for(;;)
-  {
-    pthread_mutex_lock(&drmr->load_mutex);
-    pthread_cond_wait(&drmr->load_cond,
-		      &drmr->load_mutex);
-    pthread_mutex_unlock(&drmr->load_mutex); 
-    old_samples = drmr->samples;
-    old_scount = drmr->num_samples;
-    request_orig = request = drmr->request_buf[drmr->curReq];
-    if (!strncmp(request, "file://", 7))
-      request += 7;
-    loaded_samples = load_hydrogen_kit(request,drmr->rate,&loaded_count);
-    if (!loaded_samples) {
-      fprintf(stderr,"Failed to load kit at: %s\n",request);
-      pthread_mutex_lock(&drmr->load_mutex);
-      drmr->num_samples = 0;
-      drmr->samples = NULL;
-      pthread_mutex_unlock(&drmr->load_mutex); 
+     {
+      pthread_mutex_lock (&drmr->load_mutex);
+      pthread_cond_wait (&drmr->load_cond, &drmr->load_mutex);
+      pthread_mutex_unlock (&drmr->load_mutex);
+
+      old_samples = drmr->samples;
+      old_scount = drmr->num_samples;
+      request_orig = request = drmr->request_buf[drmr->curReq];
+
+      if (! strncmp (request, "file://", 7))
+          request += 7;
+
+      loaded_samples = load_hydrogen_kit (request, drmr->rate, &loaded_count);
+
+      if (! loaded_samples)
+         {
+          fprintf (stderr, "Failed to load kit at: %s\n", request);
+          pthread_mutex_lock (&drmr->load_mutex);
+          drmr->num_samples = 0;
+          drmr->samples = NULL;
+          pthread_mutex_unlock (&drmr->load_mutex);
+         }
+     else
+         {
+          // just lock for the critical moment when we swap in the new kit
+          //!!how it is good when DAW is playing?
+
+          printf ("loaded kit at: %s\n",request);
+          pthread_mutex_lock (&drmr->load_mutex);
+          drmr->samples = loaded_samples;
+          drmr->num_samples = loaded_count;
+          pthread_mutex_unlock (&drmr->load_mutex);
+         }
+
+     if (old_scount > 0)
+        free_samples (old_samples, old_scount);
+
+     drmr->current_path = request_orig;
+     current_kit_changed = 1;
     }
-    else {
-      // just lock for the critical moment when we swap in the new kit
-      printf("loaded kit at: %s\n",request);
-      pthread_mutex_lock(&drmr->load_mutex);
-      drmr->samples = loaded_samples;
-      drmr->num_samples = loaded_count;
-      pthread_mutex_unlock(&drmr->load_mutex); 
-    }
-    if (old_scount > 0) free_samples(old_samples,old_scount);
-    drmr->current_path = request_orig;
-    current_kit_changed = 1;
-  }
+
   return 0;
 }
+
 
 static LV2_Handle
 instantiate(const LV2_Descriptor*     descriptor,
             double                    rate,
             const char*               bundle_path,
-            const LV2_Feature* const* features) {
-  int i;
+            const LV2_Feature* const* features)
+{
   DrMr* drmr = (DrMr*) malloc(sizeof(DrMr));
   drmr->map = NULL;
   drmr->samples = NULL;
@@ -89,106 +102,134 @@ instantiate(const LV2_Descriptor*     descriptor,
   drmr->zero_position = 0;
 #endif
 
-  if (pthread_mutex_init(&drmr->load_mutex, 0)) {
-    fprintf(stderr, "Could not initialize load_mutex.\n");
-    free(drmr);
-    return 0;
-  }
-  if (pthread_cond_init(&drmr->load_cond, 0)) {
-    fprintf(stderr, "Could not initialize load_cond.\n");
-    free(drmr);
-    return 0;
-  }
+  if (pthread_mutex_init (&drmr->load_mutex, 0))
+     {
+      fprintf (stderr, "Could not initialize load_mutex.\n");
+      free (drmr);
+      return 0;
+     }
 
-  while(*features) {
-    if (!strcmp((*features)->URI, LV2_URID_URI "#map"))
-      drmr->map = (LV2_URID_Map *)((*features)->data);
-    features++;
-  }
-  if (!drmr->map) {
-    fprintf(stderr, "LV2 host does not support urid#map.\n");
-    free(drmr);
-    return 0;
-  } 
-  map_drmr_uris(drmr->map,&(drmr->uris));
+  if (pthread_cond_init (&drmr->load_cond, 0))
+     {
+      fprintf (stderr, "Could not initialize load_cond.\n");
+      free (drmr);
+      return 0;
+     }
+
+  while (*features)
+        {
+         if (! strcmp((*features)->URI, LV2_URID_URI "#map"))
+             drmr->map = (LV2_URID_Map *)((*features)->data);
+        features++;
+        }
+
+  if (! drmr->map)
+     {
+      fprintf (stderr, "LV2 host does not support urid#map.\n");
+      free (drmr);
+      return 0;
+     }
+
+  map_drmr_uris (drmr->map, &(drmr->uris));
   
-  lv2_atom_forge_init(&drmr->forge, drmr->map);
+  lv2_atom_forge_init (&drmr->forge, drmr->map);
 
-  if (pthread_create(&drmr->load_thread, 0, load_thread, drmr)) {
-    fprintf(stderr, "Could not initialize loading thread.\n");
-    free(drmr);
-    return 0;
-  }
+  if (pthread_create (&drmr->load_thread, 0, load_thread, drmr))
+     {
+      fprintf (stderr, "Could not initialize loading thread.\n");
+      free (drmr);
+      return 0;
+     }
 
-  drmr->request_buf = (char**) malloc(REQ_BUF_SIZE*sizeof(char*));
-  memset(drmr->request_buf,0,REQ_BUF_SIZE*sizeof(char*));
+  drmr->request_buf = (char**) malloc (REQ_BUF_SIZE*sizeof(char*));
+  memset (drmr->request_buf,0,REQ_BUF_SIZE*sizeof(char*));
 
   drmr->gains = (float**) malloc(32*sizeof(float*));
   drmr->pans = (float**) malloc(32*sizeof(float*));
-  for(i = 0;i<32;i++) {
-    drmr->gains[i] = NULL;
-    drmr->pans[i] = NULL;
-  }
+
+  for (int i = 0; i < 32; i++)
+      {
+       drmr->gains[i] = NULL;
+       drmr->pans[i] = NULL;
+      }
 
   return (LV2_Handle)drmr;
 }
 
-static void
-connect_port(LV2_Handle instance,
+
+static void connect_port(LV2_Handle instance,
              uint32_t   port,
-             void*      data) {
+             void*      data)
+{
   DrMr* drmr = (DrMr*)instance;
   DrMrPortIndex port_index = (DrMrPortIndex)port;
-  switch (port_index) {
-  case DRMR_CONTROL:
-    drmr->control_port = (LV2_Atom_Sequence*)data;
-    break;
-  case DRMR_CORE_EVENT:
-    drmr->core_event_port = (LV2_Atom_Sequence*)data;
-    break;
-  case DRMR_LEFT:
-    drmr->left = (float*)data;
-    break;
-  case DRMR_RIGHT:
-    drmr->right = (float*)data;
-    break;
-  case DRMR_BASENOTE:
-    if (data) drmr->baseNote = (float*)data;
-  default:
-    break;
-  }
 
-  if (port_index >= DRMR_GAIN_ONE && port_index <= DRMR_GAIN_THIRTYTWO) {
-    int goff = port_index - DRMR_GAIN_ONE;
-    drmr->gains[goff] = (float*)data;
-  }
+  switch (port_index)
+         {
+          case DRMR_CONTROL:
+                            drmr->control_port = (LV2_Atom_Sequence*)data;
+                            break;
 
-  if (port_index >= DRMR_PAN_ONE && port_index <= DRMR_PAN_THIRTYTWO) {
-    int poff = port_index - DRMR_PAN_ONE;
-    drmr->pans[poff] = (float*)data;
-  }
+          case DRMR_CORE_EVENT:
+                               drmr->core_event_port = (LV2_Atom_Sequence*)data;
+                               break;
+
+          case DRMR_LEFT:
+                         drmr->left = (float*)data;
+                         break;
+
+          case DRMR_RIGHT:
+                          drmr->right = (float*)data;
+                          break;
+
+          case DRMR_BASENOTE:
+                             if (data)
+                                drmr->baseNote = (float*)data;
+          default:
+                  break;
+         }
+
+
+  if (port_index >= DRMR_GAIN_ONE && port_index <= DRMR_GAIN_THIRTYTWO)
+     {
+      int goff = port_index - DRMR_GAIN_ONE;
+      drmr->gains[goff] = (float*)data;
+     }
+
+  if (port_index >= DRMR_PAN_ONE && port_index <= DRMR_PAN_THIRTYTWO)
+     {
+      int poff = port_index - DRMR_PAN_ONE;
+      drmr->pans[poff] = (float*)data;
+     }
 }
 
-static inline LV2_Atom *build_update_message(DrMr *drmr) {
+
+static inline LV2_Atom *build_update_message (DrMr *drmr)
+{
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource
-    (&drmr->forge, &set_frame, 1, drmr->uris.ui_msg);
-  if (drmr->current_path) {
-    lv2_atom_forge_property_head(&drmr->forge, drmr->uris.kit_path,0);
-    lv2_atom_forge_string(&drmr->forge, drmr->current_path, strlen(drmr->current_path));
-  }
-  lv2_atom_forge_pop(&drmr->forge,&set_frame);
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drmr->forge, &set_frame, 1, drmr->uris.ui_msg);
+
+  if (drmr->current_path)
+     {
+      lv2_atom_forge_property_head (&drmr->forge, drmr->uris.kit_path, 0);
+      lv2_atom_forge_string (&drmr->forge, drmr->current_path, strlen (drmr->current_path));
+     }
+
+  lv2_atom_forge_pop (&drmr->forge,&set_frame);
   return msg;
 }
 
-static inline LV2_Atom *build_state_message(DrMr *drmr) {
+static inline LV2_Atom *build_state_message (DrMr *drmr)
+{
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource
-    (&drmr->forge, &set_frame, 1, drmr->uris.get_state);
-  if (drmr->current_path) {
-    lv2_atom_forge_property_head(&drmr->forge, drmr->uris.kit_path,0);
-    lv2_atom_forge_string(&drmr->forge, drmr->current_path, strlen(drmr->current_path));
-  }
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drmr->forge, &set_frame, 1, drmr->uris.get_state);
+
+  if (drmr->current_path)
+     {
+      lv2_atom_forge_property_head(&drmr->forge, drmr->uris.kit_path,0);
+      lv2_atom_forge_string(&drmr->forge, drmr->current_path, strlen(drmr->current_path));
+     }
+
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.velocity_toggle,0);
   lv2_atom_forge_bool(&drmr->forge, drmr->ignore_velocity?true:false);
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.note_off_toggle,0);
@@ -199,7 +240,8 @@ static inline LV2_Atom *build_state_message(DrMr *drmr) {
   return msg;
 }
 
-static inline LV2_Atom *build_midi_info_message(DrMr *drmr, uint8_t *data) {
+static inline LV2_Atom *build_midi_info_message (DrMr *drmr, uint8_t *data)
+{
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource
     (&drmr->forge, &set_frame, 1, drmr->uris.midi_info);
@@ -272,18 +314,21 @@ static inline void untrigger_sample(DrMr *drmr, int nn, uint32_t offset) {
 // taken from lv2 example amp plugin
 #define DB_CO(g) ((g) > GAIN_MIN ? powf(10.0f, (g) * 0.05f) : 0.0f)
 
-static void run(LV2_Handle instance, uint32_t n_samples) {
-  int i,baseNote;
+
+static void run (LV2_Handle instance, uint32_t n_samples)
+{
+  int i;
+  int baseNote;
+
   DrMr* drmr = (DrMr*)instance;
 
   baseNote = (int)floorf(*(drmr->baseNote));
 
   const uint32_t event_capacity = drmr->core_event_port->atom.size;
-  lv2_atom_forge_set_buffer(&drmr->forge,
-			    (uint8_t*)drmr->core_event_port,
-			    event_capacity);
+
+  lv2_atom_forge_set_buffer (&drmr->forge, (uint8_t*)drmr->core_event_port, event_capacity);
   LV2_Atom_Forge_Frame seq_frame;
-  lv2_atom_forge_sequence_head(&drmr->forge, &seq_frame, 0);
+  lv2_atom_forge_sequence_head (&drmr->forge, &seq_frame, 0);
 
   LV2_ATOM_SEQUENCE_FOREACH(drmr->control_port, ev) {
     if (ev->body.type == drmr->uris.midi_event) {

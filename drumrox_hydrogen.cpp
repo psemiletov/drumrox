@@ -701,8 +701,6 @@ s_kits* scan_kits()
         cp++;
        }
 
-       //SORT BY NAME HERE!!!!!!!!!!!!!!!
-
 
   printf("found %i kits\n",cp);
   ret->num_kits = cp;
@@ -730,36 +728,52 @@ s_kits* scan_kits()
 }
 
 
-void free_samples(drmr_sample* samples, int num_samples) {
-  int i,j;
-  for (i=0;i<num_samples;i++) {
-    if (samples[i].layer_count == 0) {
-      if (samples[i].info) free(samples[i].info);
-      if (samples[i].data) free(samples[i].data);
-    } else {
-      for (j = 0;j < samples[i].layer_count;j++) {
-	if (samples[i].layers[j].info) free(samples[i].layers[j].info);
-	if (samples[i].layers[j].data) free(samples[i].layers[j].data);
-      }
-      free(samples[i].layers);
-    }
-  }
+void free_samples (drmr_sample* samples, int num_samples)
+{
+  for (int i = 0; i < num_samples; i++)
+     {
+      if (samples[i].layer_count == 0)
+         {
+          if (samples[i].info)
+              free(samples[i].info);
+
+          if (samples[i].data)
+             free(samples[i].data);
+         }
+     else
+         {
+          for (int j = 0;j < samples[i].layer_count;j++)
+              {
+               if (samples[i].layers[j].info)
+                   free(samples[i].layers[j].info);
+
+               if (samples[i].layers[j].data)
+                   free(samples[i].layers[j].data);
+             }
+
+        free (samples[i].layers);
+       }
+   }
+
   free(samples);
 }
 
 
-void free_kits(s_kits* kits) {
-  int i;
-  for (i = 0;i < kits->num_kits;i++) {
-    free(kits->kits[i].name);
-    free(kits->kits[i].desc);
-    free(kits->kits[i].path);
-  }
-  free(kits->kits);
-  free(kits);
+void free_kits (s_kits* kits)
+{
+  for (int i = 0; i < kits->num_kits; i++)
+     {
+      free (kits->kits[i].name);
+      free (kits->kits[i].desc);
+      free (kits->kits[i].path);
+     }
+
+  free (kits->kits);
+  free (kits);
 }
 
-int load_sample(char* path, drmr_layer* layer, double target_rate)
+
+int load_sample (char* path, drmr_layer* layer, double target_rate)
 {
   SNDFILE* sndf;
   long size;
@@ -775,13 +789,14 @@ int load_sample(char* path, drmr_layer* layer, double target_rate)
       fprintf(stderr,"Failed to open sound file: %s - %s\n",path,sf_strerror(sndf));
       free(layer->info);
       return 1;
-    }
+     }
 
-  if (layer->info->channels > 2) {
-    fprintf(stderr, "File has too many channels.  Can only handle mono/stereo samples\n");
-    free(layer->info);
-    return 1;
-  }
+  if (layer->info->channels > 2)
+     {
+      fprintf (stderr, "File has too many channels.  Can only handle mono/stereo samples\n");
+      free (layer->info);
+      return 1;
+     }
 
   size = layer->info->frames * layer->info->channels;
   layer->limit = size;

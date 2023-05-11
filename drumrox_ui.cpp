@@ -74,6 +74,7 @@ typedef struct
   s_kits* kits;
 } DrMrUi;
 
+
 static GdkPixbuf *led_on_pixbuf=NULL,*led_off_pixbuf=NULL;
 
 static gboolean gain_callback(GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
@@ -96,32 +97,32 @@ static gboolean pan_callback(GtkRange* range, GtkScrollType type, gdouble value,
   return FALSE;
 }
 
-static void send_ui_msg(DrMrUi* ui, void (*add_data)(DrMrUi* ui, gpointer data), gpointer data)
+
+static void send_ui_msg (DrMrUi* ui, void (*add_data)(DrMrUi* ui, gpointer data), gpointer data)
 {
   LV2_Atom_Forge_Frame set_frame;
   uint8_t msg_buf[1024];
   lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
-  LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource
- // LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_object
-
-    (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
+  LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
   (*add_data)(ui,data);
-  lv2_atom_forge_pop(&ui->forge,&set_frame);
-  ui->write(ui->controller,DRMR_CONTROL,
-	    lv2_atom_total_size(msg),
-	    ui->uris.atom_eventTransfer,
-	    msg);
+  lv2_atom_forge_pop (&ui->forge, &set_frame);
+  ui->write (ui->controller, DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
 }
 
-static void led_data(DrMrUi *ui, gpointer data) {
-  lv2_atom_forge_property_head(&ui->forge, ui->uris.sample_trigger,0);
-  lv2_atom_forge_int(&ui->forge, GPOINTER_TO_INT(data));
+
+static void led_data (DrMrUi *ui, gpointer data)
+{
+  lv2_atom_forge_property_head (&ui->forge, ui->uris.sample_trigger, 0);
+  lv2_atom_forge_int (&ui->forge, GPOINTER_TO_INT(data));
 }
 
-static void ignore_velocity_data(DrMrUi* ui, gpointer data) {
-  lv2_atom_forge_property_head(&ui->forge, ui->uris.velocity_toggle,0);
+
+static void ignore_velocity_data (DrMrUi* ui, gpointer data)
+{
+  lv2_atom_forge_property_head (&ui->forge, ui->uris.velocity_toggle, 0);
   lv2_atom_forge_bool(&ui->forge, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)));
 }
+
 
 static void ignore_note_off_data(DrMrUi* ui, gpointer data) {
   lv2_atom_forge_property_head(&ui->forge, ui->uris.note_off_toggle,0);
@@ -698,57 +699,78 @@ static void cleanup(LV2UI_Handle handle) {
   free(ui);
 }
 
-struct slider_callback_data {
+struct slider_callback_data
+{
   GtkRange* range;
   float val;
 };
-static gboolean slider_callback(gpointer data) {
-  struct slider_callback_data *cbd = (struct slider_callback_data*)data;
+
+
+static gboolean slider_callback(gpointer data)
+{
+  struct slider_callback_data *cbd = (struct slider_callback_data*) data;
+
   if (GTK_IS_RANGE(cbd->range))
-    gtk_range_set_value(cbd->range,cbd->val);
-  free(cbd);
+       gtk_range_set_value (cbd->range, cbd->val);
+
+  free (cbd);
   return FALSE; // don't keep calling
 }
 
-static void
-port_event(LV2UI_Handle handle,
-           uint32_t     port_index,
-           uint32_t     buffer_size,
-           uint32_t     format,
-           const void*  buffer) {
+
+static void port_event (LV2UI_Handle handle,
+                        uint32_t     port_index,
+                        uint32_t     buffer_size,
+                        uint32_t     format,
+                        const void*  buffer)
+{
   DrMrPortIndex index = (DrMrPortIndex)port_index;
   DrMrUi* ui = (DrMrUi*)handle;
 
-  if (index == DRMR_CORE_EVENT) {
-    if (format == ui->uris.atom_eventTransfer) {
-      LV2_Atom* atom = (LV2_Atom*)buffer;
-      if (atom->type == ui->uris.atom_resource) {
-	LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
-	if (obj->body.otype == ui->uris.get_state ||
-	    obj->body.otype == ui->uris.ui_msg) {
-	  // both state and ui_msg are the same at the moment
-	  const LV2_Atom* path = NULL;
-	  lv2_atom_object_get(obj, ui->uris.kit_path, &path, 0);
-	  if (path) {
-	    char *kitpath = (char*)LV2_ATOM_BODY(path);
-	    if (!strncmp(kitpath, "file://", 7))
-	      kitpath += 7;
-	    char *realp = realpath(kitpath,NULL);
-	    if (!realp) {
-	      fprintf(stderr,"Passed a path I can't resolve, bailing out\n");
-	      return;
-	    }
-	    int i;
-	    for(i = 0;i < ui->kits->num_kits;i++)
-	      if (!strcmp(ui->kits->kits[i].path,realp))
-		break;
-	    if (i < ui->kits->num_kits) {
-	      ui->kitReq = i;
-	      g_idle_add(kit_callback,ui);
-	    } else
-	      fprintf(stderr,"Couldn't find kit %s\n",realp);
-	    free(realp);
-	  }
+  if (index == DRMR_CORE_EVENT)
+      {
+       if (format == ui->uris.atom_eventTransfer)
+          {
+           LV2_Atom* atom = (LV2_Atom*)buffer;
+           if (atom->type == ui->uris.atom_resource)
+              {
+	           LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
+
+	           if (obj->body.otype == ui->uris.get_state || obj->body.otype == ui->uris.ui_msg)
+                  {
+	               // both state and ui_msg are the same at the moment
+	               const LV2_Atom* path = NULL;
+
+	               lv2_atom_object_get(obj, ui->uris.kit_path, &path, 0);
+	               if (path)
+                      {
+	                   char *kitpath = (char*)LV2_ATOM_BODY(path);
+	                   if (!strncmp(kitpath, "file://", 7))
+	                      kitpath += 7;
+
+	                   char *realp = realpath(kitpath,NULL);
+	                   if (! realp)
+                          {
+	                       fprintf(stderr,"Passed a path I can't resolve, bailing out\n");
+	                       return;
+	                      }
+
+	                int i;
+             	    for (i = 0;i < ui->kits->num_kits;i++)
+                        if (!strcmp(ui->kits->kits[i].path,realp))
+		                  break;
+
+	                if (i < ui->kits->num_kits)
+                       {
+ 	                    ui->kitReq = i;
+                        g_idle_add(kit_callback,ui);
+	                  }
+	                else
+	                    fprintf(stderr,"Couldn't find kit %s\n",realp);
+
+	               free(realp);
+               	  }
+
 	  if (obj->body.otype == ui->uris.get_state) { // read out extra state info
 	    const LV2_Atom* ignvel = NULL;
 	    const LV2_Atom* ignno = NULL;
