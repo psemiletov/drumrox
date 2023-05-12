@@ -19,9 +19,9 @@
 #define DRMR_HYDRO_H
 
 s_kits* scan_kits();
-void free_kits(s_kits* kits);
-void free_samples(drmr_sample* samples, int num_samples);
-int load_sample(char* path,drmr_layer* layer,double target_rate);
-drmr_sample *load_hydrogen_kit(char *path, double rate, int *num_samples);
+void free_kits (s_kits* kits);
+void free_samples (drmr_sample* samples, int num_samples);
+int load_sample (char* path,drmr_layer* layer, double target_rate);
+drmr_sample *load_hydrogen_kit (char *path, double rate, int *num_samples);
 
 #endif // DRMR_HYDRO_H

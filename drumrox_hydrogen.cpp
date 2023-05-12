@@ -64,7 +64,9 @@ static char* default_drumkit_locations[] = {
 
 #define MAX_CHAR_DATA 512
 
-char *unknownstr = "(Unknown)";
+//char *unknownstr = "(Unknown)";
+char unknownstr[] = "(Unknown)";
+
 
 struct instrument_layer
 {
@@ -130,21 +132,19 @@ std::vector <std::string> files_get_list (const std::string &path) //ext with do
       return result;
      }
 
-   while ((dir_entry = readdir (directory)))
-         {
+  while ((dir_entry = readdir (directory)))
+        {
           // std::cout << dir_entry->d_name << std::endl;
-          std::string t = dir_entry->d_name;
-          result.push_back (path + "/" + t);
-         }
+         std::string t = dir_entry->d_name;
+         result.push_back (path + "/" + t);
+        }
 
-   closedir (directory);
-   return result;
+  closedir (directory);
+  return result;
 }
 
 
-
-static void XMLCALL
-startElement(void *userData, const char *name, const char **atts)
+static void XMLCALL startElement (void *userData, const char *name, const char **atts)
 {
   struct hp_info* info = (struct hp_info*)userData;
   info->cur_off = 0;
@@ -163,9 +163,9 @@ startElement(void *userData, const char *name, const char **atts)
          {
           if (! strcmp (name,"instrument"))
              {
-	          info->in_instrument = 1;
-	          info->cur_instrument = (instrument_info*) malloc(sizeof(struct instrument_info));
-	          memset(info->cur_instrument,0,sizeof(struct instrument_info));
+              info->in_instrument = 1;
+              info->cur_instrument = (instrument_info*) malloc(sizeof(struct instrument_info));
+              memset(info->cur_instrument,0,sizeof(struct instrument_info));
              }
          }
       else
@@ -183,42 +183,42 @@ startElement(void *userData, const char *name, const char **atts)
 };
 
 
-
-static void XMLCALL
-endElement(void *userData, const char *name)
+static void XMLCALL endElement (void *userData, const char *name)
 {
   struct hp_info* info = (struct hp_info*)userData;
 
   if (info->cur_off == MAX_CHAR_DATA)
       info->cur_off--;
 
-  info->cur_buf[info->cur_off]='\0';
+  info->cur_buf[info->cur_off] = '\0';
 
-  if (info->in_info && !info->in_drumkit_component && !info->in_instrument_list &&  !strcmp(name,"name"))
+  if (info->in_info && ! info->in_drumkit_component && ! info->in_instrument_list && ! strcmp (name,"name"))
       info->kit_info->name = strdup (info->cur_buf);
 
   if (info->scan_only && info->in_info && !info->in_instrument_list && !strcmp (name,"info"))
      info->kit_info->desc = strdup (info->cur_buf);
 
-  if (info->in_layer && !info->scan_only)
+
+  if (info->in_layer && ! info->scan_only)
      {
-     if (! strcmp (name, "filename"))
-        info->cur_layer->filename = strdup (info->cur_buf);
+      if (! strcmp (name, "filename"))
+         info->cur_layer->filename = strdup (info->cur_buf);
 
-     if (! strcmp (name, "min"))
-        info->cur_layer->min = atof (info->cur_buf);
+      if (! strcmp (name, "min"))
+         info->cur_layer->min = atof (info->cur_buf);
 
-     if (! strcmp (name,"max"))
-         info->cur_layer->max = atof (info->cur_buf);
+      if (! strcmp (name,"max"))
+          info->cur_layer->max = atof (info->cur_buf);
 
-     if (! strcmp(name,"gain"))
+      if (! strcmp(name,"gain"))
          info->cur_layer->gain = atof (info->cur_buf);
-    }
+     }
+
 
   if (info->in_instrument && ! info->in_layer)
      {
       if (! strcmp (name,"id"))
-         info->cur_instrument->id = atoi(info->cur_buf);
+         info->cur_instrument->id = atoi (info->cur_buf);
 
       if (! info->scan_only && ! strcmp (name," filename"))
          info->cur_instrument->filename = strdup (info->cur_buf);
@@ -227,10 +227,11 @@ endElement(void *userData, const char *name)
          info->cur_instrument->name = strdup (info->cur_buf);
      }
 
+
   info->cur_off = 0;
 
   if (! info->scan_only && info->in_layer &&
-      ! strcmp(name,"layer") && info->cur_layer->filename)
+      ! strcmp (name,"layer") && info->cur_layer->filename)
      {
       struct instrument_layer *cur_l = info->cur_instrument->layers;
 
@@ -248,7 +249,7 @@ endElement(void *userData, const char *name)
 
     info->cur_layer = NULL;
     info->in_layer = 0;
-  }
+   }
 
 
   if (info->in_instrument && info->cur_instrument && ! strcmp (name, "instrument"))
@@ -270,8 +271,6 @@ endElement(void *userData, const char *name)
      info->in_instrument = 0;
     }
 
-///
-
 
   if (info->in_instrument_list && ! strcmp (name, "instrumentList"))
       info->in_instrument_list = 0;
@@ -281,22 +280,24 @@ endElement(void *userData, const char *name)
 
 
   if (info->in_info && !strcmp (name,"drumkit_info"))
-       info->in_info = 0;
-
+      info->in_info = 0;
 
 };
 
 
 static void XMLCALL charData (void *userData, const char* data, int len)
 {
-  int i;
   struct hp_info* info = (struct hp_info*)userData;
-  if (!info->in_info) return;
-  for(i = 0;i<len;i++) {
-    if (info->cur_off < MAX_CHAR_DATA) {
-      info->cur_buf[info->cur_off] = data[i];
-      info->cur_off++;
-    }
+  if (!info->in_info)
+      return;
+
+  for (int i = 0; i < len; i++)
+      {
+       if (info->cur_off < MAX_CHAR_DATA)
+          {
+           info->cur_buf[info->cur_off] = data[i];
+           info->cur_off++;
+          }
   }
 };
 

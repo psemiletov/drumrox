@@ -1,3 +1,4 @@
 * move presets to plugins's window drop down list
 * remove LV2 deprecated functions
+* change libexpat to pugi
 * refactor
