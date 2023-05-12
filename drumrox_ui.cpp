@@ -617,17 +617,18 @@ static void build_drmr_ui(DrMrUi* ui) {
   gtk_widget_hide(no_kit_label);
 }
 
-static LV2UI_Handle
-instantiate(const LV2UI_Descriptor*   descriptor,
-            const char*               plugin_uri,
+static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
+                                const char*               plugin_uri,
             const char*               bundle_path,
             LV2UI_Write_Function      write_function,
             LV2UI_Controller          controller,
             LV2UI_Widget*             widget,
-            const LV2_Feature* const* features) {
+            const LV2_Feature* const* features)
+{
+
   DrMrUi *ui = (DrMrUi*)malloc(sizeof(DrMrUi));
 
-  ui->write      = write_function;
+  ui->write = write_function;
   ui->controller = controller;
   ui->drmr_widget = NULL;
   ui->map = NULL;
@@ -635,26 +636,29 @@ instantiate(const LV2UI_Descriptor*   descriptor,
   ui->samples = 0;
   *widget = NULL;
 
-  while(*features) {
-    if (!strcmp((*features)->URI, LV2_URID_URI "#map"))
-      ui->map = (LV2_URID_Map *)((*features)->data);
-    features++;
-  }
-  if (!ui->map) {
-    fprintf(stderr, "LV2 host does not support urid#map.\n");
-    free(ui);
-    return 0;
-  } 
-  map_drmr_uris(ui->map,&(ui->uris));
+  while (*features)
+        {
+         if (! strcmp ((*features)->URI, LV2_URID_URI "#map"))
+            ui->map = (LV2_URID_Map *)((*features)->data);
+         features++;
+       }
 
-  ui->bundle_path = g_strdup(bundle_path);
+  if (! ui->map)
+     {
+      fprintf (stderr, "LV2 host does not support urid#map.\n");
+      free (ui);
+      return 0;
+     }
+
+  map_drmr_uris (ui->map, &(ui->uris));
+
+  ui->bundle_path = g_strdup (bundle_path);
 
   load_led_pixbufs(ui);
 
+  lv2_atom_forge_init (&ui->forge, ui->map);
 
-  lv2_atom_forge_init(&ui->forge,ui->map);
-
-  build_drmr_ui(ui);
+  build_drmr_ui (ui);
 
   ui->kits = scan_kits();
   ui->gain_quark = g_quark_from_string("drmr_gain_quark");
@@ -671,7 +675,7 @@ instantiate(const LV2UI_Descriptor*   descriptor,
   ui->pan_vals  = (float*) malloc(32*sizeof(float));
   memset(ui->pan_vals,0,32*sizeof(float));
 //  ui->cols = 4;
-    ui->cols = 6;
+  ui->cols = 6;
 
   ui->forceUpdate = false;
   fill_kit_combo(ui->kit_combo, ui->kits);
@@ -688,7 +692,8 @@ instantiate(const LV2UI_Descriptor*   descriptor,
 }
 
 
-static void cleanup(LV2UI_Handle handle) {
+static void cleanup (LV2UI_Handle handle)
+{
   DrMrUi* ui = (DrMrUi*)handle;
   // seems qtractor likes to destory us
   // before calling, avoid double-destroy
@@ -704,6 +709,7 @@ static void cleanup(LV2UI_Handle handle) {
   free(ui);
 }
 
+
 struct slider_callback_data
 {
   GtkRange* range;
@@ -716,7 +722,7 @@ static gboolean slider_callback(gpointer data)
   struct slider_callback_data *cbd = (struct slider_callback_data*) data;
 
   if (GTK_IS_RANGE(cbd->range))
-       gtk_range_set_value (cbd->range, cbd->val);
+      gtk_range_set_value (cbd->range, cbd->val);
 
   free (cbd);
   return FALSE; // don't keep calling
