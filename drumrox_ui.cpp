@@ -127,22 +127,28 @@ static void ignore_velocity_data (DrMrUi* ui, gpointer data)
 }
 
 
-static void ignore_note_off_data(DrMrUi* ui, gpointer data) {
-  lv2_atom_forge_property_head(&ui->forge, ui->uris.note_off_toggle,0);
+static void ignore_note_off_data (DrMrUi* ui, gpointer data)
+{
+  lv2_atom_forge_property_head (&ui->forge, ui->uris.note_off_toggle,0);
   lv2_atom_forge_bool(&ui->forge, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)));
 }
 
-static gboolean trigger_led_clicked(GtkWidget *widget, GdkEvent  *event, gpointer data) {
+
+static gboolean trigger_led_clicked (GtkWidget *widget, GdkEvent  *event, gpointer data)
+{
   DrMrUi* ui = (DrMrUi*)data;
-  send_ui_msg(ui,&led_data,g_object_get_qdata(G_OBJECT(widget),ui->trigger_quark));
+  send_ui_msg (ui, &led_data, g_object_get_qdata(G_OBJECT(widget),ui->trigger_quark));
   return FALSE;
 }
 
-static gboolean ignore_velocity_toggled(GtkToggleButton *button, gpointer data) {
+
+static gboolean ignore_velocity_toggled(GtkToggleButton *button, gpointer data)
+{
   DrMrUi* ui = (DrMrUi*)data;
   send_ui_msg(ui,&ignore_velocity_data,button);
   return FALSE;
 }
+
 
 static gboolean ignore_note_off_toggled(GtkToggleButton *button, gpointer data) {
   DrMrUi* ui = (DrMrUi*)data;
@@ -154,7 +160,7 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
 {
   int row = 0;
   int col = 0;
-  int si;
+
   gchar buf[64];
 
   int rows = (samples / ui->cols);
@@ -163,48 +169,56 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
 
   gtk_table_resize (ui->sample_table, rows, ui->cols);
 
-  switch (ui->startSamp) {
-  case 1: // bottom left
-    row = rows-1;
-    break;
-  case 2: // top right
-    col = ui->cols-1;
-    break;
-  case 3: // bottom right
-    row = rows-1;
-    col = ui->cols-1;
-    break;
-  }
+  switch (ui->startSamp)
+         {
+          case 1: // bottom left
+                  row = rows-1;
+                  break;
+          case 2: // top right
+                 col = ui->cols - 1;
+                 break;
+          case 3: // bottom right
+                 row = rows - 1;
+                 col = ui->cols - 1;
+                 break;
+         }
 
-  for(si = 0;si<samples;si++) {
-    GtkWidget *frame,*vbox,*hbox,*gain_vbox,*pan_vbox;
-    GtkWidget *button_box, *led_event_box, *led;
-    GtkWidget* gain_slider;
-    GtkWidget* pan_slider;
-    GtkWidget* gain_label;
-    GtkWidget* pan_label;
-    gboolean slide_expand;
+  for (int si = 0; si < samples; si++)
+      {
+       GtkWidget *frame,*vbox,*hbox,*gain_vbox,*pan_vbox;
+       GtkWidget *button_box, *led_event_box, *led;
+       GtkWidget* gain_slider;
+       GtkWidget* pan_slider;
+       GtkWidget* gain_label;
+       GtkWidget* pan_label;
+       gboolean slide_expand;
 
-    snprintf(buf,64,"<b>%s</b> (%i)",names[si],si);
+       snprintf (buf, 64, "<b>%s</b> (%i)", names[si],si);
 
-    frame = gtk_frame_new(buf);
-    gtk_label_set_use_markup(GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
-    gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
+       frame = gtk_frame_new (buf);
+       gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
+       gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
-    vbox = gtk_vbox_new(false,5);
-    hbox = gtk_hbox_new(false,0);
+       vbox = gtk_vbox_new (false,5);
+       hbox = gtk_hbox_new (false,0);
 
 #ifdef NO_NKNOB
-    gain_slider = gtk_vscale_new_with_range(GAIN_MIN,6.0,1.0);
-    gtk_scale_set_value_pos(GTK_SCALE(gain_slider),GTK_POS_BOTTOM);
-    gtk_scale_set_digits(GTK_SCALE(gain_slider),1);
-    gtk_scale_add_mark(GTK_SCALE(gain_slider),0.0,GTK_POS_RIGHT,"0 dB");
+//       gain_slider = gtk_vscale_new_with_range(GAIN_MIN,6.0,1);
+        gain_slider = gtk_vscale_new_with_range (GAIN_MIN, 6.0, 0.1);
+
+        gtk_scale_set_value_pos(GTK_SCALE(gain_slider),GTK_POS_BOTTOM);
+//        gtk_scale_set_digits(GTK_SCALE(gain_slider),1);
+         gtk_scale_set_digits(GTK_SCALE(gain_slider),2);
+
+        gtk_scale_add_mark(GTK_SCALE(gain_slider),0.0,GTK_POS_RIGHT,"0 dB");
     // Hrmm, -inf label is at top in ardour for some reason
     //gtk_scale_add_mark(GTK_SCALE(gain_slider),GAIN_MIN,GTK_POS_RIGHT,"-inf");
-    gtk_range_set_inverted(GTK_RANGE(gain_slider),true);
-    slide_expand = true;
+        gtk_range_set_inverted (GTK_RANGE(gain_slider), true);
+        slide_expand = true;
 #else
-    gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,1.0);
+//    gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,1.0);
+      gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,0.1);
+
     n_knob_set_load_prefix(N_KNOB(gain_slider),ui->bundle_path);
     gtk_widget_set_has_tooltip(gain_slider,TRUE);
     slide_expand = false;
