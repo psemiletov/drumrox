@@ -50,10 +50,10 @@ target_link_libraries(drumrox_ui ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LI
 
 add_definitions ( -DPIC )
 
-set_target_properties (drumrox
-  PROPERTIES
-  COMPILE_FLAGS "-std=gnu99"
-)
+#set_target_properties (drumrox
+#  PROPERTIES
+#  COMPILE_FLAGS "-std=gnu99"
+#)
 
 #set (ui_compile_flags "-std=gnu99")
 

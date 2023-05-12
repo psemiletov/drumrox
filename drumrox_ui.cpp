@@ -1,4 +1,4 @@
-/* drumrox.c
+/* drumrox_ui.cpp
  * LV2 DrMr plugin
  * Copyright 2012 Nick Lanham <nick@afternight.org>
  *
@@ -29,6 +29,9 @@
 #include "lv2/lv2plug.in/ns/ext/atom/util.h"
 #include "lv2/lv2plug.in/ns/ext/urid/urid.h"
 #include "lv2/lv2plug.in/ns/extensions/ui/ui.h"
+
+//#include <gdk/gdkx.h>
+
 
 #define DRMR_UI_URI "https://github.com/psemiletov/drumrox#ui"
 #define NO_KIT_STRING "[No Current Kit]"
@@ -304,14 +307,17 @@ static void sample_triggered(DrMrUi *ui, int si) {
 
 static const char* nstrs = "C C#D D#E F F#G G#A A#B ";
 static char baseLabelBuf[32];
-static void setBaseLabel(int noteIdx) {
+
+static void setBaseLabel(int noteIdx)
+{
   int oct = (noteIdx/12)-1;
   int nmt = (noteIdx%12)*2;
-  snprintf(baseLabelBuf,32,"Midi Base Note <b>(%c%c%i)</b>:",
-	   nstrs[nmt],nstrs[nmt+1],oct);
+  snprintf(baseLabelBuf,32,"Midi Base Note <b>(%c%c%i)</b>:", nstrs[nmt],nstrs[nmt+1],oct);
 }
 
-static void base_changed(GtkSpinButton *base_spin, gpointer data) {
+
+static void base_changed (GtkSpinButton *base_spin, gpointer data)
+{
   DrMrUi* ui = (DrMrUi*)data;
   float base = (float)gtk_spin_button_get_value(base_spin);
 
@@ -336,6 +342,7 @@ static void fill_kit_combo(GtkComboBox* combo, s_kits* kits) {
 }
 
 static gboolean idle = FALSE;
+
 static gboolean kit_callback(gpointer data) {
   DrMrUi* ui = (DrMrUi*)data;
   if (ui->forceUpdate || (ui->kitReq != ui->curKit)) {
@@ -481,18 +488,18 @@ static GtkWidget *create_position_combo(void)
 }
 
 static gulong expose_id;
-static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data) {
+
+static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data)
+{
   DrMrUi* ui = (DrMrUi*)data;
   uint8_t msg_buf[1024];
   lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
   LV2_Atom *msg = build_get_state_message(ui);
-  ui->write(ui->controller,DRMR_CONTROL,
-	    lv2_atom_total_size(msg),
-	    ui->uris.atom_eventTransfer,
-	    msg);
+  ui->write(ui->controller,DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
   g_signal_handler_disconnect(widget,expose_id);
   return FALSE;
 }
+
 
 static void load_led_pixbufs(DrMrUi* ui) {
   GError *error = NULL;
@@ -518,7 +525,9 @@ static void load_led_pixbufs(DrMrUi* ui) {
     fprintf(stderr,"Could not build path to load led_off pixbuf");
 }
 
-static void build_drmr_ui(DrMrUi* ui) {
+
+static void build_drmr_ui (DrMrUi* ui)
+{
   GtkWidget *drmr_ui_widget;
   GtkWidget *opts_hbox1, *opts_hbox2,
     *kit_combo_box, *kit_label, *no_kit_label,
@@ -599,7 +608,6 @@ static void build_drmr_ui(DrMrUi* ui) {
 		     false,false,5);
 
 
-
   ui->drmr_widget = drmr_ui_widget;
   ui->sample_table = NULL;
   ui->kit_combo = GTK_COMBO_BOX(kit_combo_box);
@@ -616,6 +624,7 @@ static void build_drmr_ui(DrMrUi* ui) {
   gtk_widget_show_all(drmr_ui_widget);
   gtk_widget_hide(no_kit_label);
 }
+
 
 static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
                                 const char*               plugin_uri,
@@ -678,7 +687,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
   ui->cols = 6;
 
   ui->forceUpdate = false;
-  fill_kit_combo(ui->kit_combo, ui->kits);
+  fill_kit_combo (ui->kit_combo, ui->kits);
 
 #ifdef DRMR_UI_ZERO_SAMP
   ui->startSamp = DRMR_UI_ZERO_SAMP;
@@ -689,6 +698,9 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
   *widget = ui->drmr_widget;
 
   return ui;
+
+  //Window w = gdk_x11_drawable_get_xid(gtk_widget_get_window(ui->drmr_widget));
+  //return (void *) w;
 }
 
 
