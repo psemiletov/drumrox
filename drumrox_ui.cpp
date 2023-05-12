@@ -1,4 +1,4 @@
-/* drmr.c
+/* drumrox.c
  * LV2 DrMr plugin
  * Copyright 2012 Nick Lanham <nick@afternight.org>
  *
@@ -36,9 +36,8 @@
 typedef struct
 {
   LV2UI_Write_Function write;
-  LV2UI_Controller     controller;
+  LV2UI_Controller controller;
   LV2_Atom_Forge forge;
-
   LV2_URID_Map *map;
   drmr_uris uris;
 
@@ -72,6 +71,7 @@ typedef struct
   int curKit;
   int kitReq;
   s_kits* kits;
+
 } DrMrUi;
 
 
@@ -147,15 +147,18 @@ static gboolean ignore_note_off_toggled(GtkToggleButton *button, gpointer data) 
   return FALSE;
 }
 
-static void fill_sample_table(DrMrUi* ui, int samples, char** names, GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
+static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
 {
   int row = 0;
   int col = 0;
   int si;
   gchar buf[64];
-  int rows = (samples/ui->cols);
-  if (samples % ui->cols != 0) rows++;
-  gtk_table_resize(ui->sample_table,rows,ui->cols);
+
+  int rows = (samples / ui->cols);
+  if (samples % ui->cols != 0)
+      rows++;
+
+  gtk_table_resize (ui->sample_table, rows, ui->cols);
 
   switch (ui->startSamp) {
   case 1: // bottom left
@@ -667,7 +670,9 @@ instantiate(const LV2UI_Descriptor*   descriptor,
   memset(ui->gain_vals,0,32*sizeof(float));
   ui->pan_vals  = (float*) malloc(32*sizeof(float));
   memset(ui->pan_vals,0,32*sizeof(float));
-  ui->cols = 4;
+//  ui->cols = 4;
+    ui->cols = 6;
+
   ui->forceUpdate = false;
   fill_kit_combo(ui->kit_combo, ui->kits);
 
