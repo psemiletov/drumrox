@@ -34,6 +34,7 @@ Drumrox additions:
 
 - Compatibility with modern Hydrogen kit format
 - Presets are sorted in alphabetical order
+- Plugin window is more fits to the screen
 - Partial conversion from C to C++ to further development
 
 
