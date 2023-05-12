@@ -20,12 +20,12 @@
 #include <sndfile.h>
 #include <pthread.h>
 
-#include "lv2/lv2plug.in/ns/ext/atom/forge.h"
+#include <lv2/lv2plug.in/ns/ext/atom/forge.h>
 // util includes atom.h
-#include "lv2/lv2plug.in/ns/ext/atom/util.h"
-#include "lv2/lv2plug.in/ns/lv2core/lv2.h"
-#include "lv2/lv2plug.in/ns/ext/urid/urid.h"
-#include "lv2/lv2plug.in/ns/ext/state/state.h"
+#include <lv2/lv2plug.in/ns/ext/atom/util.h>
+#include <lv2/lv2plug.in/ns/lv2core/lv2.h>
+#include <lv2/lv2plug.in/ns/ext/urid/urid.h>
+#include <lv2/lv2plug.in/ns/ext/state/state.h>
 
 // drumkit scanned from a hydrogen xml file
 typedef struct

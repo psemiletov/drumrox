@@ -77,7 +77,7 @@ You'll need the following libraries to build and install DrMr:
 - [libsamplerate](http://www.mega-nerd.com/SRC/index.html)
 - [lv2](http://lv2plug.in/)
 - [libexpat](http://expat.sourceforge.net)
-- [gtk+ 2](http://www.gtk.org)
+- [gtk+2](http://www.gtk.org)
 
 Drumrox scans the following directories for hydrogen drum kits:
 

@@ -30,10 +30,10 @@
 #include <vector>
 #include <algorithm>
 
-#include "samplerate.h"
+#include <samplerate.h>
 #include "drumrox.h"
 #include "drumrox_hydrogen.h"
-#include "expat.h"
+#include <expat.h>
 
 /* Below is a list of the locations that DrMr will
  * search for drumkit files.  It will scan each sub-directory
