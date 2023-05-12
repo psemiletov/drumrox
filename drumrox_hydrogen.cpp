@@ -337,7 +337,6 @@ static char* expand_path (char* path, char* buf)
 };
 
 
-
 std::string get_home_dir()
 {
   std::string result;
@@ -355,7 +354,6 @@ std::string get_home_dir()
 
  if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homeDirStr)))
    result = homeDirStr;
-
 
 #endif
 
@@ -557,7 +555,6 @@ s_kits* scan_kits()
 
 s_kits* scan_kits()
 {
-
   FILE* file;
   XML_Parser parser;
   int done;
@@ -590,8 +587,8 @@ s_kits* scan_kits()
       }
 
 
-  std::sort(v_kits_dirs.begin(), v_kits_dirs.end());
-  v_kits_dirs.erase( std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
+  std::sort (v_kits_dirs.begin(), v_kits_dirs.end());
+  v_kits_dirs.erase (std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
 
   for (std::string kd :v_kits_dirs)
       {
@@ -638,9 +635,9 @@ s_kits* scan_kits()
          kit->name = info.kit_info->name;
          kit->desc = info.kit_info->desc;
 
-	       struct instrument_info *cur_i = info.kit_info->instruments;
-	       while (cur_i)
-                 {
+         struct instrument_info *cur_i = info.kit_info->instruments;
+         while (cur_i)
+               {
 	              kit->samples++;
 	              cur_i = cur_i->next;
 	             }
