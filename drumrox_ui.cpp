@@ -554,7 +554,7 @@ static void build_drmr_ui (DrMrUi* ui)
 
   drmr_ui_widget = gtk_vbox_new(false,0);
   expose_id = g_signal_connect (drmr_ui_widget, "expose-event", G_CALLBACK (expose_callback), ui);
-  g_object_set(drmr_ui_widget,"border-width",6,NULL);
+  g_object_set(drmr_ui_widget,"border-width",2,NULL);
 
   ui->kit_store = gtk_list_store_new(1,G_TYPE_STRING);
 
@@ -579,11 +579,10 @@ static void build_drmr_ui (DrMrUi* ui)
 
   base_label = gtk_label_new("Midi Base Note <b>(C 2)</b>:");
   gtk_label_set_use_markup(GTK_LABEL(base_label),true);
-  base_adj = GTK_ADJUSTMENT
-    (gtk_adjustment_new(36.0, // val
-			21.0,107.0, // min/max
-			1.0, // step
-			5.0,0.0)); // page adj/size
+  base_adj = GTK_ADJUSTMENT (gtk_adjustment_new (36.0, // val
+                                                 21.0,107.0, // min/max
+                                                 1.0, // step
+                                                 5.0,0.0)); // page adj/size
   base_spin = gtk_spin_button_new(base_adj, 1.0, 0);
 
   position_label = gtk_label_new("Sample Zero Position: ");

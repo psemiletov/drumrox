@@ -19,6 +19,7 @@
 #include <string.h>
 #include <math.h>
 
+#include "dsp.h"
 #include "drumrox.h"
 #include "drumrox_hydrogen.h"
 
@@ -86,6 +87,8 @@ instantiate(const LV2_Descriptor*     descriptor,
             const char*               bundle_path,
             const LV2_Feature* const* features)
 {
+  init_db();
+
   DrMr* drmr = (DrMr*) malloc(sizeof(DrMr));
   drmr->map = NULL;
   drmr->samples = NULL;
@@ -157,9 +160,7 @@ instantiate(const LV2_Descriptor*     descriptor,
 }
 
 
-static void connect_port(LV2_Handle instance,
-             uint32_t   port,
-             void*      data)
+static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 {
   DrMr* drmr = (DrMr*)instance;
   DrMrPortIndex port_index = (DrMrPortIndex)port;
@@ -216,8 +217,10 @@ static inline LV2_Atom *build_update_message (DrMr *drmr)
      }
 
   lv2_atom_forge_pop (&drmr->forge,&set_frame);
+
   return msg;
 }
+
 
 static inline LV2_Atom *build_state_message (DrMr *drmr)
 {
@@ -237,25 +240,29 @@ static inline LV2_Atom *build_state_message (DrMr *drmr)
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.zero_position,0);
   lv2_atom_forge_int(&drmr->forge, drmr->zero_position);
   lv2_atom_forge_pop(&drmr->forge,&set_frame);
+
   return msg;
 }
+
 
 static inline LV2_Atom *build_midi_info_message (DrMr *drmr, uint8_t *data)
 {
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drmr->forge, &set_frame, 1, drmr->uris.midi_info);
-  lv2_atom_forge_property_head(&drmr->forge, drmr->uris.midi_event,0);
-  lv2_atom_forge_write(&drmr->forge, data, 3);
-  lv2_atom_forge_pop(&drmr->forge,&set_frame);
+  lv2_atom_forge_property_head (&drmr->forge, drmr->uris.midi_event, 0);
+  lv2_atom_forge_write (&drmr->forge, data, 3);
+  lv2_atom_forge_pop (&drmr->forge, &set_frame);
+
   return msg;
 }
+
 
 static inline void layer_to_sample (drmr_sample *sample, float gain)
 {
   float mapped_gain = (1 - (gain / GAIN_MIN));
 
   if (mapped_gain > 1.0f)
-     mapped_gain = 1.0f;
+      mapped_gain = 1.0f;
 
   for (int i = 0; i < sample->layer_count; i++)
       {
@@ -340,7 +347,7 @@ static inline void untrigger_sample (DrMr *drmr, int nn, uint32_t offset)
 
 static void run (LV2_Handle instance, uint32_t n_samples)
 {
-  int i;
+  //int i;
   int baseNote;
 
   DrMr* drmr = (DrMr*)instance;
@@ -353,7 +360,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   LV2_Atom_Forge_Frame seq_frame;
   lv2_atom_forge_sequence_head (&drmr->forge, &seq_frame, 0);
 
-  LV2_ATOM_SEQUENCE_FOREACH(drmr->control_port, ev)
+  LV2_ATOM_SEQUENCE_FOREACH (drmr->control_port, ev)
   {
     if (ev->body.type == drmr->uris.midi_event)
        {
@@ -396,123 +403,166 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                const LV2_Atom* ignvel = NULL;
                const LV2_Atom* ignno = NULL;
                const LV2_Atom* zerop = NULL;
-               lv2_atom_object_get(obj,
-			    drmr->uris.kit_path, &path,
-			    drmr->uris.sample_trigger, &trigger,
-			    drmr->uris.velocity_toggle, &ignvel,
-			    drmr->uris.note_off_toggle, &ignno,
-			    drmr->uris.zero_position, &zerop,
-			    0);
-	if (path) {
-	  int reqPos = (drmr->curReq+1)%REQ_BUF_SIZE;
-	  char *tmp = NULL;
-	  if (reqPos >= 0 &&
-	      drmr->request_buf[reqPos])
-	    tmp = drmr->request_buf[reqPos];
-	  drmr->request_buf[reqPos] =  strdup((char *)LV2_ATOM_BODY(path));
-	  drmr->curReq = reqPos;
-	  if (tmp) free(tmp);
-	}
-	if (trigger) {
-	  int32_t si = ((const LV2_Atom_Int*)trigger)->body;
-	  uint8_t mdata[3];
-	  uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
-	  mdata[0] = 0x90; // note on
-	  mdata[1] = si+baseNote;
-	  mdata[2] = 0x7f;
-	  trigger_sample(drmr,si,mdata,offset);
-	}
-	if (ignvel)
-	  drmr->ignore_velocity = ((const LV2_Atom_Bool*)ignvel)->body;
-	if (ignno)
-	  drmr->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
-	if (zerop)
-	  drmr->zero_position = ((const LV2_Atom_Int*)zerop)->body;
-      } else if (obj->body.otype == drmr->uris.get_state) {
-	lv2_atom_forge_frame_time(&drmr->forge, 0);
-	build_state_message(drmr);
-      }
-    }
+
+               lv2_atom_object_get (obj,
+                                    drmr->uris.kit_path, &path,
+                                    drmr->uris.sample_trigger, &trigger,
+                                    drmr->uris.velocity_toggle, &ignvel,
+                                    drmr->uris.note_off_toggle, &ignno,
+                                    drmr->uris.zero_position, &zerop,
+                                    0);
+
+              if (path)
+                 {
+                  int reqPos = (drmr->curReq +1 ) % REQ_BUF_SIZE;
+                  char *tmp = NULL;
+
+                  if (reqPos >= 0 && drmr->request_buf[reqPos])
+                      tmp = drmr->request_buf[reqPos];
+
+                  drmr->request_buf[reqPos] = strdup((char *)LV2_ATOM_BODY(path));
+                  drmr->curReq = reqPos;
+
+                  if (tmp)
+                     free (tmp);
+                  }
+
+              if (trigger)
+                 {
+                  int32_t si = ((const LV2_Atom_Int*)trigger)->body;
+                  uint8_t mdata[3];
+                  uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
+                  mdata[0] = 0x90; // note on
+                  mdata[1] = si + baseNote;
+                  mdata[2] = 0x7f;
+                  trigger_sample (drmr, si, mdata, offset);
+                 }
+
+              if (ignvel)
+                  drmr->ignore_velocity = ((const LV2_Atom_Bool*)ignvel)->body;
+
+              if (ignno)
+                   drmr->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
+
+              if (zerop)
+                 drmr->zero_position = ((const LV2_Atom_Int*)zerop)->body;
+             }
+         else
+             if (obj->body.otype == drmr->uris.get_state)
+                {
+                 lv2_atom_forge_frame_time(&drmr->forge, 0);
+                 build_state_message (drmr);
+                }
+        }
     //else printf("unrecognized event\n");
-  }
-
-  if ((drmr->curReq >= 0) &&
-      drmr->request_buf[drmr->curReq] && 
-      (!drmr->current_path ||
-       strcmp(drmr->current_path,
-	      drmr->request_buf[drmr->curReq])))
-    pthread_cond_signal(&drmr->load_cond);
-
-  if (current_kit_changed) {
-    current_kit_changed = 0;
-    lv2_atom_forge_frame_time(&drmr->forge, 0);
-    build_update_message(drmr);
-  }
-
-  lv2_atom_forge_pop(&drmr->forge, &seq_frame);
-
-  for(i = 0;i<n_samples;i++) {
-    drmr->left[i] = 0.0f;
-    drmr->right[i] = 0.0f;
-  }
-
-  pthread_mutex_lock(&drmr->load_mutex); 
-  for (i = 0;i < drmr->num_samples;i++) {
-    int pos,lim;
-    drmr_sample* cs = drmr->samples+i;
-    if ((cs->active || cs->dataoffset) && (cs->limit > 0)) {
-      float coef_right, coef_left;
-      if (i < 32) {
-	float gain = DB_CO(*(drmr->gains[i]));
-	float pan_right = ((*drmr->pans[i])+1)/2.0f;
-	float pan_left = 1-pan_right;
-	coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO))*gain*cs->velocity;
-	coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO))*gain*cs->velocity;
-      }
-      else {
-	coef_right = coef_left = 1.0f;
       }
 
-      int datastart, dataend;
-      if (cs->active) {
-          datastart = cs->dataoffset;
-          dataend = n_samples;
-      } else {
-          datastart = 0;
-          dataend = cs->dataoffset;
-      }
-      cs->dataoffset = 0;
+   if ((drmr->curReq >= 0) && drmr->request_buf[drmr->curReq] &&
+      (! drmr->current_path || strcmp (drmr->current_path, drmr->request_buf[drmr->curReq])))
+      pthread_cond_signal(&drmr->load_cond);
 
-      if (cs->info->channels == 1) { // play mono sample
-	lim = (n_samples < (cs->limit - cs->offset)?n_samples:(cs->limit-cs->offset));
-	for (pos = datastart; pos < lim && pos < dataend; pos++) {
-	  drmr->left[pos]  += cs->data[cs->offset]*coef_left;
-	  drmr->right[pos] += cs->data[cs->offset]*coef_right;
-	  cs->offset++;
-	}
-      } else { // play stereo sample
-	lim = (cs->limit-cs->offset)/cs->info->channels;
-	if (lim > n_samples) lim = n_samples;
-	for (pos = datastart; pos < lim && pos < dataend; pos++) {
-	  drmr->left[pos]  += cs->data[cs->offset++]*coef_left;
-	  drmr->right[pos] += cs->data[cs->offset++]*coef_right;
-	}
+   if (current_kit_changed)
+      {
+       current_kit_changed = 0;
+       lv2_atom_forge_frame_time (&drmr->forge, 0);
+       build_update_message(drmr);
       }
-      if (cs->offset >= cs->limit) cs->active = 0;
-    }
-  }
-  pthread_mutex_unlock(&drmr->load_mutex); 
+
+   lv2_atom_forge_pop (&drmr->forge, &seq_frame);
+
+   for (int i = 0; i < n_samples; i++)
+       {
+        drmr->left[i] = 0.0f;
+        drmr->right[i] = 0.0f;
+       }
+
+  pthread_mutex_lock (&drmr->load_mutex);
+
+  for (int i = 0; i < drmr->num_samples; i++)
+      {
+       int pos, lim;
+       drmr_sample *cs = drmr->samples+i;
+
+       if ((cs->active || cs->dataoffset) && (cs->limit > 0))
+          {
+           float coef_right, coef_left;
+           if (i < 32)
+              {
+               float gain = DB_CO(*(drmr->gains[i]));
+               float pan_right = ((*drmr->pans[i]) + 1) / 2.0f;
+               float pan_left = 1 - pan_right;
+               coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
+               coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
+              }
+           else
+              {
+               coef_right = 1.0f;
+               coef_left = 1.0f;
+              }
+
+          int datastart, dataend;
+
+          if (cs->active)
+             {
+              datastart = cs->dataoffset;
+              dataend = n_samples;
+             }
+          else
+              {
+               datastart = 0;
+               dataend = cs->dataoffset;
+             }
+
+          cs->dataoffset = 0;
+
+         if (cs->info->channels == 1)
+            { // play mono sample
+             lim = (n_samples < (cs->limit - cs->offset)?n_samples:(cs->limit-cs->offset));
+
+             for (pos = datastart; pos < lim && pos < dataend; pos++)
+                 {
+                  drmr->left[pos]  += cs->data[cs->offset] * coef_left;
+                  drmr->right[pos] += cs->data[cs->offset] * coef_right;
+                  cs->offset++;
+                 }
+           }
+          else
+              {
+               // play stereo sample
+              lim = (cs->limit-cs->offset) / cs->info->channels;
+
+              if (lim > n_samples)
+                  lim = n_samples;
+
+              for (pos = datastart; pos < lim && pos < dataend; pos++)
+                  {
+                   drmr->left[pos]  += cs->data[cs->offset++] * coef_left;
+                   drmr->right[pos] += cs->data[cs->offset++] * coef_right;
+                  }
+               }
+
+        if (cs->offset >= cs->limit)
+           cs->active = 0;
+       }
+      }
+
+  pthread_mutex_unlock (&drmr->load_mutex);
 }
 
-static void cleanup(LV2_Handle instance) {
+
+static void cleanup(LV2_Handle instance)
+{
   DrMr* drmr = (DrMr*)instance;
-  pthread_cancel(drmr->load_thread);
-  pthread_join(drmr->load_thread, 0);
+  pthread_cancel (drmr->load_thread);
+  pthread_join (drmr->load_thread, 0);
+
   if (drmr->num_samples > 0)
-    free_samples(drmr->samples,drmr->num_samples);
-  free(drmr->gains);
-  free(instance);
+      free_samples (drmr->samples,drmr->num_samples);
+
+  free (drmr->gains);
+  free (instance);
 }
+
 
 static LV2_State_Status
 save_state(LV2_Handle                 instance,
@@ -608,22 +658,25 @@ restore_state(LV2_Handle                  instance,
     return LV2_STATE_ERR_NO_PROPERTY;
   }
 
-  char *kit_path = map_path->absolute_path(map_path->handle,abstract_path);
+  char *kit_path = map_path->absolute_path (map_path->handle, abstract_path);
 
-  if (kit_path) { // safe as we're in "Instantiation" threading class
-    int reqPos = (drmr->curReq+1)%REQ_BUF_SIZE;
-    char *tmp = NULL;
-    if (reqPos >= 0 && drmr->request_buf[reqPos])
-      tmp = drmr->request_buf[reqPos];
-    drmr->request_buf[reqPos] = strdup(kit_path);
-    drmr->curReq = reqPos;
-    if (tmp) free(tmp);
-  }
+  if (kit_path)
+     { // safe as we're in "Instantiation" threading class
+      int reqPos = (drmr->curReq+1)%REQ_BUF_SIZE;
+      char *tmp = NULL;
+      if (reqPos >= 0 && drmr->request_buf[reqPos])
+         tmp = drmr->request_buf[reqPos];
 
-  const uint32_t* ignore_velocity = (uint32_t*)
-    retrieve(handle, drmr->uris.velocity_toggle, &size, &type, &fgs);
+      drmr->request_buf[reqPos] = strdup(kit_path);
+      drmr->curReq = reqPos;
+      if (tmp)
+         free(tmp);
+    }
+
+  const uint32_t* ignore_velocity = (uint32_t*) retrieve (handle, drmr->uris.velocity_toggle, &size, &type, &fgs);
+
   if (ignore_velocity)
-    drmr->ignore_velocity = *ignore_velocity?true:false;
+      drmr->ignore_velocity = *ignore_velocity?true:false;
 
   const uint32_t* ignore_note_off = (uint32_t*)
     retrieve(handle, drmr->uris.note_off_toggle, &size, &type, &fgs);
@@ -632,16 +685,19 @@ restore_state(LV2_Handle                  instance,
 
   const int* zero_position = (int*)
     retrieve(handle, drmr->uris.zero_position, &size, &type, &fgs);
+
   if (zero_position)
-    drmr->zero_position = *zero_position;
+      drmr->zero_position = *zero_position;
 
   return LV2_STATE_SUCCESS;
 }
 
 
-static const void* extension_data(const char* uri) {
+static const void* extension_data(const char* uri)
+{
   static const LV2_State_Interface state_iface = { save_state, restore_state };
-  if (!strcmp(uri, LV2_STATE__interface)) return &state_iface;
+  if (! strcmp (uri, LV2_STATE__interface))
+      return &state_iface;
   return NULL;
 }
 

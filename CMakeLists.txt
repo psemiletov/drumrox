@@ -23,6 +23,8 @@ link_directories (${LV2_LIBRARY_DIRS} ${EXPAT_LIBRARY_DIRS} ${SNDFILE_LIBRARY_DI
 # config libraries
 
 add_library(drumrox SHARED
+  dsp.cpp
+  dsp.h
   drumrox.cpp
   drumrox_hydrogen.cpp
   drumrox.h
@@ -30,6 +32,8 @@ add_library(drumrox SHARED
 )
 
 add_library(drumrox_ui SHARED
+  dsp.cpp
+  dsp.h
   drumrox_ui.cpp
   drumrox_hydrogen.cpp
   nknob.c
