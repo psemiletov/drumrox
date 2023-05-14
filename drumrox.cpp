@@ -237,8 +237,8 @@ static inline LV2_Atom *build_state_message (DrMr *drmr)
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.note_off_toggle,0);
   lv2_atom_forge_bool(&drmr->forge, drmr->ignore_note_off?true:false);
 
-  lv2_atom_forge_property_head(&drmr->forge, drmr->uris.panlaw,0);
-  lv2_atom_forge_int(&drmr->forge, drmr->panlaw);
+  lv2_atom_forge_property_head (&drmr->forge, drmr->uris.panlaw, 0);
+  lv2_atom_forge_int (&drmr->forge, drmr->panlaw);
 
   lv2_atom_forge_pop(&drmr->forge,&set_frame);
 
@@ -628,7 +628,8 @@ static LV2_State_Status save_state (LV2_Handle                 instance,
     return LV2_STATE_ERR_NO_FEATURE;
   }
 
-  if (drmr->current_path != NULL) {
+  if (drmr->current_path != NULL)
+  {
 	char* mapped_path = map_path->abstract_path(map_path->handle,
 	                                            drmr->current_path);
 
@@ -638,7 +639,8 @@ static LV2_State_Status save_state (LV2_Handle                 instance,
 	             strlen(mapped_path) + 1,
 	             drmr->uris.string_urid,
 	             LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
-	if (stat) return stat;
+	if (stat)
+     return stat;
   }
 
   flag = drmr->ignore_velocity?1:0;
@@ -736,7 +738,12 @@ restore_state(LV2_Handle                  instance,
   const int* panlaw = (int*) retrieve (handle, drmr->uris.panlaw, &size, &type, &fgs);
 
   if (panlaw)
+    {
       drmr->panlaw = *panlaw;
+      //set index in combo
+
+
+    }
 
   return LV2_STATE_SUCCESS;
 }

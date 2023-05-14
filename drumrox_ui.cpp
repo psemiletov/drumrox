@@ -112,7 +112,7 @@ static void send_ui_msg (DrMrUi* ui, void (*add_data)(DrMrUi* ui, gpointer data)
   uint8_t msg_buf[1024];
   lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
   LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
-  (*add_data)(ui,data);
+  (*add_data)(ui, data);
   lv2_atom_forge_pop (&ui->forge, &set_frame);
   ui->write (ui->controller, DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
 }
@@ -170,6 +170,10 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
   gchar buf[64];
 
   int rows = (samples / ui->cols);
+
+ // int rows = (samples / 6);
+
+
   if (samples % ui->cols != 0)
       rows++;
 
@@ -313,10 +317,10 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
       col++;
       if (col >= ui->cols)
          {
-	      if (ui->panlaw == 0)
+	     //if (ui->panlaw == 0)
 	        row++;
-	     else
-	         row--;
+	    // else
+	      //   row--;
   	     col = 0;
         }
 
@@ -401,6 +405,7 @@ static gboolean kit_callback (gpointer data)
           notify_leds = ui->notify_leds;
           gain_sliders = ui->gain_sliders;
           pan_sliders = ui->pan_sliders;
+
           ui->samples = 0;
           ui->notify_leds = NULL;
           ui->gain_sliders = NULL;
@@ -421,18 +426,23 @@ static gboolean kit_callback (gpointer data)
 
      if (samples > 0)
         {
-      ui->sample_table = GTK_TABLE(gtk_table_new(1,1,true));
-      gtk_table_set_col_spacings(ui->sample_table,5);
-      gtk_table_set_row_spacings(ui->sample_table,5);
+         ui->sample_table = GTK_TABLE(gtk_table_new (1,1,true));
+         //ui->sample_table = GTK_TABLE (gtk_table_new (6, 6, true));
 
-      notify_leds = (GtkWidget**) malloc(samples*sizeof(GtkWidget*));
-      gain_sliders = (GtkWidget**) malloc(samples*sizeof(GtkWidget*));
-      pan_sliders = (GtkWidget**) malloc(samples*sizeof(GtkWidget*));
-      fill_sample_table(ui,samples,ui->kits->kits[ui->kitReq].sample_names,notify_leds,gain_sliders,pan_sliders);
-      gtk_box_pack_start(GTK_BOX(ui->drmr_widget),GTK_WIDGET(ui->sample_table),
-			 true,true,5);
-      gtk_box_reorder_child(GTK_BOX(ui->drmr_widget),GTK_WIDGET(ui->sample_table),1);
-      gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
+
+         gtk_table_set_col_spacings(ui->sample_table,5);
+         gtk_table_set_row_spacings(ui->sample_table,5);
+
+         notify_leds = (GtkWidget**) malloc(samples*sizeof(GtkWidget*));
+         gain_sliders = (GtkWidget**) malloc(samples*sizeof(GtkWidget*));
+         pan_sliders = (GtkWidget**) malloc(samples*sizeof(GtkWidget*));
+
+         fill_sample_table (ui,samples, ui->kits->kits[ui->kitReq].sample_names, notify_leds, gain_sliders, pan_sliders);
+
+         gtk_box_pack_start(GTK_BOX(ui->drmr_widget),GTK_WIDGET(ui->sample_table), true,true,5);
+         gtk_box_reorder_child(GTK_BOX(ui->drmr_widget),GTK_WIDGET(ui->sample_table),1);
+         gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
+
       ui->samples = samples;
       ui->notify_leds = notify_leds;
       ui->gain_sliders = gain_sliders;
@@ -441,7 +451,7 @@ static gboolean kit_callback (gpointer data)
       gtk_label_set_text(ui->current_kit_label,ui->kits->kits[ui->kitReq].name);
 
       ui->curKit = ui->kitReq;
-      gtk_combo_box_set_active(ui->kit_combo,ui->curKit);
+      gtk_combo_box_set_active(ui->kit_combo,ui->curKit); //SETS CURRENT KIT
       gtk_widget_show(GTK_WIDGET(ui->kit_combo));
       gtk_widget_hide(ui->no_kit_label);
     }
@@ -506,9 +516,10 @@ static void panlaw_combobox_changed (GtkComboBox* box, gpointer data)
   if (i != ui->panlaw)
      {
       ui->panlaw = i;
-      ui->forceUpdate = true; //?
+    //  ui->forceUpdate = true; //?
     //  kit_callback (ui);
-    //  send_ui_msg (ui, &panlaw_data, GINT_TO_POINTER(i));
+    //????????????????
+      send_ui_msg (ui, &panlaw_data, GINT_TO_POINTER(i));
      }
 }
 
