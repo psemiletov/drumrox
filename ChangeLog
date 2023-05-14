@@ -1,4 +1,10 @@
-* Intstrument gain inc/dec by 0.1 (was 1.0) to be more precise
++ GUI:: Panning mode:
+                     linear panner, law: -6 dB //default
+                     linear panner, law: 0 dB
+                     square root panner, law: -3 dB
+                     sin/cos panner, law: -3 dB
+
+* Instrument gain inc/dec by 0.1 (was 1.0) to be more precise
 
 //1.0.1
 * GUI: 6 instrument rows instead of 4

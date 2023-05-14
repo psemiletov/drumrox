@@ -542,18 +542,10 @@ static GtkWidget *create_panlaw_combo(void)
   gtk_list_store_set (list_store, &iter, 0, "sin/cos panner, law: -3 dB", -1);
 
   combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(list_store));
-/*
-#ifdef DRMR_UI_ZERO_SAMP
-  gtk_combo_box_set_active(GTK_COMBO_BOX(combo),DRMR_UI_ZERO_SAMP);
-#else
-  gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
-#endif
-*/
 
-  gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
+  gtk_combo_box_set_active (GTK_COMBO_BOX(combo),0);
 
-
-  g_object_unref(list_store);
+  g_object_unref (list_store);
 
   cell = gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combo), cell, TRUE);
@@ -562,16 +554,17 @@ static GtkWidget *create_panlaw_combo(void)
   return combo;
 }
 
+
 static gulong expose_id;
 
 static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
   DrMrUi* ui = (DrMrUi*)data;
   uint8_t msg_buf[1024];
-  lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
+  lv2_atom_forge_set_buffer (&ui->forge, msg_buf, 1024);
   LV2_Atom *msg = build_get_state_message(ui);
-  ui->write(ui->controller,DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
-  g_signal_handler_disconnect(widget,expose_id);
+  ui->write (ui->controller, DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
+  g_signal_handler_disconnect (widget, expose_id);
   return FALSE;
 }
 
@@ -581,26 +574,38 @@ static void load_led_pixbufs(DrMrUi* ui)
   GError *error = NULL;
   gchar *pixbuf_path;
 
-  pixbuf_path = g_build_path(G_DIR_SEPARATOR_S,ui->bundle_path,"led_on.png",NULL);
-  if (pixbuf_path) {
-    led_on_pixbuf = gdk_pixbuf_new_from_file(pixbuf_path,&error);
-    if (!led_on_pixbuf)
-      fprintf(stderr,"Could not load led_on pixbuf: %s\n",error->message);
-    g_free(pixbuf_path);
-  } else
-    fprintf(stderr,"Could not build path to load led_on pixbuf");
+  pixbuf_path = g_build_path (G_DIR_SEPARATOR_S, ui->bundle_path, "led_on.png", NULL);
+
+  if (pixbuf_path)
+     {
+      led_on_pixbuf = gdk_pixbuf_new_from_file (pixbuf_path,&error);
+
+      if (! led_on_pixbuf)
+         fprintf (stderr, "Could not load led_on pixbuf: %s\n", error->message);
+
+      g_free(pixbuf_path);
+     }
+  else
+      fprintf (stderr, "Could not build path to load led_on pixbuf\n");
 
 
-  pixbuf_path = g_build_path(G_DIR_SEPARATOR_S,ui->bundle_path,"led_off.png",NULL);
-  if (pixbuf_path) {
-    led_off_pixbuf = gdk_pixbuf_new_from_file(pixbuf_path,&error);
-    if (!led_off_pixbuf)
-      fprintf(stderr,"Could not load led_off pixbuf: %s\n",error->message);
-    g_free(pixbuf_path);
-  } else
-    fprintf(stderr,"Could not build path to load led_off pixbuf");
+  pixbuf_path = g_build_path (G_DIR_SEPARATOR_S, ui->bundle_path, "led_off.png", NULL);
+
+  if (pixbuf_path)
+     {
+      led_off_pixbuf = gdk_pixbuf_new_from_file (pixbuf_path, &error);
+
+      if (! led_off_pixbuf)
+         fprintf (stderr,"Could not load led_off pixbuf: %s\n", error->message);
+
+      g_free(pixbuf_path);
+     }
+  else
+      fprintf( stderr, "Could not build path to load led_off pixbuf\n");
 }
 
+
+#define PADVAL 5
 
 static void build_drmr_ui (DrMrUi* ui)
 {
@@ -620,58 +625,54 @@ static void build_drmr_ui (DrMrUi* ui)
 
   ui->kit_store = gtk_list_store_new(1,G_TYPE_STRING);
 
-  ui->current_kit_label = GTK_LABEL(gtk_label_new(NO_KIT_STRING));
-  attr = pango_attr_weight_new(PANGO_WEIGHT_HEAVY);
+  ui->current_kit_label = GTK_LABEL (gtk_label_new(NO_KIT_STRING));
+  attr = pango_attr_weight_new (PANGO_WEIGHT_HEAVY);
   attr_lst = pango_attr_list_new();
-  pango_attr_list_insert(attr_lst, attr);
-  gtk_label_set_attributes(ui->current_kit_label, attr_lst);
+  pango_attr_list_insert (attr_lst, attr);
+  gtk_label_set_attributes (ui->current_kit_label, attr_lst);
   pango_attr_list_unref(attr_lst);
 
-  opts_hbox1 = gtk_hbox_new(false,0);
-  opts_hbox2 = gtk_hbox_new(false,0);
-  kit_combo_box = gtk_combo_box_new_with_model(GTK_TREE_MODEL(ui->kit_store));
-  kit_label = gtk_label_new("Kit:");
+  opts_hbox1 = gtk_hbox_new (false,0);
+  opts_hbox2 = gtk_hbox_new (false,0);
+  kit_combo_box = gtk_combo_box_new_with_model (GTK_TREE_MODEL(ui->kit_store));
+  kit_label = gtk_label_new ("Kit:");
 
-  no_kit_label = gtk_label_new("<b>No/Invalid Kit Selected</b>");
+  no_kit_label = gtk_label_new ("<b>No/Invalid Kit Selected</b>");
   gtk_label_set_use_markup(GTK_LABEL(no_kit_label),true);
 
   cell_rend = gtk_cell_renderer_text_new();
   gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(kit_combo_box), cell_rend, true);
   gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(kit_combo_box), cell_rend,"text",0,NULL);
 
-  base_label = gtk_label_new("Midi Base Note <b>(C 2)</b>:");
+  base_label = gtk_label_new ("Midi Base Note <b>(C 2)</b>:");
   gtk_label_set_use_markup(GTK_LABEL(base_label),true);
   base_adj = GTK_ADJUSTMENT (gtk_adjustment_new (36.0, // val
                                                  21.0,107.0, // min/max
                                                  1.0, // step
                                                  5.0,0.0)); // page adj/size
-  base_spin = gtk_spin_button_new(base_adj, 1.0, 0);
 
-  panlaw_label = gtk_label_new("Panning law: ");
+  base_spin = gtk_spin_button_new (base_adj, 1.0, 0);
+
+  panlaw_label = gtk_label_new ("Panning mode");
   ui->panlaw_combo_box = create_panlaw_combo();
 
   ui->velocity_checkbox = gtk_check_button_new_with_label("Ignore Velocity");
   ui->note_off_checkbox = gtk_check_button_new_with_label("Ignore Note Off");
 
-  gtk_box_pack_start(GTK_BOX(opts_hbox1),kit_label,
-		     false,false,15);
-  gtk_box_pack_start(GTK_BOX(opts_hbox1),no_kit_label,
-		     true,true,0);
-  gtk_box_pack_start(GTK_BOX(opts_hbox1),kit_combo_box,
-		     true,true,0);
-  gtk_box_pack_start(GTK_BOX(opts_hbox1),base_label,
-		     false,false,15);
-  gtk_box_pack_start(GTK_BOX(opts_hbox1),base_spin,
-		     true,true,0);
+  gtk_box_pack_start (GTK_BOX(opts_hbox1), kit_label, false, false, PADVAL);
+  gtk_box_pack_start(GTK_BOX(opts_hbox1),no_kit_label, true,true,0);
+  gtk_box_pack_start(GTK_BOX(opts_hbox1),kit_combo_box, true,true,0);
+  gtk_box_pack_start(GTK_BOX(opts_hbox1),base_label, false,false,PADVAL);
+  gtk_box_pack_start(GTK_BOX(opts_hbox1),base_spin, true,true,0);
 
   gtk_box_pack_start(GTK_BOX(opts_hbox2),panlaw_label,
-		     false,false,15);
+		     false,false,PADVAL);
   gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->panlaw_combo_box,
 		     false,false,0);
   gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->velocity_checkbox,
-		     true,true,15);
+		     true,true,PADVAL);
   gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->note_off_checkbox,
-		     true,true,15);
+		     true,true,PADVAL);
 
   gtk_box_pack_start(GTK_BOX(drmr_ui_widget),GTK_WIDGET(ui->current_kit_label),
 		     false,false,5);
@@ -762,14 +763,6 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
   ui->pan_vals = (float*) malloc(32*sizeof(float));
   memset (ui->pan_vals, 0, 32 * sizeof(float));
 
-  //fill with 0.5
-/*
-  for (int i = 0; i < 32; i++)
-      {
-       ui->pan_vals[i] = 0.5f;
-      }
-*/
-
 
   ui->cols = 6;
 
@@ -844,73 +837,72 @@ static void port_event (LV2UI_Handle handle,
   DrMrUi* ui = (DrMrUi*)handle;
 
   if (index == DRMR_CORE_EVENT)
-      {
-       if (format == ui->uris.atom_eventTransfer)
-          {
-           LV2_Atom* atom = (LV2_Atom*)buffer;
-           if (atom->type == ui->uris.atom_resource)
-              {
-               LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
+     {
+      if (format == ui->uris.atom_eventTransfer)
+         {
+          LV2_Atom* atom = (LV2_Atom*)buffer;
+          if (atom->type == ui->uris.atom_resource)
+             {
+              LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
 
               if (obj->body.otype == ui->uris.get_state || obj->body.otype == ui->uris.ui_msg)
-                  {
+                 {
                    // both state and ui_msg are the same at the moment
-                   const LV2_Atom* path = NULL;
+                  const LV2_Atom* path = NULL;
 
-                   lv2_atom_object_get(obj, ui->uris.kit_path, &path, 0);
-                   if (path)
-                      {
+                  lv2_atom_object_get (obj, ui->uris.kit_path, &path, 0);
+                  if (path)
+                     {
                        char *kitpath = (char*)LV2_ATOM_BODY(path);
-                       if (! strncmp(kitpath, "file://", 7))
+                       if (! strncmp (kitpath, "file://", 7))
                            kitpath += 7;
 
                        char *realp = realpath(kitpath,NULL);
-	                   if (! realp)
+                       if (! realp)
                           {
-	                       fprintf(stderr,"Passed a path I can't resolve, bailing out\n");
-	                       return;
-	                      }
+                           fprintf (stderr,"Passed a path I can't resolve, bailing out\n");
+                           return;
+                          }
 
-	                int i;
-             	    for (i = 0;i < ui->kits->num_kits;i++)
-                        if (!strcmp(ui->kits->kits[i].path,realp))
-		                      break;
+                      int i;
+                      for (i = 0;i < ui->kits->num_kits;i++)
+                           if (! strcmp (ui->kits->kits[i].path, realp))
+                              break;
 
-	                if (i < ui->kits->num_kits)
-                       {
- 	                    ui->kitReq = i;
-                        g_idle_add(kit_callback,ui);
-	                  }
-	                else
-	                    fprintf(stderr,"Couldn't find kit %s\n",realp);
+                      if (i < ui->kits->num_kits)
+                         {
+                          ui->kitReq = i;
+                          g_idle_add (kit_callback, ui);
+                         }
+                      else
+                          fprintf(stderr,"Couldn't find kit %s\n",realp);
 
-	               free(realp);
-               	  }
+                      free(realp);
+                     }
 
-	  if (obj->body.otype == ui->uris.get_state)
-     { // read out extra state info
-	    const LV2_Atom* ignvel = NULL;
-	    const LV2_Atom* ignno = NULL;
-	    const LV2_Atom* panlaw = NULL;
-	    lv2_atom_object_get(obj,
-			   ui->uris.velocity_toggle, &ignvel,
-			   ui->uris.note_off_toggle, &ignno,
-			   ui->uris.panlaw, &panlaw,
-			   0);
-	    if (ignvel)
-	      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->velocity_checkbox),
-					   ((const LV2_Atom_Bool*)ignvel)->body);
-	    if (ignno)
-	      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->note_off_checkbox),
-					   ((const LV2_Atom_Bool*)ignno)->body);
-	    if (panlaw)
-	      gtk_combo_box_set_active(GTK_COMBO_BOX(ui->panlaw_combo_box),
-				       ((const LV2_Atom_Int*)panlaw)->body);
-	  }
-	}
-	else if (obj->body.otype == ui->uris.midi_info) {
-	  const LV2_Atom *midi_atom = NULL;
-	  lv2_atom_object_get(obj, ui->uris.midi_event, &midi_atom, 0);
+                  if (obj->body.otype == ui->uris.get_state)
+                     { // read out extra state info
+                      const LV2_Atom* ignvel = NULL;
+                      const LV2_Atom* ignno = NULL;
+                      const LV2_Atom* panlaw = NULL;
+
+                      lv2_atom_object_get (obj, ui->uris.velocity_toggle, &ignvel, ui->uris.note_off_toggle, &ignno, ui->uris.panlaw, &panlaw, 0);
+
+                      if (ignvel)
+                          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->velocity_checkbox), ((const LV2_Atom_Bool*)ignvel)->body);
+
+                      if (ignno)
+                          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->note_off_checkbox), ((const LV2_Atom_Bool*)ignno)->body);
+
+                      if (panlaw)
+                          gtk_combo_box_set_active(GTK_COMBO_BOX(ui->panlaw_combo_box), ((const LV2_Atom_Int*)panlaw)->body);
+                     }
+                 }
+             else
+                 if (obj->body.otype == ui->uris.midi_info)
+                    {
+                     const LV2_Atom *midi_atom = NULL;
+                     lv2_atom_object_get (obj, ui->uris.midi_event, &midi_atom, 0);
 	  if(!midi_atom) {
 	    fprintf(stderr,"Midi info with no midi data\n");
 	    return;
@@ -956,14 +948,6 @@ static void port_event (LV2UI_Handle handle,
          {
           float pan = *(float*)buffer;
 
-          ////NASTY HACK! so pan cannot be 0
-          //влияет только на кнобы ((
-          /*if (float_equal (pan, 0))
-             {
-              pan = 0.5f;
-              *(float*)buffer = 0.5f;
-             }
-*/
           int idx = index - DRMR_PAN_ONE;
           ui->pan_vals[idx] = pan;
 

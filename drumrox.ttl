@@ -10,7 +10,7 @@
 <https://github.com/psemiletov/drumrox>
   a lv2:InstrumentPlugin, lv2:Plugin;
   lv2:binary <drumrox.so>;
-  doap:name "Drumrox Sampler";
+  doap:name "Drumrox";
   doap:maintainer [
 	foaf:name "Nick Lanham / Modified by Peter Semiletov" ;
 	foaf:homepage <https://github.com/psemiletov/drumrox> ;
