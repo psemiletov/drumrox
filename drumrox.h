@@ -178,8 +178,12 @@ typedef struct {
   bool ignore_velocity;
   bool ignore_note_off;
   int panlaw;
+
   float** gains;
   float** pans;
+  //float pans[32];
+
+
   float* baseNote;
   double rate;
 

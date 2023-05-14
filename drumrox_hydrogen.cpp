@@ -638,26 +638,25 @@ s_kits* scan_kits()
          struct instrument_info *cur_i = info.kit_info->instruments;
          while (cur_i)
                {
-	              kit->samples++;
-	              cur_i = cur_i->next;
-	             }
+                kit->samples++;
+                cur_i = cur_i->next;
+               }
 
-	       kit->sample_names = (char**) malloc(kit->samples*sizeof(char*));
-           cur_i = info.kit_info->instruments;
+        kit->sample_names = (char**) malloc(kit->samples*sizeof(char*));
+        cur_i = info.kit_info->instruments;
 
-	       while (cur_i)
-                 {
-	              struct instrument_info *to_free = cur_i;
+        while (cur_i)
+              {
+               struct instrument_info *to_free = cur_i;
 
-	              if (cur_i->name)
-	                 kit->sample_names[i++] = cur_i->name;
-	              else
-	                  kit->sample_names[i++] = unknownstr;
+               if (cur_i->name)
+                  kit->sample_names[i++] = cur_i->name;
+               else
+                    kit->sample_names[i++] = unknownstr;
 
-	              cur_i = cur_i->next;
-	              free (to_free);
-
-                 }
+               cur_i = cur_i->next;
+               free (to_free);
+              }
 
         //snprintf(buf,BUFSIZ,"%s/%s/",cur_path,ep->d_name);
 
@@ -669,28 +668,27 @@ s_kits* scan_kits()
        kit->path = realpath(kd.c_str(),NULL); // realpath will malloc for us
 
 
-        node->skit = kit;
+       node->skit = kit;
 
-	    struct kit_list *cur_k = scanned_kits;
+       struct kit_list *cur_k = scanned_kits;
 
-	    if (cur_k)
-           {
-	        while (cur_k->next)
-                   cur_k = cur_k->next;
+       if (cur_k)
+          {
+           while (cur_k->next)
+                  cur_k = cur_k->next;
 
-	        cur_k->next = node;
-	       }
-	    else
-	        scanned_kits = node;
-	   }
+           cur_k->next = node;
+          }
+       else
+           scanned_kits = node;
       }
+   }
 
   // valid kits are in scanned_kits at this point
 
 
   cp = 0;
   struct kit_list *cur_k = scanned_kits;
-
 
   while (cur_k)
         {

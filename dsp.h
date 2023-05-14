@@ -2,7 +2,7 @@
 #define DSP_H
 
 #include <cmath>
-
+#include <limits>
 
 extern double db_scale;
 

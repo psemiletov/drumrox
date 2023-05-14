@@ -31,9 +31,12 @@ static int current_kit_changed = 0;
 static void* load_thread (void* arg)
 {
   DrMr* drmr = (DrMr*)arg;
-  drmr_sample *loaded_samples, *old_samples;
-  int loaded_count, old_scount;
-  char *request, *request_orig;
+  drmr_sample *loaded_samples;
+  drmr_sample *old_samples;
+  int loaded_count;
+  int old_scount;
+  char *request;
+  char *request_orig;
 
   for(;;)
      {
@@ -81,11 +84,10 @@ static void* load_thread (void* arg)
 }
 
 
-static LV2_Handle
-instantiate(const LV2_Descriptor*     descriptor,
-            double                    rate,
-            const char*               bundle_path,
-            const LV2_Feature* const* features)
+static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
+                               double rate,
+                               const char* bundle_path,
+                               const LV2_Feature* const* features)
 {
   init_db();
 
@@ -98,15 +100,7 @@ instantiate(const LV2_Descriptor*     descriptor,
   drmr->rate = rate;
   drmr->ignore_velocity = false;
   drmr->ignore_note_off = true;
-/*
-#ifdef DRMR_UI_ZERO_SAMP
-  drmr->zero_position = DRMR_UI_ZERO_SAMP;
-#else
-  drmr->zero_position = 0;
-#endif
-*/
-   drmr->panlaw = 0;
-
+  drmr->panlaw = 0;
 
   if (pthread_mutex_init (&drmr->load_mutex, 0))
      {
@@ -126,7 +120,8 @@ instantiate(const LV2_Descriptor*     descriptor,
         {
          if (! strcmp((*features)->URI, LV2_URID_URI "#map"))
              drmr->map = (LV2_URID_Map *)((*features)->data);
-        features++;
+
+         features++;
         }
 
   if (! drmr->map)
@@ -148,7 +143,7 @@ instantiate(const LV2_Descriptor*     descriptor,
      }
 
   drmr->request_buf = (char**) malloc (REQ_BUF_SIZE*sizeof(char*));
-  memset (drmr->request_buf,0,REQ_BUF_SIZE*sizeof(char*));
+  memset (drmr->request_buf, 0, REQ_BUF_SIZE * sizeof(char*));
 
   drmr->gains = (float**) malloc(32*sizeof(float*));
   drmr->pans = (float**) malloc(32*sizeof(float*));
@@ -238,10 +233,13 @@ static inline LV2_Atom *build_state_message (DrMr *drmr)
 
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.velocity_toggle,0);
   lv2_atom_forge_bool(&drmr->forge, drmr->ignore_velocity?true:false);
+
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.note_off_toggle,0);
   lv2_atom_forge_bool(&drmr->forge, drmr->ignore_note_off?true:false);
+
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.panlaw,0);
   lv2_atom_forge_int(&drmr->forge, drmr->panlaw);
+
   lv2_atom_forge_pop(&drmr->forge,&set_frame);
 
   return msg;
@@ -329,9 +327,9 @@ static inline void untrigger_sample (DrMr *drmr, int nn, uint32_t offset)
      {
       if (drmr->samples[nn].layer_count > 0)
          {
-          layer_to_sample (drmr->samples+nn, * (drmr->gains[nn]));
+          layer_to_sample (drmr->samples + nn, * (drmr->gains[nn]));
           if (drmr->samples[nn].limit == 0)
-              fprintf(stderr,"Failed to find layer at: %i for %f\n",nn,*drmr->gains[nn]);
+              fprintf(stderr,"Failed to find layer at: %i for %f\n", nn, *drmr->gains[nn]);
          }
 
       drmr->samples[nn].active = 0;
@@ -350,7 +348,6 @@ static inline void untrigger_sample (DrMr *drmr, int nn, uint32_t offset)
 
 static void run (LV2_Handle instance, uint32_t n_samples)
 {
-  //int i;
   int baseNote;
 
   DrMr* drmr = (DrMr*)instance;
@@ -442,10 +439,10 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                  }
 
               if (ignvel)
-                  drmr->ignore_velocity = ((const LV2_Atom_Bool*)ignvel)->body;
+                 drmr->ignore_velocity = ((const LV2_Atom_Bool*)ignvel)->body;
 
               if (ignno)
-                   drmr->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
+                 drmr->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
 
               if (panlaw)
                  drmr->panlaw = ((const LV2_Atom_Int*)panlaw)->body;
@@ -484,7 +481,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   for (int i = 0; i < drmr->num_samples; i++)
       {
        int pos, lim;
-       drmr_sample *cs = drmr->samples+i;
+       drmr_sample *cs = drmr->samples + i;
 
        if ((cs->active || cs->dataoffset) && (cs->limit > 0))
           {
@@ -521,8 +518,21 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                  // pan_linear0 (panl, panr, p_track->pan);
 
 
-               coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
-               coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
+               //coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
+               //coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
+
+//               coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
+  //             coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
+
+               coef_right = pan_right * gain * cs->velocity;
+               coef_left = pan_left * gain * cs->velocity;
+
+                //work
+//               coef_right = pan_right * gain;
+  //             coef_left = pan_left * gain;
+
+
+
               }
            else
               {
@@ -580,32 +590,34 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 }
 
 
-static void cleanup(LV2_Handle instance)
+static void cleanup (LV2_Handle instance)
 {
   DrMr* drmr = (DrMr*)instance;
   pthread_cancel (drmr->load_thread);
   pthread_join (drmr->load_thread, 0);
 
   if (drmr->num_samples > 0)
-      free_samples (drmr->samples,drmr->num_samples);
+      free_samples (drmr->samples, drmr->num_samples);
 
   free (drmr->gains);
   free (instance);
 }
 
 
-static LV2_State_Status
-save_state(LV2_Handle                 instance,
+static LV2_State_Status save_state (LV2_Handle                 instance,
 	   LV2_State_Store_Function   store,
 	   void*                      handle,
 	   uint32_t                   flags,
-	   const LV2_Feature *const * features) {
+	   const LV2_Feature *const * features)
+{
+
   DrMr *drmr = (DrMr*)instance;
   LV2_State_Map_Path* map_path = NULL;
   int32_t flag;
   LV2_State_Status stat = LV2_STATE_SUCCESS;
 
-  while(*features) {
+  while (*features)
+        {
     if (!strcmp((*features)->URI, LV2_STATE__mapPath))
       map_path = (LV2_State_Map_Path*)((*features)->data);
     features++;
@@ -630,13 +642,16 @@ save_state(LV2_Handle                 instance,
   }
 
   flag = drmr->ignore_velocity?1:0;
+
   stat = store(handle,
 	       drmr->uris.velocity_toggle,
 	       &flag,
 	       sizeof(int32_t),
 	       drmr->uris.bool_urid,
 	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
-  if (stat) return stat;
+
+  if (stat)
+     return stat;
 
   flag = drmr->ignore_note_off?1:0;
   stat = store(handle,
@@ -645,7 +660,9 @@ save_state(LV2_Handle                 instance,
 	       sizeof(uint32_t),
 	       drmr->uris.bool_urid,
 	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
-  if (stat) return stat;
+
+  if (stat)
+     return stat;
 
   stat = store(handle,
 	       drmr->uris.panlaw,
@@ -653,15 +670,18 @@ save_state(LV2_Handle                 instance,
 	       sizeof(int),
 	       drmr->uris.int_urid,
 	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+
   return stat;
 }
+
 
 static LV2_State_Status 
 restore_state(LV2_Handle                  instance,
 	      LV2_State_Retrieve_Function retrieve,
 	      void*                       handle,
 	      uint32_t                    flags,
-	      const LV2_Feature *const *  features) {
+	      const LV2_Feature *const *  features)
+{
   DrMr* drmr = (DrMr*)instance;
   size_t      size;
   uint32_t    type;

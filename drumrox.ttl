@@ -516,9 +516,9 @@
     lv2:index 36;
     lv2:symbol "pan_one";
     lv2:name "Sample One Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -526,9 +526,9 @@
     lv2:index 37;
     lv2:symbol "pan_two";
     lv2:name "Sample Two Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -536,9 +536,9 @@
     lv2:index 38;
     lv2:symbol "pan_three";
     lv2:name "Sample Three Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -546,9 +546,9 @@
     lv2:index 39;
     lv2:symbol "pan_four";
     lv2:name "Sample Four Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -556,9 +556,9 @@
     lv2:index 40;
     lv2:symbol "pan_five";
     lv2:name "Sample Five Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -566,9 +566,9 @@
     lv2:index 41;
     lv2:symbol "pan_six";
     lv2:name "Sample Six Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -576,9 +576,9 @@
     lv2:index 42;
     lv2:symbol "pan_seven";
     lv2:name "Sample Seven Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -586,9 +586,9 @@
     lv2:index 43;
     lv2:symbol "pan_eight";
     lv2:name "Sample Eight Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -596,9 +596,9 @@
     lv2:index 44;
     lv2:symbol "pan_nine";
     lv2:name "Sample Nine Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -606,9 +606,9 @@
     lv2:index 45;
     lv2:symbol "pan_ten";
     lv2:name "Sample Ten Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -616,9 +616,9 @@
     lv2:index 46;
     lv2:symbol "pan_eleven";
     lv2:name "Sample Eleven Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0; 
+    lv2:default 0.5;
   ],
 
   [
@@ -626,9 +626,9 @@
     lv2:index 47;
     lv2:symbol "pan_twelve";
     lv2:name "Sample Twelve Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -636,9 +636,9 @@
     lv2:index 48;
     lv2:symbol "pan_thirteen";
     lv2:name "Sample Thirteen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -646,9 +646,9 @@
     lv2:index 49;
     lv2:symbol "pan_fourteen";
     lv2:name "Sample Fourteen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -656,9 +656,9 @@
     lv2:index 50;
     lv2:symbol "pan_fifteen";
     lv2:name "Sample Fifteen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
   [
@@ -666,9 +666,9 @@
     lv2:index 51;
     lv2:symbol "pan_sixteen";
     lv2:name "Sample Sixteen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ],
 
  [
@@ -676,9 +676,9 @@
     lv2:index 52;
     lv2:symbol "pan_seventeen";
     lv2:name "Sample Seventeen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -691,9 +691,9 @@
     lv2:index 53;
     lv2:symbol "pan_eighteen";
     lv2:name "Sample Eighteen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -705,9 +705,9 @@
     lv2:index 54;
     lv2:symbol "pan_nineteen";
     lv2:name "Sample Nineteen Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -719,9 +719,9 @@
     lv2:index 55;
     lv2:symbol "pan_twenty";
     lv2:name "Sample Twenty Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -733,9 +733,9 @@
     lv2:index 56;
     lv2:symbol "pan_twentyone";
     lv2:name "Sample Twenty One Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -747,9 +747,9 @@
     lv2:index 57;
     lv2:symbol "pan_twentytwo";
     lv2:name "Sample Twenty Two Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -761,9 +761,9 @@
     lv2:index 58;
     lv2:symbol "pan_twentythree";
     lv2:name "Sample Twenty Three Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -775,9 +775,9 @@
     lv2:index 59;
     lv2:symbol "pan_twentyfour";
     lv2:name "Sample Twenty Four Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -789,9 +789,9 @@
     lv2:index 60;
     lv2:symbol "pan_twentyfive";
     lv2:name "Sample Twenty Five Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -803,9 +803,9 @@
     lv2:index 61;
     lv2:symbol "pan_twentysix";
     lv2:name "Sample Twenty Six Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -817,9 +817,9 @@
     lv2:index 62;
     lv2:symbol "pan_twentyseven";
     lv2:name "Sample Twenty Seven Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -831,9 +831,9 @@
     lv2:index 63;
     lv2:symbol "pan_twentyeight";
     lv2:name "Sample Twenty Eight Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -845,9 +845,9 @@
     lv2:index 64;
     lv2:symbol "pan_twentynine";
     lv2:name "Sample Twenty Nine Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -859,9 +859,9 @@
     lv2:index 65;
     lv2:symbol "pan_thirty";
     lv2:name "Sample Thirty Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -873,9 +873,9 @@
     lv2:index 66;
     lv2:symbol "pan_thirtyone";
     lv2:name "Sample Thirty One Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
     lv2:scalePoint [
       rdfs:label "-inf" ;
       rdf:value -1.0
@@ -887,9 +887,9 @@
     lv2:index 67;
     lv2:symbol "pan_thirtytwo";
     lv2:name "Sample Thirty Two Pan";
-    lv2:minimum -1.0;
+    lv2:minimum 0.0;
     lv2:maximum 1.0;
-    lv2:default 0.0;
+    lv2:default 0.5;
   ].
 
 <https://github.com/psemiletov/drumrox#ui>

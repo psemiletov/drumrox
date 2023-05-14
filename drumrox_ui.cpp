@@ -53,9 +53,12 @@ typedef struct
   GtkSpinButton *base_spin;
   GtkLabel *base_label;
   GtkListStore *kit_store;
+
   GtkWidget** gain_sliders;
   GtkWidget** pan_sliders;
-  float *gain_vals,*pan_vals;
+
+  float *gain_vals;
+  float *pan_vals;
 
   GtkWidget** notify_leds;
   GtkWidget *panlaw_combo_box, *velocity_checkbox, *note_off_checkbox;
@@ -87,18 +90,18 @@ static gboolean gain_callback(GtkRange* range, GtkScrollType type, gdouble value
   int gidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range),ui->gain_quark));
   float gain = (float)value;
   ui->gain_vals[gidx] = gain;
-  ui->write (ui->controller, gidx + DRMR_GAIN_ONE, 4, 0,&gain);
+  ui->write (ui->controller, gidx + DRMR_GAIN_ONE, 4, 0, &gain);
   return FALSE;
 }
 
 
-static gboolean pan_callback(GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
+static gboolean pan_callback (GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
 {
   DrMrUi* ui = (DrMrUi*)data;
-  int pidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range),ui->pan_quark));
+  int pidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range), ui->pan_quark));
   float pan = (float)value;
   ui->pan_vals[pidx] = pan;
-  ui->write (ui->controller, pidx + DRMR_PAN_ONE, 4, 0,&pan);
+  ui->write (ui->controller, pidx + DRMR_PAN_ONE, 4, 0, &pan);
   return FALSE;
 }
 
@@ -171,21 +174,7 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
       rows++;
 
   gtk_table_resize (ui->sample_table, rows, ui->cols);
-/*
-  switch (ui->panlaw)
-         {
-          case 1: // bottom left
-                  row = rows-1;
-                  break;
-          case 2: // top right
-                 col = ui->cols - 1;
-                 break;
-          case 3: // bottom right
-                 row = rows - 1;
-                 col = ui->cols - 1;
-                 break;
-         }
-*/
+
   for (int si = 0; si < samples; si++)
       {
        GtkWidget *frame, *vbox, *hbox, *gain_vbox, *pan_vbox;
@@ -207,56 +196,65 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
 
 #ifdef NO_NKNOB
 //       gain_slider = gtk_vscale_new_with_range(GAIN_MIN,6.0,1);
-        gain_slider = gtk_vscale_new_with_range (GAIN_MIN, 6.0, 0.1);
+       gain_slider = gtk_vscale_new_with_range (GAIN_MIN, 6.0, 0.1);
 
-        gtk_scale_set_value_pos(GTK_SCALE(gain_slider),GTK_POS_BOTTOM);
+       gtk_scale_set_value_pos(GTK_SCALE(gain_slider),GTK_POS_BOTTOM);
 //        gtk_scale_set_digits(GTK_SCALE(gain_slider),1);
-         gtk_scale_set_digits(GTK_SCALE(gain_slider),2);
+       gtk_scale_set_digits(GTK_SCALE(gain_slider),2);
 
-        gtk_scale_add_mark(GTK_SCALE(gain_slider),0.0,GTK_POS_RIGHT,"0 dB");
+       gtk_scale_add_mark(GTK_SCALE(gain_slider),0.0,GTK_POS_RIGHT,"0 dB");
     // Hrmm, -inf label is at top in ardour for some reason
     //gtk_scale_add_mark(GTK_SCALE(gain_slider),GAIN_MIN,GTK_POS_RIGHT,"-inf");
-        gtk_range_set_inverted (GTK_RANGE(gain_slider), true);
-        slide_expand = true;
+       gtk_range_set_inverted (GTK_RANGE(gain_slider), true);
+       slide_expand = true;
 #else
 //    gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,1.0);
-      gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,0.1);
+       gain_slider = n_knob_new_with_range (0.0, GAIN_MIN, 6.0, 0.1);
 
-      n_knob_set_load_prefix(N_KNOB(gain_slider),ui->bundle_path);
-      gtk_widget_set_has_tooltip(gain_slider,TRUE);
-      slide_expand = false;
+       n_knob_set_load_prefix(N_KNOB(gain_slider),ui->bundle_path);
+       gtk_widget_set_has_tooltip(gain_slider,TRUE);
+       slide_expand = false;
 #endif
-    g_object_set_qdata (G_OBJECT(gain_slider),ui->gain_quark,GINT_TO_POINTER(si));
 
-    if (gain_sliders)
-        gain_sliders[si] = gain_slider;
+       g_object_set_qdata (G_OBJECT(gain_slider),ui->gain_quark,GINT_TO_POINTER(si));
 
-    if (si < 32)
-        gtk_range_set_value(GTK_RANGE(gain_slider),ui->gain_vals[si]);
-    else // things are gross if we have > 32 samples, what to do?
-      gtk_range_set_value(GTK_RANGE(gain_slider),0.0);
+       if (gain_sliders)
+           gain_sliders[si] = gain_slider;
 
-    g_signal_connect(G_OBJECT(gain_slider),"change-value",G_CALLBACK(gain_callback),ui);
-    gain_label = gtk_label_new("Gain");
-    gain_vbox = gtk_vbox_new(false,0);
+       if (si < 32)
+          gtk_range_set_value(GTK_RANGE(gain_slider), ui->gain_vals[si]);
+       else // things are gross if we have > 32 samples, what to do?
+           gtk_range_set_value(GTK_RANGE(gain_slider),0.0);
+
+       g_signal_connect(G_OBJECT(gain_slider),"change-value",G_CALLBACK(gain_callback),ui);
+       gain_label = gtk_label_new("Gain");
+       gain_vbox = gtk_vbox_new(false,0);
+
+
 
 #ifdef NO_NKNOB
-    pan_slider = gtk_hscale_new_with_range (-1.0,1.0,0.1);
-    gtk_scale_add_mark(GTK_SCALE(pan_slider),0.0,GTK_POS_TOP,NULL);
+       pan_slider = gtk_hscale_new_with_range (0, 1.0, 0.1);
+       gtk_scale_add_mark(GTK_SCALE(pan_slider), 0.0, GTK_POS_TOP,NULL);
 #else
-    pan_slider = n_knob_new_with_range (0.0,-1.0,1.0,0.1);
-    n_knob_set_load_prefix(N_KNOB(pan_slider),ui->bundle_path);
-    gtk_widget_set_has_tooltip(pan_slider,TRUE);
+       pan_slider = n_knob_new_with_range (0.5, 0, 1.0, 0.1);
+       n_knob_set_load_prefix(N_KNOB(pan_slider),ui->bundle_path);
+       gtk_widget_set_has_tooltip(pan_slider,TRUE);
 #endif
-    if (pan_sliders) pan_sliders[si] = pan_slider;
-    if (si < 32)
-      gtk_range_set_value(GTK_RANGE(pan_slider),ui->pan_vals[si]);
-    else
-      gtk_range_set_value(GTK_RANGE(pan_slider),0);
-    g_object_set_qdata (G_OBJECT(pan_slider),ui->pan_quark,GINT_TO_POINTER(si));
-    g_signal_connect(G_OBJECT(pan_slider),"change-value",G_CALLBACK(pan_callback),ui);
-    pan_label = gtk_label_new("Pan");
-    pan_vbox = gtk_vbox_new(false,0);
+
+      if (pan_sliders)
+          pan_sliders[si] = pan_slider;
+
+      if (si < 32)
+         gtk_range_set_value (GTK_RANGE(pan_slider), (gdouble) ui->pan_vals[si]);
+       //  gtk_range_set_value (GTK_RANGE(pan_slider), 0.5);
+      else
+          gtk_range_set_value (GTK_RANGE(pan_slider), 0.5f);
+
+      g_object_set_qdata (G_OBJECT(pan_slider),ui->pan_quark,GINT_TO_POINTER(si));
+      g_signal_connect(G_OBJECT(pan_slider),"change-value",G_CALLBACK(pan_callback),ui);
+
+      pan_label = gtk_label_new ("Pan");
+      pan_vbox = gtk_vbox_new (false, 0);
     
     gtk_box_pack_start(GTK_BOX(gain_vbox),gain_slider,slide_expand,slide_expand,0);
     gtk_box_pack_start(GTK_BOX(gain_vbox),gain_label,false,false,0);
@@ -739,17 +737,29 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
   ui->gain_quark = g_quark_from_string("drmr_gain_quark");
   ui->pan_quark = g_quark_from_string("drmr_pan_quark");
   ui->trigger_quark = g_quark_from_string("drmr_trigger_quark");
+
   ui->gain_sliders = NULL;
   ui->pan_sliders = NULL;
   ui->notify_leds = NULL;
 
   // store previous gain/pan vals to re-apply to sliders when we
   // change kits
+
   ui->gain_vals = (float*)malloc(32*sizeof(float));
   memset(ui->gain_vals,0,32*sizeof(float));
-  ui->pan_vals  = (float*) malloc(32*sizeof(float));
-  memset(ui->pan_vals,0,32*sizeof(float));
-//  ui->cols = 4;
+
+  ui->pan_vals = (float*) malloc(32*sizeof(float));
+  memset (ui->pan_vals, 0, 32 * sizeof(float));
+
+  //fill with 0.5
+/*
+  for (int i = 0; i < 32; i++)
+      {
+       ui->pan_vals[i] = 0.5f;
+      }
+*/
+
+
   ui->cols = 6;
 
   ui->forceUpdate = false;
@@ -757,13 +767,6 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
 
   ui->panlaw = PANLAW_LINEAR6;
 
-  /*
-#ifdef DRMR_UI_ZERO_SAMP
-  ui->panlaw = DRMR_UI_ZERO_SAMP;
-#else
-  ui->startSamp = 0;
-#endif
-*/
   *widget = ui->drmr_widget;
 
   return ui;
@@ -789,8 +792,13 @@ static void cleanup (LV2UI_Handle handle)
 
   if (ui->pan_sliders) free(ui->pan_sliders);
      g_free(ui->bundle_path);
-  if (led_on_pixbuf) g_object_unref(led_on_pixbuf);
-  if (led_off_pixbuf) g_object_unref(led_off_pixbuf);
+
+  if (led_on_pixbuf)
+     g_object_unref(led_on_pixbuf);
+
+  if (led_off_pixbuf)
+     g_object_unref(led_off_pixbuf);
+
   free_kits(ui->kits);
   free(ui);
 }
@@ -803,7 +811,7 @@ struct slider_callback_data
 };
 
 
-static gboolean slider_callback(gpointer data)
+static gboolean slider_callback (gpointer data)
 {
   struct slider_callback_data *cbd = (struct slider_callback_data*) data;
 
@@ -831,21 +839,21 @@ static void port_event (LV2UI_Handle handle,
            LV2_Atom* atom = (LV2_Atom*)buffer;
            if (atom->type == ui->uris.atom_resource)
               {
-	           LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
+               LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
 
-	           if (obj->body.otype == ui->uris.get_state || obj->body.otype == ui->uris.ui_msg)
+              if (obj->body.otype == ui->uris.get_state || obj->body.otype == ui->uris.ui_msg)
                   {
-	               // both state and ui_msg are the same at the moment
-	               const LV2_Atom* path = NULL;
+                   // both state and ui_msg are the same at the moment
+                   const LV2_Atom* path = NULL;
 
-	               lv2_atom_object_get(obj, ui->uris.kit_path, &path, 0);
-	               if (path)
+                   lv2_atom_object_get(obj, ui->uris.kit_path, &path, 0);
+                   if (path)
                       {
-	                   char *kitpath = (char*)LV2_ATOM_BODY(path);
-	                   if (!strncmp(kitpath, "file://", 7))
-	                      kitpath += 7;
+                       char *kitpath = (char*)LV2_ATOM_BODY(path);
+                       if (! strncmp(kitpath, "file://", 7))
+                           kitpath += 7;
 
-	                   char *realp = realpath(kitpath,NULL);
+                       char *realp = realpath(kitpath,NULL);
 	                   if (! realp)
                           {
 	                       fprintf(stderr,"Passed a path I can't resolve, bailing out\n");
@@ -868,7 +876,8 @@ static void port_event (LV2UI_Handle handle,
 	               free(realp);
                	  }
 
-	  if (obj->body.otype == ui->uris.get_state) { // read out extra state info
+	  if (obj->body.otype == ui->uris.get_state)
+     { // read out extra state info
 	    const LV2_Atom* ignvel = NULL;
 	    const LV2_Atom* ignno = NULL;
 	    const LV2_Atom* panlaw = NULL;
@@ -920,7 +929,9 @@ static void port_event (LV2UI_Handle handle,
     float gain = *(float*)buffer;
     int idx = index-DRMR_GAIN_ONE;
     ui->gain_vals[idx] = gain;
-    if (idx < ui->samples && ui->gain_sliders) {
+
+     if (idx < ui->samples && ui->gain_sliders)
+        {
       struct slider_callback_data* data = (slider_callback_data*)malloc(sizeof(struct slider_callback_data));
       data->range = GTK_RANGE(ui->gain_sliders[idx]);
       data->val = gain;
@@ -929,23 +940,35 @@ static void port_event (LV2UI_Handle handle,
       //gtk_range_set_value(range,gain);
     }
   }
-  else if (index >= DRMR_PAN_ONE &&
-	   index <= DRMR_PAN_THIRTYTWO) {
-    float pan = *(float*)buffer;
-    int idx = index-DRMR_PAN_ONE;
-    ui->pan_vals[idx] = pan;
-    if (idx < ui->samples && ui->pan_sliders) {
-      struct slider_callback_data* data = (slider_callback_data*) malloc(sizeof(struct slider_callback_data));
-      data->range = GTK_RANGE(ui->pan_sliders[idx]);
-      data->val = pan;
-      g_idle_add(slider_callback,data);
-    }
-  }
+  else
+      if (index >= DRMR_PAN_ONE && index <= DRMR_PAN_THIRTYTWO)
+         {
+          float pan = *(float*)buffer;
+
+          ////NASTY HACK! so pan cannot be 0
+          //влияет только на кнобы ((
+          /*if (float_equal (pan, 0))
+             {
+              pan = 0.5f;
+              *(float*)buffer = 0.5f;
+             }
+*/
+          int idx = index - DRMR_PAN_ONE;
+          ui->pan_vals[idx] = pan;
+
+          if (idx < ui->samples && ui->pan_sliders)
+             {
+              struct slider_callback_data* data = (slider_callback_data*) malloc(sizeof(struct slider_callback_data));
+              data->range = GTK_RANGE(ui->pan_sliders[idx]);
+              data->val = pan;
+              g_idle_add(slider_callback,data);
+             }
+         }
 }
 
 
-static const void*
-extension_data(const char* uri) {
+static const void* extension_data(const char* uri)
+{
   return NULL;
 }
 
