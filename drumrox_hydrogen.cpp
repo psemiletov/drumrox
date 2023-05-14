@@ -152,11 +152,11 @@ static void XMLCALL startElement (void *userData, const char *name, const char *
   if (info->in_info)
      {
       if (info->in_instrument)
-         if (!strcmp (name,"layer") && !info->scan_only)
+         if (! strcmp (name,"layer") && ! info->scan_only)
             {
              info->in_layer = 1;
              info->cur_layer = (instrument_layer*) malloc(sizeof(struct instrument_layer));
-             memset(info->cur_layer,0,sizeof(struct instrument_layer));
+             memset (info->cur_layer, 0, sizeof(struct instrument_layer));
             }
 
       if (info->in_instrument_list)
@@ -165,7 +165,7 @@ static void XMLCALL startElement (void *userData, const char *name, const char *
              {
               info->in_instrument = 1;
               info->cur_instrument = (instrument_info*) malloc(sizeof(struct instrument_info));
-              memset(info->cur_instrument,0,sizeof(struct instrument_info));
+              memset (info->cur_instrument, 0, sizeof (struct instrument_info));
              }
          }
       else

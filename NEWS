@@ -1,4 +1,11 @@
-//1.0.0
-+ Modern Hydrogen kit format support
-+ Presets are sorted
+//1.1.0
 
+This release features the "Panning mode" option, where you can select one of the tapers:
+
+1. linear panner, law: -6 dB //default
+2. linear panner, law: 0 dB
+3. square root panner, law: -3 dB
+4. sin/cos panner, law: -3 dB
+
+This option affects to all instrument panners.
+Also, in 1.1.0, the Gain knob is more precise - the original DrMr step was 1 dB, the current one os 0.1 dB
