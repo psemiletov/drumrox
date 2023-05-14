@@ -160,7 +160,9 @@ typedef struct {
   LV2_URID sample_trigger;
   LV2_URID velocity_toggle;
   LV2_URID note_off_toggle;
-  LV2_URID zero_position;
+//  LV2_URID zero_position;
+   LV2_URID panlaw;
+
 } drmr_uris;
 
 typedef struct {
@@ -175,7 +177,7 @@ typedef struct {
   // params
   bool ignore_velocity;
   bool ignore_note_off;
-  int zero_position;
+  int panlaw;
   float** gains;
   float** pans;
   float* baseNote;
@@ -234,9 +236,9 @@ void map_drmr_uris(LV2_URID_Map *map,
   uris->note_off_toggle =
     map->map(map->handle,
 	     DRMR_URI "#noteofftoggle");
-  uris->zero_position =
+  uris->panlaw =
     map->map(map->handle,
-	     DRMR_URI "#zeroposition");
+	     DRMR_URI "#panlaw");
   uris->atom_eventTransfer = 
     map->map(map->handle, LV2_ATOM__eventTransfer);
   uris->atom_resource = 

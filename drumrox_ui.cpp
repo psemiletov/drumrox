@@ -23,6 +23,7 @@
 #include "drumrox.h"
 #include "drumrox_hydrogen.h"
 #include "nknob.h"
+#include "dsp.h"
 
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
@@ -57,12 +58,12 @@ typedef struct
   float *gain_vals,*pan_vals;
 
   GtkWidget** notify_leds;
-  GtkWidget *position_combo_box, *velocity_checkbox, *note_off_checkbox;
+  GtkWidget *panlaw_combo_box, *velocity_checkbox, *note_off_checkbox;
 
   gchar *bundle_path;
 
   int cols;
-  int startSamp;
+  int panlaw;
 
   gboolean forceUpdate;
 
@@ -78,7 +79,7 @@ typedef struct
 } DrMrUi;
 
 
-static GdkPixbuf *led_on_pixbuf=NULL,*led_off_pixbuf=NULL;
+static GdkPixbuf *led_on_pixbuf = NULL, *led_off_pixbuf=NULL;
 
 static gboolean gain_callback(GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
 {
@@ -86,9 +87,10 @@ static gboolean gain_callback(GtkRange* range, GtkScrollType type, gdouble value
   int gidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range),ui->gain_quark));
   float gain = (float)value;
   ui->gain_vals[gidx] = gain;
-  ui->write(ui->controller,gidx+DRMR_GAIN_ONE,4,0,&gain);
+  ui->write (ui->controller, gidx + DRMR_GAIN_ONE, 4, 0,&gain);
   return FALSE;
 }
+
 
 static gboolean pan_callback(GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
 {
@@ -96,7 +98,7 @@ static gboolean pan_callback(GtkRange* range, GtkScrollType type, gdouble value,
   int pidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range),ui->pan_quark));
   float pan = (float)value;
   ui->pan_vals[pidx] = pan;
-  ui->write(ui->controller,pidx+DRMR_PAN_ONE,4,0,&pan);
+  ui->write (ui->controller, pidx + DRMR_PAN_ONE, 4, 0,&pan);
   return FALSE;
 }
 
@@ -152,9 +154,10 @@ static gboolean ignore_velocity_toggled(GtkToggleButton *button, gpointer data)
 
 static gboolean ignore_note_off_toggled(GtkToggleButton *button, gpointer data) {
   DrMrUi* ui = (DrMrUi*)data;
-  send_ui_msg(ui,&ignore_note_off_data,button);
+  send_ui_msg (ui, &ignore_note_off_data, button);
   return FALSE;
 }
+
 
 static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
 {
@@ -168,8 +171,8 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
       rows++;
 
   gtk_table_resize (ui->sample_table, rows, ui->cols);
-
-  switch (ui->startSamp)
+/*
+  switch (ui->panlaw)
          {
           case 1: // bottom left
                   row = rows-1;
@@ -182,10 +185,10 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
                  col = ui->cols - 1;
                  break;
          }
-
+*/
   for (int si = 0; si < samples; si++)
       {
-       GtkWidget *frame,*vbox,*hbox,*gain_vbox,*pan_vbox;
+       GtkWidget *frame, *vbox, *hbox, *gain_vbox, *pan_vbox;
        GtkWidget *button_box, *led_event_box, *led;
        GtkWidget* gain_slider;
        GtkWidget* pan_slider;
@@ -219,25 +222,29 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
 //    gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,1.0);
       gain_slider = n_knob_new_with_range(0.0,GAIN_MIN,6.0,0.1);
 
-    n_knob_set_load_prefix(N_KNOB(gain_slider),ui->bundle_path);
-    gtk_widget_set_has_tooltip(gain_slider,TRUE);
-    slide_expand = false;
+      n_knob_set_load_prefix(N_KNOB(gain_slider),ui->bundle_path);
+      gtk_widget_set_has_tooltip(gain_slider,TRUE);
+      slide_expand = false;
 #endif
     g_object_set_qdata (G_OBJECT(gain_slider),ui->gain_quark,GINT_TO_POINTER(si));
-    if (gain_sliders) gain_sliders[si] = gain_slider;
+
+    if (gain_sliders)
+        gain_sliders[si] = gain_slider;
+
     if (si < 32)
-      gtk_range_set_value(GTK_RANGE(gain_slider),ui->gain_vals[si]);
+        gtk_range_set_value(GTK_RANGE(gain_slider),ui->gain_vals[si]);
     else // things are gross if we have > 32 samples, what to do?
       gtk_range_set_value(GTK_RANGE(gain_slider),0.0);
+
     g_signal_connect(G_OBJECT(gain_slider),"change-value",G_CALLBACK(gain_callback),ui);
     gain_label = gtk_label_new("Gain");
     gain_vbox = gtk_vbox_new(false,0);
 
 #ifdef NO_NKNOB
-    pan_slider = gtk_hscale_new_with_range(-1.0,1.0,0.1);
+    pan_slider = gtk_hscale_new_with_range (-1.0,1.0,0.1);
     gtk_scale_add_mark(GTK_SCALE(pan_slider),0.0,GTK_POS_TOP,NULL);
 #else
-    pan_slider = n_knob_new_with_range(0.0,-1.0,1.0,0.1);
+    pan_slider = n_knob_new_with_range (0.0,-1.0,1.0,0.1);
     n_knob_set_load_prefix(N_KNOB(pan_slider),ui->bundle_path);
     gtk_widget_set_has_tooltip(pan_slider,TRUE);
 #endif
@@ -262,12 +269,11 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
 
     gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
 
-    button_box = gtk_hbox_new(false,2);
+    button_box = gtk_hbox_new (false,2);
 
     led_event_box = gtk_event_box_new();
     g_object_set_qdata(G_OBJECT(led_event_box),ui->trigger_quark,GINT_TO_POINTER(si));
-    g_signal_connect(G_OBJECT(led_event_box),"button-release-event",
-		     G_CALLBACK(trigger_led_clicked),ui);
+    g_signal_connect(G_OBJECT(led_event_box),"button-release-event", G_CALLBACK(trigger_led_clicked),ui);
     led = gtk_image_new_from_pixbuf(led_off_pixbuf);
     if (notify_leds) notify_leds[si] = led;
     gtk_container_add(GTK_CONTAINER(led_event_box),led);
@@ -281,7 +287,7 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
     gtk_container_add(GTK_CONTAINER(frame),vbox);
 
     gtk_table_attach_defaults(ui->sample_table,frame,col,col+1,row,row+1);
-
+/*
     if (ui->startSamp > 1) {
       col--;
       if (col < 0) {
@@ -302,27 +308,48 @@ static void fill_sample_table (DrMrUi* ui, int samples, char** names, GtkWidget*
 	col = 0;
       }
     }
+
+    */
+
+
+      col++;
+      if (col >= ui->cols)
+         {
+	      if (ui->panlaw == 0)
+	        row++;
+	     else
+	         row--;
+  	     col = 0;
+        }
+
+
   }
   gtk_widget_queue_resize(GTK_WIDGET(ui->sample_table));
 }
 
-static gboolean unset_bg(gpointer data) {
-  if (GTK_IS_IMAGE(data))
-    gtk_image_set_from_pixbuf(GTK_IMAGE(data),led_off_pixbuf);
+static gboolean unset_bg(gpointer data)
+{
+  if (GTK_IS_IMAGE (data))
+      gtk_image_set_from_pixbuf (GTK_IMAGE(data), led_off_pixbuf);
+
   return FALSE;
 }
 
-static void sample_triggered(DrMrUi *ui, int si) {
-  if (ui->notify_leds && si < ui->samples) {
-    gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
-    g_timeout_add(200,unset_bg,ui->notify_leds[si]);
-  }
+
+static void sample_triggered (DrMrUi *ui, int si)
+{
+  if (ui->notify_leds && si < ui->samples)
+     {
+      gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
+      g_timeout_add(200,unset_bg,ui->notify_leds[si]);
+     }
 }
+
 
 static const char* nstrs = "C C#D D#E F F#G G#A A#B ";
 static char baseLabelBuf[32];
 
-static void setBaseLabel(int noteIdx)
+static void setBaseLabel (int noteIdx)
 {
   int oct = (noteIdx/12)-1;
   int nmt = (noteIdx%12)*2;
@@ -342,46 +369,60 @@ static void base_changed (GtkSpinButton *base_spin, gpointer data)
     ui->baseNote = (int)base;
   }
   else
-    fprintf(stderr,"Base spin got out of range: %f\n",base);
+      fprintf(stderr,"Base spin got out of range: %f\n",base);
 }
 
-static void fill_kit_combo(GtkComboBox* combo, s_kits* kits) {
-  int i;
+
+static void fill_kit_combo (GtkComboBox* combo, s_kits* kits)
+{
   GtkTreeIter iter;
-  GtkListStore *store = GTK_LIST_STORE(gtk_combo_box_get_model(combo));
-  for (i=0;i<kits->num_kits;i++) {
-    gtk_list_store_append (store, &iter);
-    gtk_list_store_set(store, &iter, 0, kits->kits[i].name, -1);
-  }
+  GtkListStore *store = GTK_LIST_STORE (gtk_combo_box_get_model(combo));
+
+  for (int i=0; i< kits->num_kits; i++)
+      {
+       gtk_list_store_append (store, &iter);
+       gtk_list_store_set(store, &iter, 0, kits->kits[i].name, -1);
+      }
 }
 
 static gboolean idle = FALSE;
 
-static gboolean kit_callback(gpointer data) {
+static gboolean kit_callback (gpointer data)
+{
   DrMrUi* ui = (DrMrUi*)data;
-  if (ui->forceUpdate || (ui->kitReq != ui->curKit)) {
-    ui->forceUpdate = false;
-    int samples = (ui->kitReq<ui->kits->num_kits && ui->kitReq >= 0)?
-      ui->kits->kits[ui->kitReq].samples:
-      0;
-    GtkWidget** notify_leds;
-    GtkWidget** gain_sliders;
-    GtkWidget** pan_sliders;
-    if (ui->sample_table) {
-      notify_leds = ui->notify_leds;
-      gain_sliders = ui->gain_sliders;
-      pan_sliders = ui->pan_sliders;
-      ui->samples = 0;
-      ui->notify_leds = NULL;
-      ui->gain_sliders = NULL;
-      ui->pan_sliders = NULL;
-      if (notify_leds) free(notify_leds);
-      if (gain_sliders) free(gain_sliders);
-      if (pan_sliders) free(pan_sliders);
-      gtk_widget_destroy(GTK_WIDGET(ui->sample_table));
-      ui->sample_table = NULL;
-    }
-    if (samples > 0) {
+  if (ui->forceUpdate || (ui->kitReq != ui->curKit))
+     {
+      ui->forceUpdate = false;
+      int samples = (ui->kitReq<ui->kits->num_kits && ui->kitReq >= 0)? ui->kits->kits[ui->kitReq].samples: 0;
+      GtkWidget** notify_leds;
+      GtkWidget** gain_sliders;
+      GtkWidget** pan_sliders;
+
+      if (ui->sample_table)
+         {
+          notify_leds = ui->notify_leds;
+          gain_sliders = ui->gain_sliders;
+          pan_sliders = ui->pan_sliders;
+          ui->samples = 0;
+          ui->notify_leds = NULL;
+          ui->gain_sliders = NULL;
+          ui->pan_sliders = NULL;
+
+          if (notify_leds)
+              free (notify_leds);
+
+          if (gain_sliders)
+              free (gain_sliders);
+
+          if (pan_sliders)
+             free (pan_sliders);
+
+          gtk_widget_destroy(GTK_WIDGET(ui->sample_table));
+          ui->sample_table = NULL;
+        }
+
+     if (samples > 0)
+        {
       ui->sample_table = GTK_TABLE(gtk_table_new(1,1,true));
       gtk_table_set_col_spacings(ui->sample_table,5);
       gtk_table_set_row_spacings(ui->sample_table,5);
@@ -405,7 +446,8 @@ static gboolean kit_callback(gpointer data) {
       gtk_combo_box_set_active(ui->kit_combo,ui->curKit);
       gtk_widget_show(GTK_WIDGET(ui->kit_combo));
       gtk_widget_hide(ui->no_kit_label);
-    } else {
+    }
+     else {
       gtk_widget_show(ui->no_kit_label);
       gtk_label_set_text(ui->current_kit_label,NO_KIT_STRING);
       gtk_widget_hide(GTK_WIDGET(ui->kit_combo));
@@ -450,46 +492,56 @@ static void kit_combobox_changed(GtkComboBox* box, gpointer data) {
   }
 }
 
-static void position_data(DrMrUi *ui, gpointer data) {
-  lv2_atom_forge_property_head(&ui->forge, ui->uris.zero_position,0);
+
+static void panlaw_data (DrMrUi *ui, gpointer data)
+{
+  lv2_atom_forge_property_head (&ui->forge, ui->uris.panlaw, 0);
   lv2_atom_forge_int(&ui->forge, GPOINTER_TO_INT(data));
 }
-static void position_combobox_changed(GtkComboBox* box, gpointer data) {
+
+
+static void panlaw_combobox_changed (GtkComboBox* box, gpointer data)
+{
   DrMrUi* ui = (DrMrUi*)data;
-  gint ss = gtk_combo_box_get_active (GTK_COMBO_BOX(box));
-  if (ss != ui->startSamp) {
-    ui->startSamp = ss;
-    ui->forceUpdate = true;
-    kit_callback(ui);
-    send_ui_msg(ui,&position_data,GINT_TO_POINTER(ss));
-  }
+
+  gint i = gtk_combo_box_get_active (GTK_COMBO_BOX(box));
+  if (i != ui->panlaw)
+     {
+      ui->panlaw = i;
+      ui->forceUpdate = true; //?
+    //  kit_callback (ui);
+    //  send_ui_msg (ui, &panlaw_data, GINT_TO_POINTER(i));
+     }
 }
 
-static GtkWidget *create_position_combo(void)
+static GtkWidget *create_panlaw_combo(void)
 {
   GtkWidget *combo;
   GtkListStore *list_store;
   GtkCellRenderer *cell;
   GtkTreeIter iter;
 
-  list_store = gtk_list_store_new(1, G_TYPE_STRING);
+  list_store = gtk_list_store_new (1, G_TYPE_STRING);
 
   gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "Top Left", -1);
+  gtk_list_store_set (list_store, &iter, 0, "linear panner, law: -6 dB", -1);
   gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "Bottom Left", -1);
+  gtk_list_store_set (list_store, &iter, 0, "linear panner, law: 0 dB", -1);
   gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "Top Right", -1);
+  gtk_list_store_set (list_store, &iter, 0, "square root panner, law: -3 dB", -1);
   gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "Bottom Right", -1);
+  gtk_list_store_set (list_store, &iter, 0, "sin/cos panner, law: -3 dB", -1);
 
-  combo = gtk_combo_box_new_with_model(GTK_TREE_MODEL(list_store));
-
+  combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(list_store));
+/*
 #ifdef DRMR_UI_ZERO_SAMP
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo),DRMR_UI_ZERO_SAMP);
 #else
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
 #endif
+*/
+
+  gtk_combo_box_set_active(GTK_COMBO_BOX(combo),0);
 
 
   g_object_unref(list_store);
@@ -515,7 +567,8 @@ static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpoin
 }
 
 
-static void load_led_pixbufs(DrMrUi* ui) {
+static void load_led_pixbufs(DrMrUi* ui)
+{
   GError *error = NULL;
   gchar *pixbuf_path;
 
@@ -545,7 +598,7 @@ static void build_drmr_ui (DrMrUi* ui)
   GtkWidget *drmr_ui_widget;
   GtkWidget *opts_hbox1, *opts_hbox2,
     *kit_combo_box, *kit_label, *no_kit_label,
-    *base_label, *base_spin, *position_label;
+    *base_label, *base_spin, *panlaw_label;
   GtkCellRenderer *cell_rend;
   GtkAdjustment *base_adj;
   
@@ -585,8 +638,8 @@ static void build_drmr_ui (DrMrUi* ui)
                                                  5.0,0.0)); // page adj/size
   base_spin = gtk_spin_button_new(base_adj, 1.0, 0);
 
-  position_label = gtk_label_new("Sample Zero Position: ");
-  ui->position_combo_box = create_position_combo();
+  panlaw_label = gtk_label_new("Panning law: ");
+  ui->panlaw_combo_box = create_panlaw_combo();
 
   ui->velocity_checkbox = gtk_check_button_new_with_label("Ignore Velocity");
   ui->note_off_checkbox = gtk_check_button_new_with_label("Ignore Note Off");
@@ -602,9 +655,9 @@ static void build_drmr_ui (DrMrUi* ui)
   gtk_box_pack_start(GTK_BOX(opts_hbox1),base_spin,
 		     true,true,0);
 
-  gtk_box_pack_start(GTK_BOX(opts_hbox2),position_label,
+  gtk_box_pack_start(GTK_BOX(opts_hbox2),panlaw_label,
 		     false,false,15);
-  gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->position_combo_box,
+  gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->panlaw_combo_box,
 		     false,false,0);
   gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->velocity_checkbox,
 		     true,true,15);
@@ -630,7 +683,7 @@ static void build_drmr_ui (DrMrUi* ui)
 
   g_signal_connect(G_OBJECT(kit_combo_box),"changed",G_CALLBACK(kit_combobox_changed),ui);
   g_signal_connect(G_OBJECT(base_spin),"value-changed",G_CALLBACK(base_changed),ui);
-  g_signal_connect(G_OBJECT(ui->position_combo_box),"changed",G_CALLBACK(position_combobox_changed),ui);
+  g_signal_connect(G_OBJECT(ui->panlaw_combo_box),"changed",G_CALLBACK(panlaw_combobox_changed),ui);
   g_signal_connect(G_OBJECT(ui->velocity_checkbox),"toggled",G_CALLBACK(ignore_velocity_toggled),ui);
   g_signal_connect(G_OBJECT(ui->note_off_checkbox),"toggled",G_CALLBACK(ignore_note_off_toggled),ui);
 
@@ -702,12 +755,15 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor*   descriptor,
   ui->forceUpdate = false;
   fill_kit_combo (ui->kit_combo, ui->kits);
 
+  ui->panlaw = PANLAW_LINEAR6;
+
+  /*
 #ifdef DRMR_UI_ZERO_SAMP
-  ui->startSamp = DRMR_UI_ZERO_SAMP;
+  ui->panlaw = DRMR_UI_ZERO_SAMP;
 #else
   ui->startSamp = 0;
 #endif
-
+*/
   *widget = ui->drmr_widget;
 
   return ui;
@@ -723,11 +779,16 @@ static void cleanup (LV2UI_Handle handle)
   // seems qtractor likes to destory us
   // before calling, avoid double-destroy
   if (GTK_IS_WIDGET(ui->drmr_widget))
-    gtk_widget_destroy(ui->drmr_widget);
-  if (ui->notify_leds) free(ui->notify_leds);
-  if (ui->gain_sliders) free(ui->gain_sliders);
+      gtk_widget_destroy(ui->drmr_widget);
+
+  if (ui->notify_leds)
+      free(ui->notify_leds);
+
+  if (ui->gain_sliders)
+      free(ui->gain_sliders);
+
   if (ui->pan_sliders) free(ui->pan_sliders);
-  g_free(ui->bundle_path);
+     g_free(ui->bundle_path);
   if (led_on_pixbuf) g_object_unref(led_on_pixbuf);
   if (led_off_pixbuf) g_object_unref(led_off_pixbuf);
   free_kits(ui->kits);
@@ -794,7 +855,7 @@ static void port_event (LV2UI_Handle handle,
 	                int i;
              	    for (i = 0;i < ui->kits->num_kits;i++)
                         if (!strcmp(ui->kits->kits[i].path,realp))
-		                  break;
+		                      break;
 
 	                if (i < ui->kits->num_kits)
                        {
@@ -810,11 +871,11 @@ static void port_event (LV2UI_Handle handle,
 	  if (obj->body.otype == ui->uris.get_state) { // read out extra state info
 	    const LV2_Atom* ignvel = NULL;
 	    const LV2_Atom* ignno = NULL;
-	    const LV2_Atom* zerop = NULL;
+	    const LV2_Atom* panlaw = NULL;
 	    lv2_atom_object_get(obj,
 			   ui->uris.velocity_toggle, &ignvel,
 			   ui->uris.note_off_toggle, &ignno,
-			   ui->uris.zero_position, &zerop,
+			   ui->uris.panlaw, &panlaw,
 			   0);
 	    if (ignvel)
 	      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->velocity_checkbox),
@@ -822,9 +883,9 @@ static void port_event (LV2UI_Handle handle,
 	    if (ignno)
 	      gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->note_off_checkbox),
 					   ((const LV2_Atom_Bool*)ignno)->body);
-	    if (zerop)
-	      gtk_combo_box_set_active(GTK_COMBO_BOX(ui->position_combo_box),
-				       ((const LV2_Atom_Int*)zerop)->body);
+	    if (panlaw)
+	      gtk_combo_box_set_active(GTK_COMBO_BOX(ui->panlaw_combo_box),
+				       ((const LV2_Atom_Int*)panlaw)->body);
 	  }
 	}
 	else if (obj->body.otype == ui->uris.midi_info) {
@@ -881,6 +942,7 @@ static void port_event (LV2UI_Handle handle,
     }
   }
 }
+
 
 static const void*
 extension_data(const char* uri) {

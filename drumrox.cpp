@@ -98,12 +98,15 @@ instantiate(const LV2_Descriptor*     descriptor,
   drmr->rate = rate;
   drmr->ignore_velocity = false;
   drmr->ignore_note_off = true;
-
+/*
 #ifdef DRMR_UI_ZERO_SAMP
   drmr->zero_position = DRMR_UI_ZERO_SAMP;
 #else
   drmr->zero_position = 0;
 #endif
+*/
+   drmr->panlaw = 0;
+
 
   if (pthread_mutex_init (&drmr->load_mutex, 0))
      {
@@ -237,8 +240,8 @@ static inline LV2_Atom *build_state_message (DrMr *drmr)
   lv2_atom_forge_bool(&drmr->forge, drmr->ignore_velocity?true:false);
   lv2_atom_forge_property_head(&drmr->forge, drmr->uris.note_off_toggle,0);
   lv2_atom_forge_bool(&drmr->forge, drmr->ignore_note_off?true:false);
-  lv2_atom_forge_property_head(&drmr->forge, drmr->uris.zero_position,0);
-  lv2_atom_forge_int(&drmr->forge, drmr->zero_position);
+  lv2_atom_forge_property_head(&drmr->forge, drmr->uris.panlaw,0);
+  lv2_atom_forge_int(&drmr->forge, drmr->panlaw);
   lv2_atom_forge_pop(&drmr->forge,&set_frame);
 
   return msg;
@@ -402,14 +405,14 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                const LV2_Atom* trigger = NULL;
                const LV2_Atom* ignvel = NULL;
                const LV2_Atom* ignno = NULL;
-               const LV2_Atom* zerop = NULL;
+               const LV2_Atom* panlaw = NULL;
 
                lv2_atom_object_get (obj,
                                     drmr->uris.kit_path, &path,
                                     drmr->uris.sample_trigger, &trigger,
                                     drmr->uris.velocity_toggle, &ignvel,
                                     drmr->uris.note_off_toggle, &ignno,
-                                    drmr->uris.zero_position, &zerop,
+                                    drmr->uris.panlaw, &panlaw,
                                     0);
 
               if (path)
@@ -444,8 +447,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
               if (ignno)
                    drmr->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
 
-              if (zerop)
-                 drmr->zero_position = ((const LV2_Atom_Int*)zerop)->body;
+              if (panlaw)
+                 drmr->panlaw = ((const LV2_Atom_Int*)panlaw)->body;
              }
          else
              if (obj->body.otype == drmr->uris.get_state)
@@ -489,8 +492,35 @@ static void run (LV2_Handle instance, uint32_t n_samples)
            if (i < 32)
               {
                float gain = DB_CO(*(drmr->gains[i]));
+
+
+               /*
                float pan_right = ((*drmr->pans[i]) + 1) / 2.0f;
                float pan_left = 1 - pan_right;
+               */
+
+               float pan_right = 0;
+               float pan_left = 0;
+
+
+               if (drmr->panlaw == PANLAW_LINEAR6)
+                 pan_linear6 (pan_left, pan_right, *drmr->pans[i]);
+
+               if (drmr->panlaw == PANLAW_LINEAR0)
+                 pan_linear0 (pan_left, pan_right, *drmr->pans[i]);
+
+
+               if (drmr->panlaw == PANLAW_SQRT)
+                   pan_sqrt (pan_left, pan_right, *drmr->pans[i]);
+
+              if (drmr->panlaw == PANLAW_SINCOS)
+                  pan_sincos (pan_left, pan_right, *drmr->pans[i]);
+
+
+               //if (drmr->panlaw == 0)
+                 // pan_linear0 (panl, panr, p_track->pan);
+
+
                coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
                coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
               }
@@ -618,8 +648,8 @@ save_state(LV2_Handle                 instance,
   if (stat) return stat;
 
   stat = store(handle,
-	       drmr->uris.zero_position,
-	       &drmr->zero_position,
+	       drmr->uris.panlaw,
+	       &drmr->panlaw,
 	       sizeof(int),
 	       drmr->uris.int_urid,
 	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
@@ -683,11 +713,10 @@ restore_state(LV2_Handle                  instance,
   if (ignore_note_off)
     drmr->ignore_note_off = *ignore_note_off?true:false;
 
-  const int* zero_position = (int*)
-    retrieve(handle, drmr->uris.zero_position, &size, &type, &fgs);
+  const int* panlaw = (int*) retrieve (handle, drmr->uris.panlaw, &size, &type, &fgs);
 
-  if (zero_position)
-      drmr->zero_position = *zero_position;
+  if (panlaw)
+      drmr->panlaw = *panlaw;
 
   return LV2_STATE_SUCCESS;
 }
