@@ -1,3 +1,4 @@
+* better resampler mode (at the sample loading stage)
 + GUI:: Panning mode:
                      linear panner, law: -6 dB //default
                      linear panner, law: 0 dB

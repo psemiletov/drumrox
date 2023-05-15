@@ -41,7 +41,9 @@ Drumrox additions:
 - Presets are sorted in alphabetical order
 - Plugin window is more fits to the screen
 - Panning modes (linear panner, law: -6 dB //default; linear panner, law: 0 dB;                    square root panner, law: -3 dB; sin/cos panner, law: -3 dB
+- best resampler mode at sample load (SRC_SINC_BEST_QUALITY from libsamplerate)
 - Partial conversion from C to C++ to further development
+
 
 
 Compilation and Install
