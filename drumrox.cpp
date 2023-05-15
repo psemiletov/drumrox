@@ -514,8 +514,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                   pan_sincos (pan_left, pan_right, *drmr->pans[i]);
 
 
-               //if (drmr->panlaw == 0)
-                 // pan_linear0 (panl, panr, p_track->pan);
+                   coef_right = pan_right * gain * cs->velocity;
+                   coef_left = pan_left * gain * cs->velocity;
 
 
                //coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
@@ -523,10 +523,19 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
 //               coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
   //             coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
+/*
+                if (cs->layer_count == 1)
+                   {
+                    coef_right = pan_right * gain * cs->velocity;
+                    coef_left = pan_left * gain * cs->velocity;
+                   }
+                else
+                   {
+                    coef_right = pan_right * gain;
+                    coef_left = pan_left * gain;
+                   }
 
-               coef_right = pan_right * gain * cs->velocity;
-               coef_left = pan_left * gain * cs->velocity;
-
+*/
                 //work
 //               coef_right = pan_right * gain;
   //             coef_left = pan_left * gain;

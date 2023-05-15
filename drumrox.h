@@ -46,7 +46,8 @@ typedef struct
 
 // libsndfile stuff
 
-typedef struct {
+typedef struct
+ {
   float min;
   float max;
 
@@ -55,7 +56,9 @@ typedef struct {
   float* data;
 } drmr_layer;
 
-typedef struct {
+
+typedef struct
+{
   SF_INFO *info;
   char active;
   uint32_t offset;
@@ -146,7 +149,9 @@ typedef enum {
   DRMR_NUM_PORTS
 } DrMrPortIndex;
 
-typedef struct {
+
+typedef struct
+{
   LV2_URID midi_event;
   LV2_URID ui_msg;
   LV2_URID kit_path;
@@ -165,10 +170,12 @@ typedef struct {
 
 } drmr_uris;
 
-typedef struct {
+typedef struct
+{
   // Ports
   float* left;
   float* right;
+
   LV2_Atom_Sequence *control_port;
   LV2_Atom_Sequence *core_event_port;
 
@@ -181,7 +188,6 @@ typedef struct {
 
   float** gains;
   float** pans;
-  //float pans[32];
 
 
   float* baseNote;
@@ -207,46 +213,23 @@ typedef struct {
 
 } DrMr;
 
-static inline
-void map_drmr_uris(LV2_URID_Map *map,
-		   drmr_uris *uris) {
-  uris->midi_event =
-    map->map(map->handle,
-	     "http://lv2plug.in/ns/ext/midi#MidiEvent");
-  uris->string_urid =
-    map->map(map->handle, LV2_ATOM__String);
-  uris->bool_urid =
-    map->map(map->handle, LV2_ATOM__Bool);
-  uris->int_urid =
-    map->map(map->handle, LV2_ATOM__Int);
-  uris->ui_msg =
-    map->map(map->handle,
-	     DRMR_URI "#uimsg");
-  uris->kit_path =
-    map->map(map->handle,
-	     DRMR_URI "#kitpath");
-  uris->get_state =
-    map->map(map->handle,
-	     DRMR_URI "#getstate");
-  uris->midi_info =
-    map->map(map->handle,
-	     DRMR_URI "#midiinfo");
-  uris->sample_trigger =
-    map->map(map->handle,
-	     DRMR_URI "#sampletrigger");
-  uris->velocity_toggle =
-    map->map(map->handle,
-	     DRMR_URI "#velocitytoggle");
-  uris->note_off_toggle =
-    map->map(map->handle,
-	     DRMR_URI "#noteofftoggle");
-  uris->panlaw =
-    map->map(map->handle,
-	     DRMR_URI "#panlaw");
-  uris->atom_eventTransfer = 
-    map->map(map->handle, LV2_ATOM__eventTransfer);
-  uris->atom_resource = 
-    map->map(map->handle, LV2_ATOM__Resource);
+
+static inline void map_drmr_uris (LV2_URID_Map *map, drmr_uris *uris)
+{
+  uris->midi_event = map->map (map->handle, "http://lv2plug.in/ns/ext/midi#MidiEvent");
+  uris->string_urid = map->map(map->handle, LV2_ATOM__String);
+  uris->bool_urid = map->map(map->handle, LV2_ATOM__Bool);
+  uris->int_urid = map->map(map->handle, LV2_ATOM__Int);
+  uris->ui_msg = map->map(map->handle, DRMR_URI "#uimsg");
+  uris->kit_path = map->map(map->handle, DRMR_URI "#kitpath");
+  uris->get_state = map->map(map->handle, DRMR_URI "#getstate");
+  uris->midi_info = map->map(map->handle, DRMR_URI "#midiinfo");
+  uris->sample_trigger = map->map(map->handle, DRMR_URI "#sampletrigger");
+  uris->velocity_toggle = map->map(map->handle, DRMR_URI "#velocitytoggle");
+  uris->note_off_toggle = map->map(map->handle, DRMR_URI "#noteofftoggle");
+  uris->panlaw = map->map(map->handle, DRMR_URI "#panlaw");
+  uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
+  uris->atom_resource = map->map(map->handle, LV2_ATOM__Resource);
 }
 
 

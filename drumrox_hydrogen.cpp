@@ -31,9 +31,11 @@
 #include <algorithm>
 
 #include <samplerate.h>
+#include <expat.h>
+
 #include "drumrox.h"
 #include "drumrox_hydrogen.h"
-#include <expat.h>
+
 
 /* Below is a list of the locations that DrMr will
  * search for drumkit files.  It will scan each sub-directory
@@ -60,7 +62,7 @@ static char* default_drumkit_locations[] = {
 // Quality of conversion for libsamplerate.
 // See http://www.mega-nerd.com/SRC/api_misc.html#Converters
 // for info about availble qualities
-#define RATE_CONV_QUALITY SRC_SINC_MEDIUM_QUALITY
+#define RATE_CONV_QUALITY SRC_SINC_BEST_QUALITY
 
 #define MAX_CHAR_DATA 512
 
@@ -207,10 +209,10 @@ static void XMLCALL endElement (void *userData, const char *name)
       if (! strcmp (name, "min"))
          info->cur_layer->min = atof (info->cur_buf);
 
-      if (! strcmp (name,"max"))
+      if (! strcmp (name, "max"))
           info->cur_layer->max = atof (info->cur_buf);
 
-      if (! strcmp(name,"gain"))
+      if (! strcmp (name, "gain"))
          info->cur_layer->gain = atof (info->cur_buf);
      }
 
@@ -220,7 +222,7 @@ static void XMLCALL endElement (void *userData, const char *name)
       if (! strcmp (name,"id"))
          info->cur_instrument->id = atoi (info->cur_buf);
 
-      if (! info->scan_only && ! strcmp (name," filename"))
+      if (! info->scan_only && ! strcmp (name, "filename"))
          info->cur_instrument->filename = strdup (info->cur_buf);
 
       if (! strcmp (name, "name"))
@@ -231,7 +233,7 @@ static void XMLCALL endElement (void *userData, const char *name)
   info->cur_off = 0;
 
   if (! info->scan_only && info->in_layer &&
-      ! strcmp (name,"layer") && info->cur_layer->filename)
+      ! strcmp (name, "layer") && info->cur_layer->filename)
      {
       struct instrument_layer *cur_l = info->cur_instrument->layers;
 
@@ -288,7 +290,7 @@ static void XMLCALL endElement (void *userData, const char *name)
 static void XMLCALL charData (void *userData, const char* data, int len)
 {
   struct hp_info* info = (struct hp_info*)userData;
-  if (!info->in_info)
+  if (! info->in_info)
       return;
 
   for (int i = 0; i < len; i++)
@@ -298,7 +300,7 @@ static void XMLCALL charData (void *userData, const char* data, int len)
            info->cur_buf[info->cur_off] = data[i];
            info->cur_off++;
           }
-  }
+      }
 };
 
 
