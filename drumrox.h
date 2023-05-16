@@ -52,7 +52,7 @@ typedef struct
   float max;
 
   SF_INFO *info;
-  uint32_t limit;
+  uint32_t limit;  //data size in samples (frames * channels)
   float* data;
 } drmr_layer;
 
@@ -165,10 +165,10 @@ typedef struct
   LV2_URID sample_trigger;
   LV2_URID velocity_toggle;
   LV2_URID note_off_toggle;
-//  LV2_URID zero_position;
-   LV2_URID panlaw;
+  LV2_URID panlaw;
 
-} drmr_uris;
+} SDrumroxUris;
+
 
 typedef struct
 {
@@ -195,10 +195,10 @@ typedef struct
 
   // URIs
   LV2_URID_Map* map;
-  drmr_uris uris;
+  SDrumroxUris uris;
 
   // Kit info
-  char* current_path;
+  char* current_path; //absolute path
   char** request_buf;
   int curReq;
 
@@ -214,7 +214,7 @@ typedef struct
 } DrMr;
 
 
-static inline void map_drmr_uris (LV2_URID_Map *map, drmr_uris *uris)
+static inline void map_drmr_uris (LV2_URID_Map *map, SDrumroxUris *uris)
 {
   uris->midi_event = map->map (map->handle, "http://lv2plug.in/ns/ext/midi#MidiEvent");
   uris->string_urid = map->map(map->handle, LV2_ATOM__String);

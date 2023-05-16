@@ -740,7 +740,7 @@ void free_samples (drmr_sample* samples, int num_samples)
          }
      else
          {
-          for (int j = 0;j < samples[i].layer_count;j++)
+          for (int j = 0; j < samples[i].layer_count; j++)
               {
                if (samples[i].layers[j].info)
                    free(samples[i].layers[j].info);
@@ -774,13 +774,13 @@ void free_kits (s_kits* kits)
 int load_sample (char* path, drmr_layer* layer, double target_rate)
 {
   SNDFILE* sndf;
-  long size;
+  long size; //samples count (frames * channels)
   
   //printf("Loading: %s\n",path);
 
   layer->info = (SF_INFO*) malloc(sizeof(SF_INFO));
   memset(layer->info,0,sizeof(SF_INFO));
-  sndf = sf_open(path,SFM_READ,layer->info);
+  sndf = sf_open (path, SFM_READ, layer->info);
   
   if (! sndf)
      {
@@ -791,7 +791,7 @@ int load_sample (char* path, drmr_layer* layer, double target_rate)
 
   if (layer->info->channels > 2)
      {
-      fprintf (stderr, "File has too many channels.  Can only handle mono/stereo samples\n");
+      fprintf (stderr, "File has too many channels. Can only handle mono/stereo samples\n");
       free (layer->info);
       return 1;
      }

@@ -43,7 +43,7 @@ typedef struct
   LV2UI_Controller controller;
   LV2_Atom_Forge forge;
   LV2_URID_Map *map;
-  drmr_uris uris;
+  SDrumroxUris uris;
 
   GtkWidget *drmr_widget;
   GtkLabel *current_kit_label;

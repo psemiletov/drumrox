@@ -28,6 +28,7 @@
 
 static int current_kit_changed = 0;
 
+
 static void* load_thread (void* arg)
 {
   DrMr* drmr = (DrMr*)arg;
@@ -35,6 +36,7 @@ static void* load_thread (void* arg)
   drmr_sample *old_samples;
   int loaded_count;
   int old_scount;
+
   char *request;
   char *request_orig;
 
@@ -46,6 +48,7 @@ static void* load_thread (void* arg)
 
       old_samples = drmr->samples;
       old_scount = drmr->num_samples;
+
       request_orig = request = drmr->request_buf[drmr->curReq];
 
       if (! strncmp (request, "file://", 7))
@@ -481,9 +484,11 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   for (int i = 0; i < drmr->num_samples; i++)
       {
        int pos, lim;
-       drmr_sample *cs = drmr->samples + i;
 
-       if ((cs->active || cs->dataoffset) && (cs->limit > 0))
+       //cs - current sample
+       drmr_sample *current_sample = drmr->samples + i;
+
+       if ((current_sample->active || current_sample->dataoffset) && (current_sample->limit > 0))
           {
            float coef_right, coef_left;
            if (i < 32)
@@ -514,8 +519,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                   pan_sincos (pan_left, pan_right, *drmr->pans[i]);
 
 
-                   coef_right = pan_right * gain * cs->velocity;
-                   coef_left = pan_left * gain * cs->velocity;
+                   coef_right = pan_right * gain * current_sample->velocity;
+                   coef_left = pan_left * gain * current_sample->velocity;
 
 
                //coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
@@ -551,47 +556,47 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
           int datastart, dataend;
 
-          if (cs->active)
+          if (current_sample->active)
              {
-              datastart = cs->dataoffset;
+              datastart = current_sample->dataoffset;
               dataend = n_samples;
              }
           else
               {
                datastart = 0;
-               dataend = cs->dataoffset;
+               dataend = current_sample->dataoffset;
              }
 
-          cs->dataoffset = 0;
+          current_sample->dataoffset = 0;
 
-         if (cs->info->channels == 1)
+         if (current_sample->info->channels == 1)
             { // play mono sample
-             lim = (n_samples < (cs->limit - cs->offset)?n_samples:(cs->limit-cs->offset));
+             lim = (n_samples < (current_sample->limit - current_sample->offset) ? n_samples : (current_sample->limit - current_sample->offset));
 
              for (pos = datastart; pos < lim && pos < dataend; pos++)
                  {
-                  drmr->left[pos]  += cs->data[cs->offset] * coef_left;
-                  drmr->right[pos] += cs->data[cs->offset] * coef_right;
-                  cs->offset++;
+                  drmr->left[pos]  += current_sample->data[current_sample->offset] * coef_left;
+                  drmr->right[pos] += current_sample->data[current_sample->offset] * coef_right;
+                  current_sample->offset++;
                  }
            }
           else
               {
                // play stereo sample
-              lim = (cs->limit-cs->offset) / cs->info->channels;
+              lim = (current_sample->limit-current_sample->offset) / current_sample->info->channels;
 
               if (lim > n_samples)
                   lim = n_samples;
 
               for (pos = datastart; pos < lim && pos < dataend; pos++)
                   {
-                   drmr->left[pos]  += cs->data[cs->offset++] * coef_left;
-                   drmr->right[pos] += cs->data[cs->offset++] * coef_right;
+                   drmr->left[pos]  += current_sample->data[current_sample->offset++] * coef_left;
+                   drmr->right[pos] += current_sample->data[current_sample->offset++] * coef_right;
                   }
                }
 
-        if (cs->offset >= cs->limit)
-           cs->active = 0;
+        if (current_sample->offset >= current_sample->limit)
+           current_sample->active = 0;
        }
       }
 
@@ -613,11 +618,11 @@ static void cleanup (LV2_Handle instance)
 }
 
 
-static LV2_State_Status save_state (LV2_Handle                 instance,
-	   LV2_State_Store_Function   store,
-	   void*                      handle,
-	   uint32_t                   flags,
-	   const LV2_Feature *const * features)
+static LV2_State_Status save_state (LV2_Handle instance,
+                                    LV2_State_Store_Function store,
+                                    void* handle,
+                                    uint32_t flags,
+                                    const LV2_Feature* const *features)
 {
 
   DrMr *drmr = (DrMr*)instance;
@@ -627,103 +632,109 @@ static LV2_State_Status save_state (LV2_Handle                 instance,
 
   while (*features)
         {
-    if (!strcmp((*features)->URI, LV2_STATE__mapPath))
-      map_path = (LV2_State_Map_Path*)((*features)->data);
-    features++;
-  }
+         if (! strcmp((*features)->URI, LV2_STATE__mapPath))
+            map_path = (LV2_State_Map_Path*)((*features)->data);
 
-  if (map_path == NULL) {
-    fprintf(stderr,"Host does not support map_path, cannot save state\n");
-    return LV2_STATE_ERR_NO_FEATURE;
-  }
+         features++;
+        }
 
-  if (drmr->current_path != NULL)
-  {
-	char* mapped_path = map_path->abstract_path(map_path->handle,
-	                                            drmr->current_path);
+  if (map_path == NULL)
+     {
+      fprintf(stderr,"Host does not support map_path, cannot save state\n");
+      return LV2_STATE_ERR_NO_FEATURE;
+     }
 
-	stat = store(handle,
-	             drmr->uris.kit_path,
-	             mapped_path,
-	             strlen(mapped_path) + 1,
-	             drmr->uris.string_urid,
-	             LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
-	if (stat)
+  if (drmr->current_path != NULL)  //drmr->current_path is absolute path
+     {
+      char* mapped_path = map_path->abstract_path (map_path->handle, drmr->current_path);
+
+      stat = store (handle,
+                    drmr->uris.kit_path,
+                    mapped_path,
+                    strlen (mapped_path) + 1,
+                    drmr->uris.string_urid,
+                    LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+
+  if (stat)
      return stat;
   }
 
   flag = drmr->ignore_velocity?1:0;
 
-  stat = store(handle,
-	       drmr->uris.velocity_toggle,
-	       &flag,
-	       sizeof(int32_t),
-	       drmr->uris.bool_urid,
-	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+  stat = store (handle,
+                drmr->uris.velocity_toggle,
+                &flag,
+                sizeof(int32_t),
+                drmr->uris.bool_urid,
+                LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
 
   if (stat)
      return stat;
 
   flag = drmr->ignore_note_off?1:0;
-  stat = store(handle,
-	       drmr->uris.note_off_toggle,
-	       &flag,
-	       sizeof(uint32_t),
-	       drmr->uris.bool_urid,
-	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+  stat = store (handle,
+                drmr->uris.note_off_toggle,
+                &flag,
+                sizeof(uint32_t),
+                drmr->uris.bool_urid,
+                LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
 
   if (stat)
      return stat;
 
-  stat = store(handle,
-	       drmr->uris.panlaw,
-	       &drmr->panlaw,
-	       sizeof(int),
-	       drmr->uris.int_urid,
-	       LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
+  stat = store (handle,
+                drmr->uris.panlaw,
+                &drmr->panlaw,
+                sizeof(int),
+                drmr->uris.int_urid,
+                LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
 
   return stat;
 }
 
 
-static LV2_State_Status 
-restore_state(LV2_Handle                  instance,
-	      LV2_State_Retrieve_Function retrieve,
-	      void*                       handle,
-	      uint32_t                    flags,
-	      const LV2_Feature *const *  features)
+static LV2_State_Status restore_state (LV2_Handle instance,
+                                       LV2_State_Retrieve_Function retrieve,
+                                       void* handle,
+                                       uint32_t flags,
+                                       const LV2_Feature *const *features)
 {
   DrMr* drmr = (DrMr*)instance;
+
   size_t      size;
   uint32_t    type;
   uint32_t    fgs;
 
   LV2_State_Map_Path* map_path = NULL;
-  while(*features) {
-    if (!strcmp((*features)->URI, LV2_STATE__mapPath))
-      map_path = (LV2_State_Map_Path*)((*features)->data);
-    features++;
-  }
 
-  if (map_path == NULL) {
-    fprintf(stderr,"Host does not support map_path, cannot restore state\n");
-    return LV2_STATE_ERR_NO_FEATURE;
-  }
+  while (*features)
+        {
+         if (! strcmp ((*features)->URI, LV2_STATE__mapPath))
+            map_path = (LV2_State_Map_Path*)((*features)->data);
+
+         features++;
+        }
+
+  if (map_path == NULL)
+     {
+      fprintf(stderr, "Host does not support map_path, cannot restore state\n");
+      return LV2_STATE_ERR_NO_FEATURE;
+     }
 
 
-  const char* abstract_path = (char*)
-    retrieve(handle, drmr->uris.kit_path, &size, &type, &fgs);
+  const char* abstract_path = (char*) retrieve (handle, drmr->uris.kit_path, &size, &type, &fgs);
 
-  if (!abstract_path) {
-    fprintf(stderr,"Found no path in state, not restoring\n");
-    return LV2_STATE_ERR_NO_PROPERTY;
-  }
+  if (! abstract_path)
+     {
+      fprintf (stderr, "Found no path in state, not restoring\n");
+      return LV2_STATE_ERR_NO_PROPERTY;
+     }
 
   char *kit_path = map_path->absolute_path (map_path->handle, abstract_path);
 
   if (kit_path)
      { // safe as we're in "Instantiation" threading class
-      int reqPos = (drmr->curReq+1)%REQ_BUF_SIZE;
+      int reqPos = (drmr->curReq + 1) % REQ_BUF_SIZE;
       char *tmp = NULL;
       if (reqPos >= 0 && drmr->request_buf[reqPos])
          tmp = drmr->request_buf[reqPos];
@@ -739,32 +750,30 @@ restore_state(LV2_Handle                  instance,
   if (ignore_velocity)
       drmr->ignore_velocity = *ignore_velocity?true:false;
 
-  const uint32_t* ignore_note_off = (uint32_t*)
-    retrieve(handle, drmr->uris.note_off_toggle, &size, &type, &fgs);
+  const uint32_t* ignore_note_off = (uint32_t*) retrieve (handle, drmr->uris.note_off_toggle, &size, &type, &fgs);
+
   if (ignore_note_off)
-    drmr->ignore_note_off = *ignore_note_off?true:false;
+     drmr->ignore_note_off = *ignore_note_off ? true : false;
 
   const int* panlaw = (int*) retrieve (handle, drmr->uris.panlaw, &size, &type, &fgs);
 
   if (panlaw)
-    {
       drmr->panlaw = *panlaw;
-      //set index in combo
-
-
-    }
 
   return LV2_STATE_SUCCESS;
 }
 
 
-static const void* extension_data(const char* uri)
+static const void* extension_data (const char* uri)
 {
   static const LV2_State_Interface state_iface = { save_state, restore_state };
+
   if (! strcmp (uri, LV2_STATE__interface))
       return &state_iface;
+
   return NULL;
 }
+
 
 static const LV2_Descriptor descriptor = {
   DRMR_URI,
