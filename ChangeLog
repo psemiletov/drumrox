@@ -1,5 +1,7 @@
 + new drum kit loader
-+ kit full path (with .xml) now is saved as the string at state.ttl (was - symlink at plugins/NNN/stateN/drumkit
++ kit full path (with .xml) now is saved as the string at state.ttl (was - symlink at plugins/NNN/stateN/drumkit, SO THE COMPATIBILITY WITH 1.0.x SAVED STATES IS BROKEN! Use Drumrox with new sessions!
+
+
 
 * better resampler mode (at the sample loading stage)
 + GUI:: Panning mode:
