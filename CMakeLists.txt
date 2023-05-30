@@ -23,21 +23,27 @@ link_directories (${LV2_LIBRARY_DIRS} ${EXPAT_LIBRARY_DIRS} ${SNDFILE_LIBRARY_DI
 # config libraries
 
 add_library(drumrox SHARED
+  kits.cpp
+  kits.h
+  pugiconfig.hpp
+  pugixml.cpp
+  pugixml.hpp
   dsp.cpp
   dsp.h
   drumrox.cpp
-  drumrox_hydrogen.cpp
   drumrox.h
-  drumrox_hydrogen.h
 )
 
 add_library(drumrox_ui SHARED
+  kits.cpp
+  kits.h
+  pugiconfig.hpp
+  pugixml.cpp
+  pugixml.hpp
   dsp.cpp
   dsp.h
   drumrox_ui.cpp
-  drumrox_hydrogen.cpp
   nknob.c
-  drumrox_hydrogen.h
   nknob.h
 )
 

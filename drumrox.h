@@ -14,8 +14,8 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-#ifndef DRMR_H
-#define DRMR_H
+#ifndef DRUMROX_H
+#define DRUMROX_H
 
 #include <sndfile.h>
 #include <pthread.h>
@@ -27,7 +27,11 @@
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
 #include <lv2/lv2plug.in/ns/ext/state/state.h>
 
+#include "kits.h"
+
 // drumkit scanned from a hydrogen xml file
+
+/*
 typedef struct
 {
   char* name;
@@ -43,9 +47,10 @@ typedef struct
   int num_kits;
   scanned_kit* kits;
 } s_kits;
-
+*/
 // libsndfile stuff
 
+/*
 typedef struct
  {
   float min;
@@ -55,8 +60,9 @@ typedef struct
   uint32_t limit;  //data size in samples (frames * channels)
   float* data;
 } drmr_layer;
+*/
 
-
+/*
 typedef struct
 {
   SF_INFO *info;
@@ -69,7 +75,7 @@ typedef struct
   float* data;
   int dataoffset;
 } drmr_sample;
-
+*/
 // lv2 stuff
 
 #define DRMR_URI "https://github.com/psemiletov/drumrox"
@@ -170,9 +176,11 @@ typedef struct
 } SDrumroxUris;
 
 
-typedef struct
+class CDrumrox
 {
-  // Ports
+public:
+
+  // Ports, pointers to LV's channels
   float* left;
   float* right;
 
@@ -186,9 +194,14 @@ typedef struct
   bool ignore_note_off;
   int panlaw;
 
-  float** gains;
-  float** pans;
+  //32 gains and pans
+  //float** gains;
+  //float** pans;
 
+  float* gains[32];
+  float* pans[32];
+
+//we use kit's v_samples[n] gain and pan instead
 
   float* baseNote;
   double rate;
@@ -198,20 +211,28 @@ typedef struct
   SDrumroxUris uris;
 
   // Kit info
-  char* current_path; //absolute path
+  char* current_path; //absolute path to drumkit.xml
   char** request_buf;
   int curReq;
 
   // Samples
-  drmr_sample* samples;
-  uint8_t num_samples;
+
+  CHydrogenKit *kit;
+  //CHydrogenKits *kits;
+
+//  drmr_sample* samples;
+//  uint8_t num_samples;
 
   // loading thread stuff
   pthread_mutex_t load_mutex;
   pthread_cond_t  load_cond;
   pthread_t load_thread;
 
-} DrMr;
+
+  CDrumrox();
+~ CDrumrox();
+
+};
 
 
 static inline void map_drmr_uris (LV2_URID_Map *map, SDrumroxUris *uris)
@@ -233,4 +254,4 @@ static inline void map_drmr_uris (LV2_URID_Map *map, SDrumroxUris *uris)
 }
 
 
-#endif // DRMR_H
+#endif // DRUMROX_H
