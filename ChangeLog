@@ -1,4 +1,5 @@
-
++ new drum kit loader
++ kit full path (with .xml) now is saved as the string at state.ttl (was - symlink at plugins/NNN/stateN/drumkit
 
 * better resampler mode (at the sample loading stage)
 + GUI:: Panning mode:
