@@ -15,10 +15,9 @@ pkg_check_modules(LV2 REQUIRED lv2>=0.1.0)
 pkg_check_modules(SNDFILE REQUIRED sndfile>=1.0.20)
 pkg_check_modules(SAMPLERATE REQUIRED samplerate>=0.1.5)
 pkg_check_modules (GTK2 REQUIRED gtk+-2.0>=2.22.0)
-find_package (EXPAT REQUIRED)
 
-include_directories (${LV2_INCLUDE_DIRS} ${EXPAT_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS})
-link_directories (${LV2_LIBRARY_DIRS} ${EXPAT_LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS} ${SAMPLERATE_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS})
+include_directories (${LV2_INCLUDE_DIRS} ${SNDFILE_INCLUDE_DIRS} ${SAMPLERATE_INCLUDE_DIRS} ${GTK2_INCLUDE_DIRS})
+link_directories (${LV2_LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS} ${SAMPLERATE_LIBRARY_DIRS} ${GTK2_LIBRARY_DIRS})
 
 # config libraries
 
@@ -54,8 +53,8 @@ set_target_properties(drumrox_ui
   LINK_FLAGS "-Wl,-znodelete"
 )
 
-target_link_libraries(drumrox ${LV2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES} ${EXPAT_LIBRARIES} m)
-target_link_libraries(drumrox_ui ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES} ${EXPAT_LIBRARIES} m)
+target_link_libraries(drumrox ${LV2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES})
+target_link_libraries(drumrox_ui ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES})
 
 
 add_definitions ( -DPIC )
@@ -84,27 +83,27 @@ set_target_properties (drumrox_ui
 )
 
 # Custom test commands
-add_executable ( htest
-  EXCLUDE_FROM_ALL
-  drumrox_hydrogen.cpp
-)
+#add_executable ( htest drumrox.cpp
+#  EXCLUDE_FROM_ALL
+#)
 
-add_executable ( knobt
-  EXCLUDE_FROM_ALL
-  nknob.c
-)
+#add_executable ( knobt
+#  EXCLUDE_FROM_ALL
+#  nknob.c
+#)
 
 # config test executables
-target_link_libraries(htest ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES} ${EXPAT_LIBRARIES} m)
-set_target_properties ( htest
-  PROPERTIES
-  COMPILE_FLAGS "-D_TEST_HYDROGEN_PARSER"
-)
-target_link_libraries(knobt ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES} ${EXPAT_LIBRARIES} m)
-set_target_properties ( knobt
-  PROPERTIES
-  COMPILE_FLAGS "-D_TEST_N_KNOB"
-)
+#target_link_libraries(htest ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES} m)
+#set_target_properties ( htest
+#  PROPERTIES
+#  COMPILE_FLAGS "-D_TEST_HYDROGEN_PARSER"
+#)
+
+#target_link_libraries(knobt ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} $#{SAMPLERATE_LIBRARIES} m)
+#set_target_properties ( knobt
+#  PROPERTIES
+  #COMPILE_FLAGS "-D_TEST_N_KNOB"
+#)
 
 # config install
 install(TARGETS drumrox drumrox_ui

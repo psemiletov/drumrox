@@ -12,7 +12,7 @@
 KITS THAT NOT WORKING
 
 Alesis_HR16_chaserKit - wrong parse, show one unnamed instrument
-custica_percussoes - crash at Adroud
+acustica_percussoes - crash at Adroud
 
 * some instruments can be not fully working after kit change, for example:
 
