@@ -1,6 +1,18 @@
+* crash on change toolkit during playback
+
+* is ignore velocity works????
+* FIX ignore velocity off by default (make ON)
+
 * velocity and gain (how related?)
 
 * move presets to plugins's window drop down list
 * remove LV2 deprecated functions
-* change libexpat to pugi
 * refactor
+
+
+KITS THAT NOT WORKING
+
+Alesis_HR16_chaserKit - wrong parse, show one unnamed instrument
+BJA_Pacific - crashes Drumrox (but not kits.cpp test)
+BigMono - crashes Drumrox
+ColomboAcousticDrumkit - crashes Drumrox

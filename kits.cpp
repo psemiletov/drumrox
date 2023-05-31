@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
+#include <string>
 #include <math.h>
 #include <samplerate.h>
 
@@ -129,7 +129,7 @@ float* CDrumLayer::load_whole_sample_resampled (const char *fname, int samplerat
    if (info.samplerate == samplerate)
       {
        samples_count = info.channels * info.frames;
-       std::cout << fname << " loaded\n";
+     //  std::cout << fname << " loaded\n";
        return buffer;
       }
 
@@ -379,6 +379,31 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
          kit->v_samples.back()->v_layers.back()->max = txt.as_float();
 
 
+
+  if (node_name == "instrument")
+     {
+      drumkit_info_passed = true;
+
+/*
+      pugi::xml_node child = node.child ("filename");
+      if (child.empty()) //instrument is empty? check more!
+         {
+          child = node.child ("layer");
+          if (child.empty()) //too sad, yes
+             return false;
+
+         }
+
+*/
+      //else instrument is not empty
+      kit->add_sample();
+
+      if (! kit->layers_supported) //non-layered
+         kit->v_samples.back()->add_layer(); //add default layer
+     }
+
+
+/*
   if (node_name == "instrument")
      {
       drumkit_info_passed = true;
@@ -388,7 +413,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
       if (! kit->layers_supported) //non-layered
          kit->v_samples.back()->add_layer(); //add default layer
      }
-
+*/
 
   if (node_name == "layer" && ! kit->scan_mode)
      {
@@ -414,6 +439,8 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
 
 void CHydrogenKit::load (const char *fname, int sample_rate)
 {
+  cout << "void CHydrogenKit::load " << endl;
+
    samplerate = sample_rate;
 
   //path = fname;
@@ -445,6 +472,44 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    else
        layers_supported = false;
 
+ ////////////
+
+  cout << "layers_supported: " << layers_supported  << endl;
+  //delete empty instruments
+
+  size_t idx_filename = source.rfind ("</filename>");
+
+  size_t idx_instrument = source.find ("<instrument>", idx_filename);
+
+
+  cout << "idx_filename: " << idx_filename  << endl;
+  cout << "idx_instrument: " << idx_instrument  << endl;
+
+
+  if (idx_instrument != std::string::npos)
+  if (idx_instrument > idx_filename)
+     //oops, we wave empty instruments!
+     {
+      //первый пустой инструмент у нас уже есть, он находится по
+      //idx_instrument
+
+      //теперь найдем конец последнего
+
+      size_t idx_instrument_end = source.rfind ("</instrument>");
+      cout << "idx_instrument_end: " << idx_instrument_end  << endl;
+
+      size_t sz_to_remove = idx_instrument_end - idx_instrument + 13;
+      cout << "sz_to_remove: " << sz_to_remove  << endl;
+
+      source = source.erase (idx_instrument, sz_to_remove);
+
+
+      //cout << t << endl;
+     }
+
+
+  ////////////
+
 
   pugi::xml_parse_result result = doc.load_buffer (source.c_str(), source.size());
 
@@ -455,6 +520,36 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    CHydrogenXMLWalker walker (this);
 
    doc.traverse (walker);
+
+  //remove all instruments that has no samples/layers!
+/*
+  std::vector<CDrumSample*>::iterator iter;
+
+  for (iter = v_samples.begin(); iter != v_samples.end();)
+      {
+       CDrumSample *s = *iter;
+
+       if (s->v_layers.size() == 0)
+          {
+           delete s;
+           iter = v_samples.erase(iter);
+           continue;
+          }
+
+       if (! s->v_layers[0]->data)
+          {
+           delete s;
+           iter = v_samples.erase(iter);
+           continue;
+          }
+
+       ++iter;
+      }
+
+*/
+
+
+
 
 }
 
@@ -488,10 +583,17 @@ void CHydrogenKit::print()
 {
   cout << "void CHydrogenKit::print() -- start" << endl;
 
+//  cout << "samples count:" << v_samples.size() << endl;
+
+
   for (size_t i = 0; i < v_samples.size(); i++)
       {
        v_samples[i]->print();
       }
+
+        cout << "samples count:" << v_samples.size() << endl;
+
+
 
 
   cout << "void CHydrogenKit::print() -- end" << endl;

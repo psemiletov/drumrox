@@ -34,9 +34,7 @@ CDrumrox::CDrumrox()
 {
   //kit = new CHydrogenKit;
    kit = 0;
-
   std::cout << "CDrumrox::CDrumrox()\n";
-
 }
 
 
@@ -49,8 +47,7 @@ CDrumrox::~CDrumrox()
 
 static void* load_thread (void* arg)
 {
-    std::cout << "static void* load_thread \n";
-
+  std::cout << "static void* load_thread \n";
 
   CDrumrox* drumrox = (CDrumrox*)arg;
 
@@ -104,7 +101,7 @@ static void* load_thread (void* arg)
           // just lock for the critical moment when we swap in the new kit
           //!!how it is good when DAW is playing?
 
-          printf ("loaded kit at: %s\n",request);
+          printf ("loaded kit at: %s\n", request);
           pthread_mutex_lock (&drumrox->load_mutex);
           drumrox->kit = new_kit;
 
@@ -112,8 +109,6 @@ static void* load_thread (void* arg)
              delete old_kit;
 
           pthread_mutex_unlock (&drumrox->load_mutex);
-
-
          }
 
 //     if (old_scount > 0)
