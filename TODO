@@ -1,4 +1,3 @@
-* crash on change toolkit during playback
 
 * is ignore velocity works????
 * FIX ignore velocity off by default (make ON)
@@ -13,6 +12,10 @@
 KITS THAT NOT WORKING
 
 Alesis_HR16_chaserKit - wrong parse, show one unnamed instrument
-BJA_Pacific - crashes Drumrox (but not kits.cpp test)
-BigMono - crashes Drumrox
-ColomboAcousticDrumkit - crashes Drumrox
+custica_percussoes - crash at Adroud
+
+* some instruments can be not fully working after kit change, for example:
+
+ColomboAcousticDrumkit - //Share (1) muted
+Kawai_R100kit // 35Kick (0) - muted
+The Black Pearl 1.0 // Pearl Snare (2) muted
