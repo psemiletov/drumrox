@@ -5,6 +5,11 @@ project (drumrox VERSION 1.1.1 LANGUAGES CXX C)
 set(LV2_INSTALL_DIR lib/lv2 CACHE PATH "Specifies where the LV2 libraries should be installed")
 set(CMAKE_C_FLAGS "-Wall")
 
+option(USE_STATIC "Static build" ON)
+
+
+
+
 # Available options
 option(USE_NKNOB  "Use custom NKnob widgets for gain/pan instead of Gtk sliders" ON)
 SET(SAMP_ZERO_POS "0" CACHE STRING "Default sample zero position 0=top left (tl) 1=bl 2=tr 3=br")
@@ -52,6 +57,7 @@ set_target_properties(drumrox_ui
   PROPERTIES
   LINK_FLAGS "-Wl,-znodelete"
 )
+
 
 target_link_libraries(drumrox ${LV2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES})
 target_link_libraries(drumrox_ui ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES})

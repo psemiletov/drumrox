@@ -239,6 +239,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 //       gain_slider = gtk_vscale_new_with_range(GAIN_MIN,6.0,1);
        gain_slider = gtk_vscale_new_with_range (GAIN_MIN, 6.0, 0.1);
 
+       gtk_widget_set_usize (gain_slider, -1, 64);
        gtk_scale_set_value_pos(GTK_SCALE(gain_slider),GTK_POS_BOTTOM);
 //        gtk_scale_set_digits(GTK_SCALE(gain_slider),1);
        gtk_scale_set_digits(GTK_SCALE(gain_slider),2);
@@ -471,7 +472,7 @@ static gboolean kit_callback (gpointer data)
           fill_sample_table (ui, samples_count, ui->kitReq, notify_leds, gain_sliders, pan_sliders);
 
           gtk_box_pack_start(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), true,true,5);
-          gtk_box_reorder_child(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table),1);
+          gtk_box_reorder_child(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), 1);
           gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
 
           ui->samples = samples_count;
@@ -829,7 +830,8 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   ui->panlaw = PANLAW_LINEAR6;
 
-  //Window w = gdk_x11_drawable_get_xid(gtk_widget_get_window(ui->drmr_widget));
+  //Window w = gdk_x11_drawable_get_xid(gtk_widget_get_window(ui->drumrox_widget));
+  //*widget = reinterpret_cast<LV2UI_Widget>(w);
 
   *widget = ui->drumrox_widget;
 
