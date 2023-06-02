@@ -173,26 +173,13 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
   drumrox->request_buf = (char**) malloc (REQ_BUF_SIZE * sizeof(char*));
   memset (drumrox->request_buf, 0, REQ_BUF_SIZE * sizeof(char*));
 
-
   for (int i = 0; i < 32; i++)
       {
        drumrox->gains[i] = NULL;
        drumrox->pans[i] = NULL;
       }
 
-  //we get kit's samples pans and gains instead
-/*
-  drmr->gains = (float**) malloc(32*sizeof(float*));
-  drmr->pans = (float**) malloc(32*sizeof(float*));
-
-  for (int i = 0; i < 32; i++)
-      {
-       drmr->gains[i] = NULL;
-       drmr->pans[i] = NULL;
-      }
-*/
-
-  std::cout << "INSTANCE!!!!!!!!!!!!!!!!!!! - 2" << std::endl;
+//  std::cout << "INSTANCE!!!!!!!!!!!!!!!!!!! - 2" << std::endl;
 
   return (LV2_Handle)drumrox;
 }
@@ -200,7 +187,7 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
 
 static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 {
-  std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -1" << std::endl;
+//  std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -1" << std::endl;
 
   CDrumrox* drumrox = (CDrumrox*)instance;
   DrMrPortIndex port_index = (DrMrPortIndex)port;
@@ -209,57 +196,50 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
          {
           case DRMR_CONTROL:
                             drumrox->control_port = (LV2_Atom_Sequence*)data;
-                            std::cout << "DRMR_CONTROL\n";
+  //                          std::cout << "DRMR_CONTROL\n";
                             break;
 
           case DRMR_CORE_EVENT:
                                drumrox->core_event_port = (LV2_Atom_Sequence*)data;
-                               std::cout << "DRMR_CORE_EVENT\n";
+//                               std::cout << "DRMR_CORE_EVENT\n";
                                break;
 
           case DRMR_LEFT:
                          drumrox->left = (float*)data;
-                         std::cout << "DRMR_LEFT\n";
+//                         std::cout << "DRMR_LEFT\n";
                          break;
 
           case DRMR_RIGHT:
                           drumrox->right = (float*)data;
-                          std::cout << "DRMR_RIGHT\n";
+//                          std::cout << "DRMR_RIGHT\n";
                           break;
 
           case DRMR_BASENOTE:
                              if (data)
                                 drumrox->baseNote = (float*)data;
-                             std::cout << "DRMR_BASENOTE\n";
+//                             std::cout << "DRMR_BASENOTE\n";
           default:
                   break;
          }
 
 
-    std::cout << "PART 2\n";
+//    std::cout << "PART 2\n";
 
 
   //link LV controls gains to kit's
   if (port_index >= DRMR_GAIN_ONE && port_index <= DRMR_GAIN_THIRTYTWO)
      {
-       std::cout << "111\n";
-
+//       std::cout << "111\n";
       int goff = port_index - DRMR_GAIN_ONE;
-
+      drumrox->gains[goff] = (float*)data;
  //     std::cout << "goff: " << goff << std::endl;
   //    std::cout << "drumrox->kit->v_samples.size(): "  << std::endl;
-
-
-      drumrox->gains[goff] = (float*)data;
       //if (goff < drumrox->kit->v_samples.size())
         //  drumrox->kit->v_samples[goff]->gain = (float*)data;
-
-      std::cout << "222\n";
-
-
+//      std::cout << "222\n";
      }
 
-    std::cout << "PART 3\n";
+//    std::cout << "PART 3\n";
 
 
   //link LV controls pans to kit's
@@ -272,14 +252,13 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 
      }
 
-   std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -2" << std::endl;
-
+   //std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -2" << std::endl;
 }
 
 
 static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 {
-       std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 1 \n";
+//  std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 1 \n";
 
 
   LV2_Atom_Forge_Frame set_frame;
@@ -295,8 +274,7 @@ static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 
   lv2_atom_forge_pop (&drumrox->forge, &set_frame);
 
-         std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 2 \n";
-
+  //       std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 2 \n";
 
   return msg;
 }
@@ -304,8 +282,7 @@ static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 
 static inline LV2_Atom *build_state_message (CDrumrox *drumrox)
 {
-    std::cout << "LV2_Atom *build_state_message (CDrumrox *drumrox) - 1 \n";
-
+//    std::cout << "LV2_Atom *build_state_message (CDrumrox *drumrox) - 1 \n";
 
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drumrox->forge, &set_frame, 1, drumrox->uris.get_state);
@@ -318,20 +295,19 @@ static inline LV2_Atom *build_state_message (CDrumrox *drumrox)
 
   lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.velocity_toggle, 0);
 
-  //lv2_atom_forge_bool(&drumrox->forge, drumrox->ignore_velocity?true:false);
-  lv2_atom_forge_bool (&drumrox->forge, drumrox->ignore_velocity);
+  lv2_atom_forge_bool(&drumrox->forge, drumrox->ignore_velocity?true:false);
+  //lv2_atom_forge_bool (&drumrox->forge, drumrox->ignore_velocity);
 
   lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.note_off_toggle,0);
-//  lv2_atom_forge_bool(&drumrox->forge, drumrox->ignore_note_off?true:false);
-  lv2_atom_forge_bool (&drumrox->forge, drumrox->ignore_note_off);
+  lv2_atom_forge_bool(&drumrox->forge, drumrox->ignore_note_off?true:false);
+//  lv2_atom_forge_bool (&drumrox->forge, drumrox->ignore_note_off);
 
   lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.panlaw, 0);
   lv2_atom_forge_int (&drumrox->forge, drumrox->panlaw);
 
-  lv2_atom_forge_pop (&drumrox->forge,&set_frame);
+  lv2_atom_forge_pop (&drumrox->forge, &set_frame);
 
-      std::cout << "LV2_Atom *build_state_message (CDrumrox *drumrox) - 2 \n";
-
+  //    std::cout << "LV2_Atom *build_state_message (CDrumrox *drumrox) - 2 \n";
 
   return msg;
 }
@@ -339,8 +315,7 @@ static inline LV2_Atom *build_state_message (CDrumrox *drumrox)
 
 static inline LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *data)
 {
-       std::cout << " LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *data) \n";
-
+//       std::cout << " LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *data) \n";
 
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drumrox->forge, &set_frame, 1, drumrox->uris.midi_info);
@@ -426,16 +401,11 @@ static inline void trigger_sample (CDrumrox *drumrox,
   // changed after the check that the midi-note is valid
   pthread_mutex_lock (&drumrox->load_mutex);
 
-  //nn is numner of sample? yes
-
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number]; //point to the sample
-     // if (s->v_layers.size() > 1) //if we have layers, map them accroding to gain
-
-        float gain = *drumrox->gains[note_number];
-
-        s->current_layer = s->map_gain_to_layer_number (gain);
+      float gain = *drumrox->gains[note_number];
+      s->current_layer = s->map_gain_to_layer_number (gain);
 
 //      s->current_layer = s->map_gain_to_layer_number (*s->gain); //0 if there are just 1 layer
 

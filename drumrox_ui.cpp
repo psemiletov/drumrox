@@ -24,7 +24,6 @@
 #include <gdk/gdk.h>
 
 #include "drumrox.h"
-//#include "drumrox_hydrogen.h"
 #include "nknob.h"
 #include "dsp.h"
 
@@ -355,9 +354,9 @@ static void sample_triggered (CDrumroxGTKGUI *ui, int si)
 {
   if (ui->notify_leds && si < ui->samples)
      {
-      gtk_widget_modify_bg (ui->frames[si],
-                      GtkStateType state,
-                      const GdkColor *color);
+      //gtk_widget_modify_bg (ui->frames[si],
+        //              GtkStateType state,
+          //            const GdkColor *color);
 
       gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
       g_timeout_add(200,unset_bg,ui->notify_leds[si]);
