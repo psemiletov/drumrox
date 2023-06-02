@@ -1,9 +1,11 @@
-/* drmr.c
- * LV2 DrMr plugin
+/* drumrox.cpp
+ * LV2 Drumrox plugin
+ * 2023 Peter Semiletov
+ * based on DrMr
  * Copyright 2012 Nick Lanham <nick@afternight.org>
+ * and Filipe Coelho's DrMr fork (https://github.com/falkTX/drmr).
  *
- * Public License v3. source code is available at 
- * <http://github.com/nicklan/drmr>
+ * GPL Public License v3
 
  * THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -22,7 +24,7 @@
 
 #include "dsp.h"
 #include "drumrox.h"
-//#include "drumrox_hydrogen.h"
+
 
 #define REQ_BUF_SIZE 10
 #define VELOCITY_MAX 127
@@ -32,9 +34,14 @@ static int current_kit_changed = 0;
 
 CDrumrox::CDrumrox()
 {
-  //kit = new CHydrogenKit;
-   kit = 0;
-  std::cout << "CDrumrox::CDrumrox()\n";
+  kit = 0;
+  map = NULL;
+  current_path = NULL;
+  curReq = -1;
+  ignore_velocity = false;
+  ignore_note_off = true;
+  panlaw = 0;
+
 }
 
 
@@ -44,21 +51,14 @@ CDrumrox::~CDrumrox()
 }
 
 
-
 static void* load_thread (void* arg)
 {
   std::cout << "static void* load_thread \n";
 
   CDrumrox* drumrox = (CDrumrox*)arg;
 
-  //drmr_sample *loaded_samples;
-  //drmr_sample *old_samples;
-
   CHydrogenKit *new_kit;
   CHydrogenKit *old_kit;
-
-  //int loaded_count;
-//  int old_scount;
 
   char *request; //path to drumkit xml???
   char *request_orig;
@@ -71,9 +71,6 @@ static void* load_thread (void* arg)
 
       old_kit = drumrox->kit;
 
-      //old_samples = drmr->samples;
-      //old_scount = drmr->num_samples;
-
       request_orig = request = drumrox->request_buf[drumrox->curReq];
 
       if (! strncmp (request, "file://", 7))
@@ -85,14 +82,10 @@ static void* load_thread (void* arg)
 
       std::cout << "request: " << request << std::endl;
 
-  //    loaded_samples = load_hydrogen_kit (request, drmr->rate, &loaded_count);
-
       if (new_kit->v_samples.size() == 0)
          {
           fprintf (stderr, "Failed to load kit at: %s\n", request);
           pthread_mutex_lock (&drumrox->load_mutex);
-          //drmr->num_samples = 0;
-          //drmr->samples = NULL;
           drumrox->kit = NULL;
           pthread_mutex_unlock (&drumrox->load_mutex);
          }
@@ -111,9 +104,6 @@ static void* load_thread (void* arg)
           pthread_mutex_unlock (&drumrox->load_mutex);
          }
 
-//     if (old_scount > 0)
-  //      free_samples (old_samples, old_scount);
-
      drumrox->current_path = request_orig;
      current_kit_changed = 1;
     }
@@ -129,24 +119,11 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
 {
   init_db();
 
-  std::cout << "INSTANCE!!!!!!!!!!!!!!!!!!! - 1" << std::endl;
+//  std::cout << "INSTANCE!!!!!!!!!!!!!!!!!!! - 1" << std::endl;
 
   CDrumrox *drumrox = new CDrumrox;
-  //DrMr* drmr = (DrMr*) malloc(sizeof(DrMr));
-  drumrox->map = NULL;
 
-  drumrox->kit = 0;
-
-  //drumrox->samples = NULL;
-  //drumrox->num_samples = 0;
-
-  drumrox->current_path = NULL;
-  drumrox->curReq = -1;
   drumrox->rate = rate;
-  drumrox->ignore_velocity = false;
-  drumrox->ignore_note_off = true;
-  drumrox->panlaw = 0;
-
 
   if (pthread_mutex_init (&drumrox->load_mutex, 0))
      {
@@ -156,14 +133,12 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
      }
 
 
-
   if (pthread_cond_init (&drumrox->load_cond, 0))
      {
       fprintf (stderr, "Could not initialize load_cond.\n");
       delete drumrox;
       return 0;
      }
-
 
 
   while (*features)
@@ -195,8 +170,7 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
      }
 
 
-
-  drumrox->request_buf = (char**) malloc (REQ_BUF_SIZE*sizeof(char*));
+  drumrox->request_buf = (char**) malloc (REQ_BUF_SIZE * sizeof(char*));
   memset (drumrox->request_buf, 0, REQ_BUF_SIZE * sizeof(char*));
 
 

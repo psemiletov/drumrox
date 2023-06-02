@@ -324,7 +324,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
 
       gtk_box_pack_start(GTK_BOX(hbox),button_box,false,false,0);
-      g_object_set(vbox,"border-width",5,NULL);
+      g_object_set(vbox,"border-width", 5, NULL);
       gtk_container_add(GTK_CONTAINER(frame),vbox);
 
       gtk_table_attach_defaults (ui->sample_table, frame, col, col + 1, row, row + 1);
@@ -355,8 +355,14 @@ static void sample_triggered (CDrumroxGTKGUI *ui, int si)
 {
   if (ui->notify_leds && si < ui->samples)
      {
+      gtk_widget_modify_bg (ui->frames[si],
+                      GtkStateType state,
+                      const GdkColor *color);
+
       gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
       g_timeout_add(200,unset_bg,ui->notify_leds[si]);
+
+
      }
 }
 
