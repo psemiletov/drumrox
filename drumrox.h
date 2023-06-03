@@ -81,7 +81,7 @@ typedef struct
 #define DRMR_URI "https://github.com/psemiletov/drumrox"
 #define GAIN_MIN -60.0f
 #define GAIN_MAX 6.0f
-
+/*
 typedef enum {
   DRMR_CONTROL = 0,
   DRMR_LEFT,
@@ -154,6 +154,82 @@ typedef enum {
   DRMR_CORE_EVENT,
   DRMR_NUM_PORTS
 } DrMrPortIndex;
+*/
+
+
+typedef enum {
+  DRUMROX_CONTROL = 0,
+  DRUMROX_LEFT,
+  DRUMROX_RIGHT,
+  DRUMROX_BASENOTE,
+  DRUMROX_GAIN_01,
+  DRUMROX_GAIN_02,
+  DRUMROX_GAIN_03,
+  DRUMROX_GAIN_04,
+  DRUMROX_GAIN_05,
+  DRUMROX_GAIN_06,
+  DRUMROX_GAIN_07,
+  DRUMROX_GAIN_08,
+  DRUMROX_GAIN_09,
+  DRUMROX_GAIN_10,
+  DRUMROX_GAIN_11,
+  DRUMROX_GAIN_12,
+  DRUMROX_GAIN_13,
+  DRUMROX_GAIN_14,
+  DRUMROX_GAIN_15,
+  DRUMROX_GAIN_16,
+  DRUMROX_GAIN_17,
+  DRUMROX_GAIN_18,
+  DRUMROX_GAIN_19,
+  DRUMROX_GAIN_20,
+  DRUMROX_GAIN_21,
+  DRUMROX_GAIN_22,
+  DRUMROX_GAIN_23,
+  DRUMROX_GAIN_24,
+  DRUMROX_GAIN_25,
+  DRUMROX_GAIN_26,
+  DRUMROX_GAIN_27,
+  DRUMROX_GAIN_28,
+  DRUMROX_GAIN_29,
+  DRUMROX_GAIN_30,
+  DRUMROX_GAIN_31,
+  DRUMROX_GAIN_32,
+  DRUMROX_PAN_01,
+  DRUMROX_PAN_02,
+  DRUMROX_PAN_03,
+  DRUMROX_PAN_04,
+  DRUMROX_PAN_05,
+  DRUMROX_PAN_06,
+  DRUMROX_PAN_07,
+  DRUMROX_PAN_08,
+  DRUMROX_PAN_09,
+  DRUMROX_PAN_10,
+  DRUMROX_PAN_11,
+  DRUMROX_PAN_12,
+  DRUMROX_PAN_13,
+  DRUMROX_PAN_14,
+  DRUMROX_PAN_15,
+  DRUMROX_PAN_16,
+  DRUMROX_PAN_17,
+  DRUMROX_PAN_18,
+  DRUMROX_PAN_19,
+  DRUMROX_PAN_20,
+  DRUMROX_PAN_21,
+  DRUMROX_PAN_22,
+  DRUMROX_PAN_23,
+  DRUMROX_PAN_24,
+  DRUMROX_PAN_25,
+  DRUMROX_PAN_26,
+  DRUMROX_PAN_27,
+  DRUMROX_PAN_28,
+  DRUMROX_PAN_29,
+  DRUMROX_PAN_30,
+  DRUMROX_PAN_31,
+  DRUMROX_PAN_32,
+  DRUMROX_CORE_EVENT,
+  DRUMROX_NUM_PORTS
+} DrumroxPortIndex;
+
 
 
 typedef struct
@@ -216,12 +292,7 @@ public:
   int curReq;
 
   // Samples
-
   CHydrogenKit *kit;
-  //CHydrogenKits *kits;
-
-//  drmr_sample* samples;
-//  uint8_t num_samples;
 
   // loading thread stuff
   pthread_mutex_t load_mutex;
@@ -230,7 +301,7 @@ public:
 
 
   CDrumrox();
-~ CDrumrox();
+~CDrumrox();
 
 };
 

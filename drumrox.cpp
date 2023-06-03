@@ -190,31 +190,31 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 //  std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -1" << std::endl;
 
   CDrumrox* drumrox = (CDrumrox*)instance;
-  DrMrPortIndex port_index = (DrMrPortIndex)port;
+  DrumroxPortIndex port_index = (DrumroxPortIndex)port;
 
   switch (port_index)
          {
-          case DRMR_CONTROL:
+          case DRUMROX_CONTROL:
                             drumrox->control_port = (LV2_Atom_Sequence*)data;
   //                          std::cout << "DRMR_CONTROL\n";
                             break;
 
-          case DRMR_CORE_EVENT:
+          case DRUMROX_CORE_EVENT:
                                drumrox->core_event_port = (LV2_Atom_Sequence*)data;
 //                               std::cout << "DRMR_CORE_EVENT\n";
                                break;
 
-          case DRMR_LEFT:
+          case DRUMROX_LEFT:
                          drumrox->left = (float*)data;
 //                         std::cout << "DRMR_LEFT\n";
                          break;
 
-          case DRMR_RIGHT:
+          case DRUMROX_RIGHT:
                           drumrox->right = (float*)data;
 //                          std::cout << "DRMR_RIGHT\n";
                           break;
 
-          case DRMR_BASENOTE:
+          case DRUMROX_BASENOTE:
                              if (data)
                                 drumrox->baseNote = (float*)data;
 //                             std::cout << "DRMR_BASENOTE\n";
@@ -227,11 +227,11 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 
 
   //link LV controls gains to kit's
-  if (port_index >= DRMR_GAIN_ONE && port_index <= DRMR_GAIN_THIRTYTWO)
+  if (port_index >= DRUMROX_GAIN_01 && port_index <= DRUMROX_GAIN_32)
      {
 //       std::cout << "111\n";
-      int goff = port_index - DRMR_GAIN_ONE;
-      drumrox->gains[goff] = (float*)data;
+      size_t gain_offset = port_index - DRUMROX_GAIN_01;
+      drumrox->gains[gain_offset] = (float*)data;
  //     std::cout << "goff: " << goff << std::endl;
   //    std::cout << "drumrox->kit->v_samples.size(): "  << std::endl;
       //if (goff < drumrox->kit->v_samples.size())
@@ -243,10 +243,10 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 
 
   //link LV controls pans to kit's
-  if (port_index >= DRMR_PAN_ONE && port_index <= DRMR_PAN_THIRTYTWO)
+  if (port_index >= DRUMROX_PAN_01 && port_index <= DRUMROX_PAN_32)
      {
-      int poff = port_index - DRMR_PAN_ONE;
-      drumrox->pans[poff] = (float*)data;
+      size_t pan_offset = port_index - DRUMROX_PAN_01;
+      drumrox->pans[pan_offset] = (float*)data;
       //if (poff < drumrox->kit->v_samples.size())
         //  drumrox->kit->v_samples[poff]->pan = (float*)data;
 
@@ -290,7 +290,7 @@ static inline LV2_Atom *build_state_message (CDrumrox *drumrox)
   if (drumrox->current_path)
      {
       lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.kit_path, 0);
-      lv2_atom_forge_string (&drumrox->forge, drumrox->current_path, strlen(drumrox->current_path));
+      lv2_atom_forge_string (&drumrox->forge, drumrox->current_path, strlen (drumrox->current_path));
      }
 
   lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.velocity_toggle, 0);
@@ -472,10 +472,8 @@ static inline void untrigger_sample (CDrumrox *drumrox,
 //      s->current_layer = s->map_gain_to_layer_number (*s->gain);
       float gain = *drumrox->gains[note_number];
 
-        s->current_layer = s->map_gain_to_layer_number (gain);
-
+      s->current_layer = s->map_gain_to_layer_number (gain);
 //      s->current_layer = s->map_gain_to_layer_number (*s->gain);
-
 
       s->active = 0;
       s->v_layers[s->current_layer]->dataoffset = offset;
@@ -527,19 +525,15 @@ static void run (LV2_Handle instance, uint32_t n_samples)
        {
         std::cout << "ev->body.type == drumrox->uris.midi_event\n";
 
-
         uint8_t note_number;
         uint8_t* const data = (uint8_t* const)(ev + 1);
 
-        //WHAT IS OFFSET??
         //uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
         uint32_t offset = 0;
-
         //ev->time.frames is in the range between 0 and n_samples
         if (ev->time.frames > 0 && ev->time.frames < n_samples)
            offset = ev->time.frames;
 
-         //so offset is in time.frames?
 
           /*
             LV2_Atom_Event.time
@@ -580,8 +574,6 @@ static void run (LV2_Handle instance, uint32_t n_samples)
        if (ev->body.type == drumrox->uris.atom_resource)
           {
            std::cout << "ev->body.type == drumrox->uris.atom_resource\n";
-
-
 
            const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
            if (obj->body.otype == drumrox->uris.ui_msg)
@@ -643,7 +635,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
          else
              if (obj->body.otype == drumrox->uris.get_state)
                 {
-                   std::cout << "obj->body.otype == drumrox->uris.get_state\n";
+                 std::cout << "obj->body.otype == drumrox->uris.get_state\n";
 
 
                  lv2_atom_forge_frame_time (&drumrox->forge, 0);
@@ -671,13 +663,13 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
    lv2_atom_forge_pop (&drumrox->forge, &seq_frame);
 
-   for (int i = 0; i < n_samples; i++)
+   for (size_t i = 0; i < n_samples; i++)
        {
         drumrox->left[i] = 0.0f;
         drumrox->right[i] = 0.0f;
        }
 
-  pthread_mutex_lock (&drumrox->load_mutex);
+   pthread_mutex_lock (&drumrox->load_mutex);
 
 
    if (! drumrox->kit)
@@ -830,7 +822,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
 static void cleanup (LV2_Handle instance)
 {
-       std::cout << "void cleanup (LV2_Handle instance) //DRUMROX \n";
+  std::cout << "void cleanup (LV2_Handle instance) //DRUMROX \n";
 
 
   CDrumrox* drumrox = (CDrumrox*)instance;

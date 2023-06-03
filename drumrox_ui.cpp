@@ -101,7 +101,7 @@ static gboolean gain_callback (GtkRange* range, GtkScrollType type, gdouble valu
   int gidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range),ui->gain_quark));
   float gain = (float)value;
   ui->gain_vals[gidx] = gain;
-  ui->write (ui->controller, gidx + DRMR_GAIN_ONE, 4, 0, &gain);
+  ui->write (ui->controller, gidx + DRUMROX_GAIN_01, 4, 0, &gain);
   return FALSE;
 }
 
@@ -114,7 +114,7 @@ static gboolean pan_callback (GtkRange* range, GtkScrollType type, gdouble value
   int pidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range), ui->pan_quark));
   float pan = (float)value;
   ui->pan_vals[pidx] = pan;
-  ui->write (ui->controller, pidx + DRMR_PAN_ONE, 4, 0, &pan);
+  ui->write (ui->controller, pidx + DRUMROX_PAN_01, 4, 0, &pan);
   return FALSE;
 }
 
@@ -130,7 +130,7 @@ static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui
   LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
   (*add_data)(ui, data);
   lv2_atom_forge_pop (&ui->forge, &set_frame);
-  ui->write (ui->controller, DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
+  ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
 }
 
 
@@ -388,7 +388,7 @@ static void base_changed (GtkSpinButton *base_spin, gpointer data)
   if (base >= 21.0f && base <= 107.0f)
      {
       setBaseLabel((int)base);
-      ui->write (ui->controller, DRMR_BASENOTE, 4, 0, &base);
+      ui->write (ui->controller, DRUMROX_BASENOTE, 4, 0, &base);
       gtk_label_set_markup (ui->base_label, baseLabelBuf);
       ui->baseNote = (int)base;
      }
@@ -548,7 +548,7 @@ static void kit_combobox_changed (GtkComboBox* box, gpointer data)
       lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
 
       LV2_Atom *msg = build_path_message (ui, ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename.c_str());
-      ui->write (ui->controller, DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
+      ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
      }
 }
 
@@ -624,7 +624,7 @@ static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpoin
 
   lv2_atom_forge_set_buffer (&ui->forge, msg_buf, 1024);
   LV2_Atom *msg = build_get_state_message(ui);
-  ui->write (ui->controller, DRMR_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
+  ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
   g_signal_handler_disconnect (widget, expose_id);
 
   return FALSE;
@@ -810,9 +810,9 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   ui->kits.scan();
 
-  ui->gain_quark = g_quark_from_string ("drmr_gain_quark");
-  ui->pan_quark = g_quark_from_string ("drmr_pan_quark");
-  ui->trigger_quark = g_quark_from_string ("drmr_trigger_quark");
+  ui->gain_quark = g_quark_from_string ("drumrox_gain_quark");
+  ui->pan_quark = g_quark_from_string ("drumrox_pan_quark");
+  ui->trigger_quark = g_quark_from_string ("drumrox_trigger_quark");
 
   ui->gain_sliders = NULL;
   ui->pan_sliders = NULL;
@@ -905,10 +905,10 @@ static void port_event (LV2UI_Handle handle,
 {
   std::cout << "GUI void port_event\n";
 
-  DrMrPortIndex index = (DrMrPortIndex)port_index;
+  DrumroxPortIndex index = (DrumroxPortIndex)port_index;
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)handle;
 
-  if (index == DRMR_CORE_EVENT)
+  if (index == DRUMROX_CORE_EVENT)
      {
       if (format == ui->uris.atom_eventTransfer)
          {
@@ -998,7 +998,7 @@ static void port_event (LV2UI_Handle handle,
               fprintf(stderr, "Unknown format.\n");
          }
       else
-          if (index == DRMR_BASENOTE)
+          if (index == DRUMROX_BASENOTE)
              {
               int base_note = (int)(*((float*)buffer));
               if (base_note >= 21 && base_note <= 107)
@@ -1010,10 +1010,10 @@ static void port_event (LV2UI_Handle handle,
                  }
              }
          else
-             if (index >= DRMR_GAIN_ONE && index <= DRMR_GAIN_THIRTYTWO)
+             if (index >= DRUMROX_GAIN_01 && index <= DRUMROX_GAIN_32)
                 {
                  float gain = *(float*)buffer;
-                 int idx = index - DRMR_GAIN_ONE;
+                 int idx = index - DRUMROX_GAIN_01;
                  ui->gain_vals[idx] = gain;
 
                  if (idx < ui->samples && ui->gain_sliders)
@@ -1027,10 +1027,10 @@ static void port_event (LV2UI_Handle handle,
                     }
                 }
             else
-                if (index >= DRMR_PAN_ONE && index <= DRMR_PAN_THIRTYTWO)
+                if (index >= DRUMROX_PAN_01 && index <= DRUMROX_PAN_32)
                    {
                     float pan = *(float*)buffer;
-                    int idx = index - DRMR_PAN_ONE;
+                    int idx = index - DRUMROX_PAN_01;
                     ui->pan_vals[idx] = pan;
 
                     if (idx < ui->samples && ui->pan_sliders)
