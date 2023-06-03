@@ -848,9 +848,12 @@ static LV2_State_Status save_state (LV2_Handle instance,
 
 
   CDrumrox *drumrox = (CDrumrox*) instance;
-  LV2_State_Map_Path* map_path = NULL;
+
   int32_t flag;
   LV2_State_Status stat = LV2_STATE_SUCCESS;
+
+/*
+  LV2_State_Map_Path* map_path = NULL;
 
   while (*features)
         {
@@ -865,28 +868,21 @@ static LV2_State_Status save_state (LV2_Handle instance,
       fprintf(stderr,"Host does not support map_path, cannot save state\n");
       return LV2_STATE_ERR_NO_FEATURE;
      }
-
+*/
   if (drumrox->current_path != NULL)  //drmr->current_path is absolute path
      {
-      //МЕНЯЮ!!!
-      //char* mapped_path = map_path->abstract_path (map_path->handle, drumrox->current_path);
-
-      const char* mapped_path = drumrox->kit->kit_xml_filename.c_str();
-
-
-      //CHECK HERE THE VALUE OF mapped_path
-      //cout
+      const char* path = drumrox->kit->kit_xml_filename.c_str();
 
       stat = store (handle,
                     drumrox->uris.kit_path,
-                    mapped_path,
-                    strlen (mapped_path) + 1,
+                    path,
+                    strlen (path) + 1,
                     drumrox->uris.string_urid,
                     LV2_STATE_IS_POD | LV2_STATE_IS_PORTABLE);
 
-  if (stat)
-     return stat;
-  }
+      if (stat)
+         return stat;
+     }
 
   if (drumrox->ignore_velocity)
      flag = 1;
@@ -973,10 +969,7 @@ static LV2_State_Status restore_state (LV2_Handle instance,
       return LV2_STATE_ERR_NO_PROPERTY;
      }
 
-//  char *kit_path = map_path->absolute_path (map_path->handle, abstract_path);
-//МЕНЯЮ!
   const char *kit_path = abstract_path;
-
 
   if (kit_path)
      { // safe as we're in "Instantiation" threading class
@@ -1031,6 +1024,7 @@ static const LV2_Descriptor descriptor = {
   cleanup,
   extension_data
 };
+
 
 LV2_SYMBOL_EXPORT
 const LV2_Descriptor*

@@ -60,6 +60,7 @@ public:
 
   GtkWidget** gain_sliders;
   GtkWidget** pan_sliders;
+  //GtkWidget** frames;
 
   float *gain_vals;
   float *pan_vals;
@@ -74,7 +75,7 @@ public:
 
   gboolean forceUpdate;
 
-  int samples;
+  int samples_count;
   int baseNote;
 
   GQuark gain_quark, pan_quark, trigger_quark;
@@ -228,6 +229,11 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
 
        frame = gtk_frame_new (buf);
+
+       //if (ui->frames)
+         //  ui->frames[si] = frame;
+
+
        gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
@@ -350,16 +356,36 @@ static gboolean unset_bg (gpointer data)
 }
 
 
+static gboolean unset_bg2 (gpointer data)
+{
+   GtkWidget *w = (GtkWidget *)data;
+
+   //GdkColor color;
+       //gdk_color_parse("grey", &color);
+
+       gtk_widget_modify_bg (w,
+                      GTK_STATE_NORMAL,
+                      NULL);
+
+
+  return FALSE;
+}
+
+
 static void sample_triggered (CDrumroxGTKGUI *ui, int si)
 {
-  if (ui->notify_leds && si < ui->samples)
-     {
-      //gtk_widget_modify_bg (ui->frames[si],
-        //              GtkStateType state,
-          //            const GdkColor *color);
+  if (ui->notify_leds && si < ui->samples_count)
+     {/*
+       GdkColor color;
+       gdk_color_parse("red", &color);
 
+       gtk_widget_modify_bg (ui->frames[si],
+                      GTK_STATE_NORMAL,
+                      &color);
+*/
       gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
-      g_timeout_add(200,unset_bg,ui->notify_leds[si]);
+      g_timeout_add(200,unset_bg, ui->notify_leds[si]);
+ //     g_timeout_add(200,unset_bg2, ui->frames[si]);
 
 
      }
@@ -437,17 +463,23 @@ static gboolean kit_callback (gpointer data)
       GtkWidget** notify_leds;
       GtkWidget** gain_sliders;
       GtkWidget** pan_sliders;
+      //GtkWidget** frames;
 
       if (ui->sample_table)
          {
           notify_leds = ui->notify_leds;
           gain_sliders = ui->gain_sliders;
           pan_sliders = ui->pan_sliders;
+          //frames = ui->frames;
 
-          ui->samples = 0;
+          ui->samples_count = 0;
           ui->notify_leds = NULL;
           ui->gain_sliders = NULL;
           ui->pan_sliders = NULL;
+          //ui->frames = NULL;
+
+         //if (frames)
+           // free (frames);
 
           if (notify_leds)
              free (notify_leds);
@@ -473,6 +505,7 @@ static gboolean kit_callback (gpointer data)
           notify_leds = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
           gain_sliders = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
           pan_sliders = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
+          //frames = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
 
           fill_sample_table (ui, samples_count, ui->kitReq, notify_leds, gain_sliders, pan_sliders);
 
@@ -480,10 +513,11 @@ static gboolean kit_callback (gpointer data)
           gtk_box_reorder_child(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), 1);
           gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
 
-          ui->samples = samples_count;
+          ui->samples_count = samples_count;
           ui->notify_leds = notify_leds;
           ui->gain_sliders = gain_sliders;
           ui->pan_sliders = pan_sliders;
+          //ui->frames = frames;
 
 //      gtk_label_set_text(ui->current_kit_label,ui->kits->kits[ui->kitReq].name);
 
@@ -779,7 +813,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
   ui->drumrox_widget = NULL;
   ui->map = NULL;
   ui->current_kit_index = -1;
-  ui->samples = 0; //WHAT IS THAT?
+  ui->samples_count = 0;
   *widget = NULL;
 
   while (*features)
@@ -817,6 +851,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
   ui->gain_sliders = NULL;
   ui->pan_sliders = NULL;
   ui->notify_leds = NULL;
+  //ui->frames = NULL;
 
   // store previous gain/pan vals to re-apply to sliders when we
   // change kits
@@ -1016,7 +1051,7 @@ static void port_event (LV2UI_Handle handle,
                  int idx = index - DRUMROX_GAIN_01;
                  ui->gain_vals[idx] = gain;
 
-                 if (idx < ui->samples && ui->gain_sliders)
+                 if (idx < ui->samples_count && ui->gain_sliders)
                     {
                      struct slider_callback_data* data = (slider_callback_data*)malloc(sizeof(struct slider_callback_data));
                      data->range = GTK_RANGE(ui->gain_sliders[idx]);
@@ -1033,7 +1068,7 @@ static void port_event (LV2UI_Handle handle,
                     int idx = index - DRUMROX_PAN_01;
                     ui->pan_vals[idx] = pan;
 
-                    if (idx < ui->samples && ui->pan_sliders)
+                    if (idx < ui->samples_count && ui->pan_sliders)
                        {
                         struct slider_callback_data* data = (slider_callback_data*) malloc(sizeof(struct slider_callback_data));
                         data->range = GTK_RANGE(ui->pan_sliders[idx]);
