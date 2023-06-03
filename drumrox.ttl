@@ -65,8 +65,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 4;
-    lv2:symbol "gain_one";
-    lv2:name "Sample One Gain";
+    lv2:symbol "gain_01";
+    lv2:name "Sample 01 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -79,8 +79,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 5;
-    lv2:symbol "gain_two";
-    lv2:name "Sample Two Gain";
+    lv2:symbol "gain_02";
+    lv2:name "Sample 02 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -93,8 +93,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 6;
-    lv2:symbol "gain_three";
-    lv2:name "Sample Three Gain";
+    lv2:symbol "gain_03";
+    lv2:name "Sample 03 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -107,8 +107,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 7;
-    lv2:symbol "gain_four";
-    lv2:name "Sample Four Gain";
+    lv2:symbol "gain_04";
+    lv2:name "Sample 04 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -121,8 +121,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 8;
-    lv2:symbol "gain_five";
-    lv2:name "Sample Five Gain";
+    lv2:symbol "gain_05";
+    lv2:name "Sample 05 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -135,8 +135,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 9;
-    lv2:symbol "gain_six";
-    lv2:name "Sample Six Gain";
+    lv2:symbol "gain_06";
+    lv2:name "Sample 06 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -149,8 +149,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 10;
-    lv2:symbol "gain_seven";
-    lv2:name "Sample Seven Gain";
+    lv2:symbol "gain_07";
+    lv2:name "Sample 07 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -163,8 +163,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 11;
-    lv2:symbol "gain_eight";
-    lv2:name "Sample Eight Gain";
+    lv2:symbol "gain_08";
+    lv2:name "Sample 08 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -177,8 +177,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 12;
-    lv2:symbol "gain_nine";
-    lv2:name "Sample Nine Gain";
+    lv2:symbol "gain_09";
+    lv2:name "Sample 09 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -191,8 +191,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 13;
-    lv2:symbol "gain_ten";
-    lv2:name "Sample Ten Gain";
+    lv2:symbol "gain_10";
+    lv2:name "Sample 10 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -205,8 +205,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 14;
-    lv2:symbol "gain_eleven";
-    lv2:name "Sample Eleven Gain";
+    lv2:symbol "gain_11";
+    lv2:name "Sample 11 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -219,8 +219,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 15;
-    lv2:symbol "gain_twelve";
-    lv2:name "Sample Twelve Gain";
+    lv2:symbol "gain_12";
+    lv2:name "Sample 12 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -233,8 +233,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 16;
-    lv2:symbol "gain_thirteen";
-    lv2:name "Sample Thirteen Gain";
+    lv2:symbol "gain_13";
+    lv2:name "Sample 13 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -247,8 +247,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 17;
-    lv2:symbol "gain_fourteen";
-    lv2:name "Sample Fourteen Gain";
+    lv2:symbol "gain_14";
+    lv2:name "Sample 14 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -261,8 +261,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 18;
-    lv2:symbol "gain_fifteen";
-    lv2:name "Sample Fifteen Gain";
+    lv2:symbol "gain_15";
+    lv2:name "Sample 15 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -275,8 +275,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 19;
-    lv2:symbol "gain_sixteen";
-    lv2:name "Sample Sixteen Gain";
+    lv2:symbol "gain_16";
+    lv2:name "Sample 16 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -289,8 +289,8 @@
  [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 20;
-    lv2:symbol "gain_seventeen";
-    lv2:name "Sample Seventeen Gain";
+    lv2:symbol "gain_17";
+    lv2:name "Sample 17 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -304,8 +304,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 21;
-    lv2:symbol "gain_eighteen";
-    lv2:name "Sample Eighteen Gain";
+    lv2:symbol "gain_18";
+    lv2:name "Sample 18 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -318,8 +318,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 22;
-    lv2:symbol "gain_nineteen";
-    lv2:name "Sample Nineteen Gain";
+    lv2:symbol "gain_19";
+    lv2:name "Sample 19 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -332,8 +332,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 23;
-    lv2:symbol "gain_twenty";
-    lv2:name "Sample Twenty Gain";
+    lv2:symbol "gain_20";
+    lv2:name "Sample 20 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -346,8 +346,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 24;
-    lv2:symbol "gain_twentyone";
-    lv2:name "Sample Twenty One Gain";
+    lv2:symbol "gain_21";
+    lv2:name "Sample 21 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -360,8 +360,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 25;
-    lv2:symbol "gain_twentytwo";
-    lv2:name "Sample Twenty Two Gain";
+    lv2:symbol "gain_22";
+    lv2:name "Sample 22 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -374,8 +374,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 26;
-    lv2:symbol "gain_twentythree";
-    lv2:name "Sample Twenty Three Gain";
+    lv2:symbol "gain_23";
+    lv2:name "Sample 23 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -388,8 +388,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 27;
-    lv2:symbol "gain_twentyfour";
-    lv2:name "Sample Twenty Four Gain";
+    lv2:symbol "gain_24";
+    lv2:name "Sample 24 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -402,8 +402,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 28;
-    lv2:symbol "gain_twentyfive";
-    lv2:name "Sample Twenty Five Gain";
+    lv2:symbol "gain_25";
+    lv2:name "Sample 25 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -416,8 +416,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 29;
-    lv2:symbol "gain_twentysix";
-    lv2:name "Sample Twenty Six Gain";
+    lv2:symbol "gain_26";
+    lv2:name "Sample 26 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -430,8 +430,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 30;
-    lv2:symbol "gain_twentyseven";
-    lv2:name "Sample Twenty Seven Gain";
+    lv2:symbol "gain_27";
+    lv2:name "Sample 27 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -444,8 +444,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 31;
-    lv2:symbol "gain_twentyeight";
-    lv2:name "Sample Twenty Eight Gain";
+    lv2:symbol "gain_28";
+    lv2:name "Sample 28 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -458,8 +458,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 32;
-    lv2:symbol "gain_twentynine";
-    lv2:name "Sample Twenty Nine Gain";
+    lv2:symbol "gain_29";
+    lv2:name "Sample 29 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -472,8 +472,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 33;
-    lv2:symbol "gain_thirty";
-    lv2:name "Sample Thirty Gain";
+    lv2:symbol "gain_30";
+    lv2:name "Sample 30 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -486,8 +486,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 34;
-    lv2:symbol "gain_thirtyone";
-    lv2:name "Sample Thirty One Gain";
+    lv2:symbol "gain_31";
+    lv2:name "Sample 31 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -500,8 +500,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 35;
-    lv2:symbol "gain_thirtytwo";
-    lv2:name "Sample Thirty Two Gain";
+    lv2:symbol "gain_32";
+    lv2:name "Sample 32 Gain";
     lv2:minimum -60.0;
     lv2:maximum 6.0;
     lv2:default 0.0;
@@ -514,8 +514,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 36;
-    lv2:symbol "pan_one";
-    lv2:name "Sample One Pan";
+    lv2:symbol "pan_01";
+    lv2:name "Sample 01";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -524,8 +524,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 37;
-    lv2:symbol "pan_two";
-    lv2:name "Sample Two Pan";
+    lv2:symbol "pan_02";
+    lv2:name "Sample 02";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -534,8 +534,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 38;
-    lv2:symbol "pan_three";
-    lv2:name "Sample Three Pan";
+    lv2:symbol "pan_03";
+    lv2:name "Sample 03 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -544,8 +544,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 39;
-    lv2:symbol "pan_four";
-    lv2:name "Sample Four Pan";
+    lv2:symbol "pan_04";
+    lv2:name "Sample 04 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -554,8 +554,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 40;
-    lv2:symbol "pan_five";
-    lv2:name "Sample Five Pan";
+    lv2:symbol "pan_05";
+    lv2:name "Sample 05 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -564,8 +564,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 41;
-    lv2:symbol "pan_six";
-    lv2:name "Sample Six Pan";
+    lv2:symbol "pan_06";
+    lv2:name "Sample 06 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -574,8 +574,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 42;
-    lv2:symbol "pan_seven";
-    lv2:name "Sample Seven Pan";
+    lv2:symbol "pan_07";
+    lv2:name "Sample 07 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -584,8 +584,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 43;
-    lv2:symbol "pan_eight";
-    lv2:name "Sample Eight Pan";
+    lv2:symbol "pan_08";
+    lv2:name "Sample 08 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -594,8 +594,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 44;
-    lv2:symbol "pan_nine";
-    lv2:name "Sample Nine Pan";
+    lv2:symbol "pan_09";
+    lv2:name "Sample 09 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -604,8 +604,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 45;
-    lv2:symbol "pan_ten";
-    lv2:name "Sample Ten Pan";
+    lv2:symbol "pan_10";
+    lv2:name "Sample 10 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -614,8 +614,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 46;
-    lv2:symbol "pan_eleven";
-    lv2:name "Sample Eleven Pan";
+    lv2:symbol "pan_11";
+    lv2:name "Sample 11 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -624,8 +624,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 47;
-    lv2:symbol "pan_twelve";
-    lv2:name "Sample Twelve Pan";
+    lv2:symbol "pan_12";
+    lv2:name "Sample 12 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -634,8 +634,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 48;
-    lv2:symbol "pan_thirteen";
-    lv2:name "Sample Thirteen Pan";
+    lv2:symbol "pan_13";
+    lv2:name "Sample 13 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -644,8 +644,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 49;
-    lv2:symbol "pan_fourteen";
-    lv2:name "Sample Fourteen Pan";
+    lv2:symbol "pan_14";
+    lv2:name "Sample 14 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -654,8 +654,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 50;
-    lv2:symbol "pan_fifteen";
-    lv2:name "Sample Fifteen Pan";
+    lv2:symbol "pan_15";
+    lv2:name "Sample 15 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -664,8 +664,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 51;
-    lv2:symbol "pan_sixteen";
-    lv2:name "Sample Sixteen Pan";
+    lv2:symbol "pan_16";
+    lv2:name "Sample 16 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -674,8 +674,8 @@
  [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 52;
-    lv2:symbol "pan_seventeen";
-    lv2:name "Sample Seventeen Pan";
+    lv2:symbol "pan_17";
+    lv2:name "Sample 17 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -689,8 +689,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 53;
-    lv2:symbol "pan_eighteen";
-    lv2:name "Sample Eighteen Pan";
+    lv2:symbol "pan_18";
+    lv2:name "Sample 18 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -703,8 +703,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 54;
-    lv2:symbol "pan_nineteen";
-    lv2:name "Sample Nineteen Pan";
+    lv2:symbol "pan_19";
+    lv2:name "Sample 19 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -717,8 +717,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 55;
-    lv2:symbol "pan_twenty";
-    lv2:name "Sample Twenty Pan";
+    lv2:symbol "pan_20";
+    lv2:name "Sample 20 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -731,8 +731,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 56;
-    lv2:symbol "pan_twentyone";
-    lv2:name "Sample Twenty One Pan";
+    lv2:symbol "pan_21";
+    lv2:name "Sample 21 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -745,8 +745,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 57;
-    lv2:symbol "pan_twentytwo";
-    lv2:name "Sample Twenty Two Pan";
+    lv2:symbol "pan_22";
+    lv2:name "Sample 22 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -759,8 +759,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 58;
-    lv2:symbol "pan_twentythree";
-    lv2:name "Sample Twenty Three Pan";
+    lv2:symbol "pan_23";
+    lv2:name "Sample 23 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -773,8 +773,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 59;
-    lv2:symbol "pan_twentyfour";
-    lv2:name "Sample Twenty Four Pan";
+    lv2:symbol "pan_24";
+    lv2:name "Sample 24 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -787,8 +787,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 60;
-    lv2:symbol "pan_twentyfive";
-    lv2:name "Sample Twenty Five Pan";
+    lv2:symbol "pan_25";
+    lv2:name "Sample 25 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -801,8 +801,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 61;
-    lv2:symbol "pan_twentysix";
-    lv2:name "Sample Twenty Six Pan";
+    lv2:symbol "pan_26";
+    lv2:name "Sample 26 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -815,8 +815,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 62;
-    lv2:symbol "pan_twentyseven";
-    lv2:name "Sample Twenty Seven Pan";
+    lv2:symbol "pan_27";
+    lv2:name "Sample 27 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -829,8 +829,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 63;
-    lv2:symbol "pan_twentyeight";
-    lv2:name "Sample Twenty Eight Pan";
+    lv2:symbol "pan_28";
+    lv2:name "Sample 28 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -843,8 +843,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 64;
-    lv2:symbol "pan_twentynine";
-    lv2:name "Sample Twenty Nine Pan";
+    lv2:symbol "pan_29";
+    lv2:name "Sample 29 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -857,8 +857,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 65;
-    lv2:symbol "pan_thirty";
-    lv2:name "Sample Thirty Pan";
+    lv2:symbol "pan_30";
+    lv2:name "Sample 30";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -871,8 +871,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 66;
-    lv2:symbol "pan_thirtyone";
-    lv2:name "Sample Thirty One Pan";
+    lv2:symbol "pan_31";
+    lv2:name "Sample 31 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
@@ -885,8 +885,8 @@
   [
     a lv2:ControlPort, lv2:InputPort;
     lv2:index 67;
-    lv2:symbol "pan_thirtytwo";
-    lv2:name "Sample Thirty Two Pan";
+    lv2:symbol "pan_32";
+    lv2:name "Sample 32 Pan";
     lv2:minimum 0.0;
     lv2:maximum 1.0;
     lv2:default 0.5;
