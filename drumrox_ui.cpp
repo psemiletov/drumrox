@@ -119,6 +119,22 @@ static gboolean pan_callback (GtkRange* range, GtkScrollType type, gdouble value
   return FALSE;
 }
 
+/*
+static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui, gpointer data), gpointer data)
+{
+  std::cout << "send_ui_msg\n";
+
+  LV2_Atom_Forge_Frame set_frame;
+  uint8_t msg_buf[1024];
+
+  lv2_atom_forge_set_buffer (&ui->forge, msg_buf, 1024);
+  LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
+  (*add_data)(ui, data);
+  lv2_atom_forge_pop (&ui->forge, &set_frame);
+  ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
+}
+*/
+
 
 static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui, gpointer data), gpointer data)
 {
@@ -547,6 +563,35 @@ static LV2_Atom* build_path_message (CDrumroxGTKGUI *ui, const char* path)
 
   std::cout << "path: " << path << std::endl;
 
+ /*
+
+
+
+  lv2_atom_forge_resource()
+static LV2_DEPRECATED LV2_Atom_Forge_Ref lv2_atom_forge_resource	(	LV2_Atom_Forge * 	forge,
+LV2_Atom_Forge_Frame * 	frame,
+LV2_URID 	id,
+LV2_URID 	otype
+inlinestatic
+The same as
+
+
+
+static LV2_Atom_Forge_Ref lv2_atom_forge_object	(	LV2_Atom_Forge * 	forge,
+LV2_Atom_Forge_Frame * 	frame,
+LV2_URID 	id,
+LV2_URID 	otype
+inlinestatic
+Write the header of an atom:Object.
+
+The passed frame will be initialised to represent
+
+
+
+
+
+  */
+
 
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
@@ -562,7 +607,7 @@ static LV2_Atom* build_get_state_message (CDrumroxGTKGUI *ui)
    std::cout << "LV2_Atom* build_get_state_message\n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.get_state);
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource	 (&ui->forge, &set_frame, 1, ui->uris.get_state);
   lv2_atom_forge_pop (&ui->forge,&set_frame);
   return msg;
 }
