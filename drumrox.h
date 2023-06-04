@@ -238,7 +238,9 @@ typedef struct
   LV2_URID ui_msg;
   LV2_URID kit_path;
   LV2_URID atom_eventTransfer;
-  LV2_URID atom_resource;
+//  LV2_URID atom_resource;
+  LV2_URID atom_object;
+
   LV2_URID string_urid;
   LV2_URID bool_urid;
   LV2_URID int_urid;
@@ -321,7 +323,10 @@ static inline void map_drmr_uris (LV2_URID_Map *map, SDrumroxUris *uris)
   uris->note_off_toggle = map->map(map->handle, DRMR_URI "#noteofftoggle");
   uris->panlaw = map->map(map->handle, DRMR_URI "#panlaw");
   uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
-  uris->atom_resource = map->map(map->handle, LV2_ATOM__Resource);
+  //uris->atom_resource = map->map(map->handle, LV2_ATOM__Resource);
+
+  uris->atom_object = map->map(map->handle, LV2_ATOM__Object);
+
 }
 
 

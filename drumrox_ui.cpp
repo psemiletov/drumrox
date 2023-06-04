@@ -144,7 +144,7 @@ static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui
   uint8_t msg_buf[1024];
 
   lv2_atom_forge_set_buffer (&ui->forge, msg_buf, 1024);
-  LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
+  LV2_Atom *msg = (LV2_Atom*)/*lv2_atom_forge_resource*/ lv2_atom_forge_object(&ui->forge, &set_frame, 1, ui->uris.ui_msg);
   (*add_data)(ui, data);
   lv2_atom_forge_pop (&ui->forge, &set_frame);
   ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
@@ -594,7 +594,7 @@ The passed frame will be initialised to represent
 
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
+  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
   lv2_atom_forge_property_head (&ui->forge, ui->uris.kit_path,0);
   lv2_atom_forge_path (&ui->forge, path, strlen(path));
   lv2_atom_forge_pop (&ui->forge, &set_frame);
@@ -607,7 +607,7 @@ static LV2_Atom* build_get_state_message (CDrumroxGTKGUI *ui)
    std::cout << "LV2_Atom* build_get_state_message\n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource	 (&ui->forge, &set_frame, 1, ui->uris.get_state);
+  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object	 (&ui->forge, &set_frame, 1, ui->uris.get_state);
   lv2_atom_forge_pop (&ui->forge,&set_frame);
   return msg;
 }
@@ -996,7 +996,9 @@ static void port_event (LV2UI_Handle handle,
       if (format == ui->uris.atom_eventTransfer)
          {
           LV2_Atom* atom = (LV2_Atom*)buffer;
-          if (atom->type == ui->uris.atom_resource)
+          //if (atom->type == ui->uris.atom_resource)
+          if (atom->type == ui->uris.atom_object)
+
              {
               LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
 

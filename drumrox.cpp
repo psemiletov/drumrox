@@ -262,7 +262,7 @@ static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drumrox->forge, &set_frame, 1, drumrox->uris.ui_msg);
+  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.ui_msg);
 
     std::cout << drumrox->current_path << std::endl;
 
@@ -285,7 +285,7 @@ static inline LV2_Atom *build_state_message (CDrumrox *drumrox)
 //    std::cout << "LV2_Atom *build_state_message (CDrumrox *drumrox) - 1 \n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drumrox->forge, &set_frame, 1, drumrox->uris.get_state);
+  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource */lv2_atom_forge_object(&drumrox->forge, &set_frame, 1, drumrox->uris.get_state);
 
   if (drumrox->current_path)
      {
@@ -318,7 +318,7 @@ static inline LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *dat
 //       std::cout << " LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *data) \n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_resource (&drumrox->forge, &set_frame, 1, drumrox->uris.midi_info);
+  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.midi_info);
   lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.midi_event, 0);
   lv2_atom_forge_write (&drumrox->forge, data, 3); //what is 3?
   lv2_atom_forge_pop (&drumrox->forge, &set_frame);
@@ -571,7 +571,9 @@ static void run (LV2_Handle instance, uint32_t n_samples)
              }
     } 
    else
-       if (ev->body.type == drumrox->uris.atom_resource)
+//       if (ev->body.type == drumrox->uris.atom_resource)
+         if (ev->body.type == drumrox->uris.atom_object)
+
           {
            std::cout << "ev->body.type == drumrox->uris.atom_resource\n";
 
