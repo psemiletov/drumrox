@@ -624,13 +624,16 @@ static GtkWidget *create_panlaw_combo (void)
   list_store = gtk_list_store_new (1, G_TYPE_STRING);
 
   gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "linear panner, law: -6 dB", -1);
-  gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "linear panner, law: 0 dB", -1);
+  gtk_list_store_set (list_store, &iter, 0, "sin/cos panner, law: -3 dB", -1);
+
   gtk_list_store_append(list_store, &iter);
   gtk_list_store_set (list_store, &iter, 0, "square root panner, law: -3 dB", -1);
+
   gtk_list_store_append(list_store, &iter);
-  gtk_list_store_set (list_store, &iter, 0, "sin/cos panner, law: -3 dB", -1);
+  gtk_list_store_set (list_store, &iter, 0, "linear panner, law: 0 dB", -1);
+
+  gtk_list_store_append(list_store, &iter);
+  gtk_list_store_set (list_store, &iter, 0, "linear panner, law: -6 dB", -1);
 
   combo = gtk_combo_box_new_with_model (GTK_TREE_MODEL(list_store));
 

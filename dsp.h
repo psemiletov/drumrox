@@ -93,11 +93,10 @@ inline float scale_val (float val, float from_min, float from_max, float to_min,
 }
 
 
-
-#define PANLAW_LINEAR6 0
-#define PANLAW_LINEAR0 1
-#define PANLAW_SQRT 2
-#define PANLAW_SINCOS 3
+#define PANLAW_SINCOS 0
+#define PANLAW_SQRT 1
+#define PANLAW_LINEAR0 2
+#define PANLAW_LINEAR6 3
 #define PANLAW_SINCOSV2 4
 
 

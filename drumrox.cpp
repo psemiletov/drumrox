@@ -635,7 +635,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
          else
              if (obj->body.otype == drumrox->uris.get_state)
                 {
-                 std::cout << "obj->body.otype == drumrox->uris.get_state\n";
+              //   std::cout << "obj->body.otype == drumrox->uris.get_state\n";
 
 
                  lv2_atom_forge_frame_time (&drumrox->forge, 0);
@@ -698,7 +698,9 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
                 //change to db2lin
              //  float gain = DB_CO(*(current_sample->gain));
-               float gain = DB_CO(*(drumrox->gains[i]));
+
+                 //float gain = DB_CO(*(drumrox->gains[i]));
+                 float gain = db2lin(*(drumrox->gains[i]));
 
 
                /*
@@ -981,7 +983,7 @@ static LV2_State_Status restore_state (LV2_Handle instance,
       if (reqPos >= 0 && drumrox->request_buf[reqPos])
          tmp = drumrox->request_buf[reqPos];
 
-      drumrox->request_buf[reqPos] = strdup(kit_path);
+      drumrox->request_buf[reqPos] = strdup (kit_path);
       drumrox->curReq = reqPos;
       if (tmp)
          free(tmp);
