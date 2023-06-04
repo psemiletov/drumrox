@@ -941,7 +941,7 @@ static LV2_State_Status restore_state (LV2_Handle instance,
   size_t      size;
   uint32_t    type;
   uint32_t    fgs;
-
+/*
   LV2_State_Map_Path* map_path = NULL;
 
   while (*features)
@@ -957,10 +957,9 @@ static LV2_State_Status restore_state (LV2_Handle instance,
       fprintf (stderr, "Host does not support map_path, cannot restore state\n");
       return LV2_STATE_ERR_NO_FEATURE;
      }
-
-
+*/
+/*
   const char* abstract_path = (char*) retrieve (handle, drumrox->uris.kit_path, &size, &type, &fgs);
-
 
 
   if (! abstract_path)
@@ -970,6 +969,10 @@ static LV2_State_Status restore_state (LV2_Handle instance,
      }
 
   const char *kit_path = abstract_path;
+*/
+
+  const char *kit_path = (char*) retrieve (handle, drumrox->uris.kit_path, &size, &type, &fgs);
+
 
   if (kit_path)
      { // safe as we're in "Instantiation" threading class
