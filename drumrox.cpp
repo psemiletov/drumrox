@@ -326,70 +326,6 @@ static inline LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *dat
   return msg;
 }
 
-/*
-static inline void layer_to_sample (drmr_sample *sample, float gain)
-{
-  float mapped_gain = (1 - (gain / GAIN_MIN));
-
-  if (mapped_gain > 1.0f)
-      mapped_gain = 1.0f;
-
-  for (int i = 0; i < sample->layer_count; i++)
-      {
-       if (sample->layers[i].min <= mapped_gain &&
-          (sample->layers[i].max > mapped_gain ||
-          (sample->layers[i].max == 1 && mapped_gain == 1)))
-          {
-           sample->limit = sample->layers[i].limit;
-           sample->info = sample->layers[i].info;
-           sample->data = sample->layers[i].data;
-           return;
-          }
-       }
-
-  fprintf (stderr, "Couldn't find layer for gain %f in sample\n\n", gain);
-
-  // to avoid not playing something, and to deal with kits like the
-     //k-27_trash_kit, let's just use the first layer
-  sample->limit = sample->layers[0].limit;
-  sample->info = sample->layers[0].info;
-  sample->data = sample->layers[0].data;
-}
-*/
-/*
-static inline void trigger_sample (CDrumrox *drumrox, int nn, uint8_t* const data, uint32_t offset)
-{
-  // need to mutex this to avoid getting the samples array
-  // changed after the check that the midi-note is valid
-  pthread_mutex_lock (&drumrox->load_mutex);
-
-  //nn is numner of sample? yes
-
-  if (nn >= 0 && nn < drmr->num_samples)
-     {
-      if (drmr->samples[nn].layer_count > 0)
-         {
-          layer_to_sample (drmr->samples + nn, *(drmr->gains[nn]));
-          if (drmr->samples[nn].limit == 0)
-              fprintf (stderr, "Failed to find layer at: %i for %f\n", nn, *drmr->gains[nn]);
-          }
-
-      if (data)
-         {
-          lv2_atom_forge_frame_time (&drumrox->forge, 0);
-          build_midi_info_message (drumrox, data);
-         }
-
-      drmr->samples[nn].active = 1;
-      drmr->samples[nn].offset = 0;
-      drmr->samples[nn].velocity = drumrox->ignore_velocity ? 1.0f : ((float)data[2]) / VELOCITY_MAX;
-      drmr->samples[nn].dataoffset = offset;
-     }
-
-  pthread_mutex_unlock (&drumrox->load_mutex);
-}
-*/
-
 
 //used when drumrox->ignore_note_off
 static inline void trigger_sample (CDrumrox *drumrox,
@@ -409,7 +345,6 @@ static inline void trigger_sample (CDrumrox *drumrox,
 
 //      s->current_layer = s->map_gain_to_layer_number (*s->gain); //0 if there are just 1 layer
 
-
       if (data)
          {
           lv2_atom_forge_frame_time (&drumrox->forge, 0);
@@ -427,7 +362,6 @@ static inline void trigger_sample (CDrumrox *drumrox,
       else
          s->velocity = ((float)data[2]) / VELOCITY_MAX;
 
-
       s->v_layers[s->current_layer]->dataoffset = offset;
      }
 
@@ -435,27 +369,6 @@ static inline void trigger_sample (CDrumrox *drumrox,
   pthread_mutex_unlock (&drumrox->load_mutex);
 }
 
-/*
-static inline void untrigger_sample (DrMr *drmr, int nn, uint32_t offset)
-{
-  pthread_mutex_lock (&drmr->load_mutex);
-
-  if (nn >= 0 && nn < drmr->num_samples)
-     {
-      if (drmr->samples[nn].layer_count > 0)
-         {
-          layer_to_sample (drmr->samples + nn, * (drmr->gains[nn]));
-          if (drmr->samples[nn].limit == 0)
-              fprintf(stderr,"Failed to find layer at: %i for %f\n", nn, *drmr->gains[nn]);
-         }
-
-      drmr->samples[nn].active = 0;
-      drmr->samples[nn].dataoffset = offset;
-     }
-
-  pthread_mutex_unlock (&drmr->load_mutex);
-}
-*/
 
 
 //used when ! drumrox->ignore_note_off
@@ -493,7 +406,6 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 {
   //std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 1" << std::endl;
 
-  int baseNote;
 
   CDrumrox* drumrox = (CDrumrox*)instance;
 
@@ -503,8 +415,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
   //move it away from run?
   //baseNote = (int)floorf(*(drumrox->baseNote));
-  baseNote = (int)*(drumrox->baseNote);
-
+  int baseNote = (int)*(drumrox->baseNote);
 
   const uint32_t event_capacity = drumrox->core_event_port->atom.size;
 
@@ -559,26 +470,24 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                           }
                        break;
 
-               case 9: //what is 9?
-                      {
-                       note_number = data[1];
-                       note_number -= baseNote;
-                       trigger_sample (drumrox, note_number, data, offset);
-                       break;
-                       }
+                case 9: //what is 9?
+                       {
+                        note_number = data[1];
+                        note_number -= baseNote;
+                        trigger_sample (drumrox, note_number, data, offset);
+                        break;
+                        }
 
-              default:
+                default:
                      //printf("Unhandeled status: %i\n",(*data)>>4);
-                      break;
-             }
-    } 
+                       break;
+               }
+      }
    else
 //       if (ev->body.type == drumrox->uris.atom_resource)
-         if (ev->body.type == drumrox->uris.atom_object)
-
+       if (ev->body.type == drumrox->uris.atom_object)
           {
          //  std::cout << "ev->body.type == drumrox->uris.atom_resource\n";
-
            const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
            if (obj->body.otype == drumrox->uris.ui_msg)
               {
@@ -598,7 +507,9 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
               if (path)
                  {
-                  int reqPos = (drumrox->curReq +1 ) % REQ_BUF_SIZE;
+                  //FIX: elimimate mem alloc!!!
+
+                  int reqPos = (drumrox->curReq + 1) % REQ_BUF_SIZE;
                   char *tmp = NULL;
 
                   if (reqPos >= 0 && drumrox->request_buf[reqPos])
@@ -664,11 +575,16 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
    lv2_atom_forge_pop (&drumrox->forge, &seq_frame);
 
+   /*
    for (size_t i = 0; i < n_samples; i++)
        {
         drumrox->left[i] = 0.0f;
         drumrox->right[i] = 0.0f;
        }
+*/
+
+   memset (drumrox->left, 0, sizeof(float)*n_samples);
+   memset (drumrox->right, 0, sizeof(float)*n_samples);
 
    pthread_mutex_lock (&drumrox->load_mutex);
 
@@ -719,32 +635,9 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                   pan_sincos (pan_left, pan_right, pan);
 
 
-/*
-               if (drumrox->panlaw == PANLAW_LINEAR6)
-                  pan_linear6 (pan_left, pan_right, *current_sample->pan);
-
-               if (drumrox->panlaw == PANLAW_LINEAR0)
-                  pan_linear0 (pan_left, pan_right, *current_sample->pan);
-
-               if (drumrox->panlaw == PANLAW_SQRT)
-                   pan_sqrt (pan_left, pan_right, *current_sample->pan);
-
-               if (drumrox->panlaw == PANLAW_SINCOS)
-                  pan_sincos (pan_left, pan_right, *current_sample->pan);
-*/
-
                coef_right = pan_right * gain * current_sample->velocity;
                coef_left = pan_left * gain * current_sample->velocity;
 
-
-               //coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
-               //coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
-
-//               coef_right = (pan_right * (DB3SCALE * pan_right + DB3SCALEPO)) * gain * cs->velocity;
-  //             coef_left = (pan_left * (DB3SCALE * pan_left + DB3SCALEPO)) * gain * cs->velocity;
-                //work
-//               coef_right = pan_right * gain;
-  //             coef_left = pan_left * gain;
               }
            else
                {
@@ -758,17 +651,13 @@ static void run (LV2_Handle instance, uint32_t n_samples)
            if (current_sample->active)
               {
                datastart = drum_layer->dataoffset;
-              // datastart = current_sample->dataoffset;
                dataend = n_samples;
               }
            else
                {
                 datastart = 0;
-//                dataend = current_sample->dataoffset;
                 dataend = drum_layer->dataoffset;
                }
-
-          //current_sample->dataoffset = 0;
 
            drum_layer->dataoffset = 0;
 
@@ -979,7 +868,7 @@ static LV2_State_Status restore_state (LV2_Handle instance,
   //    drumrox->ignore_velocity = *ignore_velocity?true:false;
 
     if (ignore_velocity)
-      drumrox->ignore_velocity = *ignore_velocity?true:false;
+       drumrox->ignore_velocity = *ignore_velocity?true:false;
 
 
   const uint32_t* ignore_note_off = (uint32_t*) retrieve (handle, drumrox->uris.note_off_toggle, &size, &type, &fgs);
