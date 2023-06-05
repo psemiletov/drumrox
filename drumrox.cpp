@@ -782,7 +782,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
           drum_layer->dataoffset = 0;
 
-         if (drum_layer->info.channels == 1)
+         if (drum_layer->/*info.*/channels == 1)
             { // play mono sample
 
              if (n_samples < (drum_layer->samples_count - drum_layer->offset))
@@ -800,7 +800,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
           else
               {
                // play stereo sample
-              lim = (drum_layer->samples_count - drum_layer->offset) / drum_layer->info.channels;
+              lim = (drum_layer->samples_count - drum_layer->offset) / drum_layer->/*info.*/channels;
 
               if (lim > n_samples)
                   lim = n_samples;

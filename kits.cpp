@@ -1,25 +1,21 @@
+#include <iostream>
+#include <fstream>
+#include <algorithm>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string>
 #include <math.h>
-#include <samplerate.h>
-
-#include <iostream>
-#include <fstream>
-
-#include <algorithm>
-
-
 #include <sys/types.h>
 #include <dirent.h>
+#include <samplerate.h>
+#include <sndfile.h>
 
 #include "kits.h"
 
 using namespace std;
 
 
-
-std::vector <std::string> files_get_list (const std::string &path) //ext with dot: ".txt"
+std::vector <std::string> files_get_list (const std::string &path)
 {
   DIR *directory;
   struct dirent *dir_entry;
@@ -35,7 +31,6 @@ std::vector <std::string> files_get_list (const std::string &path) //ext with do
 
   while ((dir_entry = readdir (directory)))
         {
-          // std::cout << dir_entry->d_name << std::endl;
          std::string t = dir_entry->d_name;
 
          if (t != "." && t != "..")
@@ -43,11 +38,9 @@ std::vector <std::string> files_get_list (const std::string &path) //ext with do
         }
 
   closedir (directory);
+
   return result;
 }
-
-
-
 
 
 std::string get_home_dir()
@@ -72,7 +65,6 @@ std::string get_home_dir()
 
   return result;
 }
-
 
 
 std::string get_file_path (const std::string &path)
@@ -101,6 +93,8 @@ std::string string_file_load (const string &fname)
 
 float* CDrumLayer::load_whole_sample (const char *fname)
 {
+  SF_INFO info;
+
   SNDFILE *file = sf_open (fname, SFM_READ, &info);
 
   if (! file)
@@ -113,11 +107,16 @@ float* CDrumLayer::load_whole_sample (const char *fname)
   sf_count_t zzz = sf_readf_float (file, buffer, info.frames);
   sf_close (file);
 
+  samplerate = info.samplerate;
+  frames = info.frames;
+  samples_count = info.channels * info.frames;
+  channels = info.channels;
+
   return buffer;
 }
 
 
-float* CDrumLayer::load_whole_sample_resampled (const char *fname, int samplerate)
+float* CDrumLayer::load_whole_sample_resampled (const char *fname, int sess_samplerate)
 {
    float *buffer = load_whole_sample (fname);
    if (! buffer)
@@ -126,40 +125,34 @@ float* CDrumLayer::load_whole_sample_resampled (const char *fname, int samplerat
        return 0;
       }
 
-   if (info.samplerate == samplerate)
-      {
-       samples_count = info.channels * info.frames;
-     //  std::cout << fname << " loaded\n";
+   if (samplerate == sess_samplerate)
        return buffer;
-      }
 
-  float ratio = (float) 1.0f * samplerate / info.samplerate;
+  float ratio = (float) 1.0f * sess_samplerate / samplerate;
 
-  size_t output_frames_count = (size_t) floor (info.frames * ratio);
-  size_t output_samples_count = output_frames_count * info.channels;
+  size_t output_frames_count = (size_t) floor (frames * ratio);
+  size_t output_samples_count = output_frames_count * channels;
 
   float *new_buffer = new float [output_samples_count];
 
   SRC_DATA data;
+
   data.src_ratio = ratio;
-
-  data.input_frames = info.frames;
+  data.input_frames = frames;
   data.output_frames = output_frames_count;
-
   data.data_in = buffer;
   data.data_out = new_buffer;
 
-  int error = src_simple (&data, SRC_SINC_BEST_QUALITY, info.channels);
+  int error = src_simple (&data, SRC_SINC_BEST_QUALITY, channels);
   if (error)
      {
       delete buffer;
       return 0;
      }
 
-
-  info.samplerate = samplerate;
-  info.frames = output_frames_count;
-  samples_count = info.channels * info.frames;
+  samplerate = sess_samplerate;
+  frames = output_frames_count;
+  samples_count = channels * frames;
 
   std::cout << fname << " loaded and resampled to " << samplerate << endl;
 
@@ -168,17 +161,16 @@ float* CDrumLayer::load_whole_sample_resampled (const char *fname, int samplerat
 }
 
 
-
 void CDrumLayer::load (const char *fname)
 {
-  data = load_whole_sample_resampled (fname, samplerate);
+  data = load_whole_sample_resampled (fname, session_samplerate);
   file_name = fname;
 }
 
 
 CDrumLayer::CDrumLayer (int sample_rate)
 {
-  samplerate = sample_rate;
+  session_samplerate = sample_rate;
   offset = 0;
   dataoffset = 0;
   data = 0;

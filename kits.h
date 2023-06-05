@@ -1,3 +1,8 @@
+/*
+written at 2013 by Peter Semiletov
+this code is the public domain
+ */
+
 #ifndef KITS_H
 #define KITS_H
 
@@ -5,68 +10,49 @@
 #include <map>
 
 #include <stdint.h>
-#include <sndfile.h>
 #include <string.h>
 
 
 #include "pugixml.hpp"
 
-// drumkit scanned from a hydrogen xml file
-/*
-typedef struct
-{
-  char* name;
-  char* desc;
-  char* path;
-  char** sample_names;
-  int samples;
-} scanned_kit;
-
-
-typedef struct
-{
-  int num_kits;
-  scanned_kit* kits;
-} s_kits;
-*/
-// libsndfile stuff
 
 class CDrumLayer
 {
 public:
 
+
+  int session_samplerate; //uplink (session) samplerate
+
+  //for mapped gain
   float min;
   float max;
 
+  std::string file_name; //name of the loaded file
+//  SF_INFO info; //info about the loaded file
+
+  int channels;
+  int frames;
   int samplerate;
+
+  uint32_t samples_count;  //data size in samples (info.frames * info.channels)
+
+  float* data; //interleaved sample data from the file
 
   uint32_t offset;
   int dataoffset;
 
-
-  std::string file_name;
-
-  //SF_INFO *info;
-  SF_INFO info;
-  //was: uint32_t limit;  //data size in samples (frames * channels)
-  uint32_t samples_count;  //data size in samples (frames * channels)
-
-  float* data; //interleaved sample data
-
-//  CDrumLayer (const char *fname, int sample_rate);
-  CDrumLayer (int sample_rate);
-  void load (const char *fname);
-  void print();
-
+  CDrumLayer (int sample_rate); //sample_rate is uplink (session) samplerate
   ~CDrumLayer();
 
-  float* load_whole_sample (const char *fname);
-  float* load_whole_sample_resampled (const char *fname, int samplerate);
+  void load (const char *fname); //loads the sample, sets internally info, data, file_name
+  void print();
 
+  float* load_whole_sample (const char *fname); //called from load_whole_sample_resampled
+  float* load_whole_sample_resampled (const char *fname, int sess_samplerate); //called from load
 };
 
 
-class CDrumSample//was drmr_sample
+class CDrumSample
 {
 public:
 
@@ -89,24 +75,16 @@ public:
   //uint32_t offset; //WHAT IS IT?
 
 
-  //  uint32_t limit;
- // uint32_t samples_count; //SET TO WHAT? first layer?
-
-  //uint32_t layer_count;
   float velocity;
-  //int dataoffset;
 
-  //drmr_layer *layers;
   std::vector <CDrumLayer*> v_layers;
 
-//  float* data;
 
   CDrumSample (int sample_rate);
   ~CDrumSample();
 
   size_t map_gain_to_layer_number (float gain);
 
-//  void add_layer (const char *fname);
   void add_layer();
 
   void print();
