@@ -422,8 +422,8 @@ static inline void trigger_sample (CDrumrox *drumrox,
 
       //s->velocity = drumrox->ignore_velocity ? 1.0f : ((float)data[2]) / VELOCITY_MAX;
 
-      if (s->velocity == drumrox->ignore_velocity)
-         s->velocity = drumrox->ignore_velocity = 1.0f;
+      if (drumrox->ignore_velocity)
+         s->velocity = 1.0f;
       else
          s->velocity = ((float)data[2]) / VELOCITY_MAX;
 
@@ -502,7 +502,9 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
 
   //move it away from run?
-  baseNote = (int)floorf(*(drumrox->baseNote));
+  //baseNote = (int)floorf(*(drumrox->baseNote));
+  baseNote = (int)*(drumrox->baseNote);
+
 
   const uint32_t event_capacity = drumrox->core_event_port->atom.size;
 
@@ -973,8 +975,12 @@ static LV2_State_Status restore_state (LV2_Handle instance,
 
   const uint32_t* ignore_velocity = (uint32_t*) retrieve (handle, drumrox->uris.velocity_toggle, &size, &type, &fgs);
 
-  if (ignore_velocity)
+//  if (ignore_velocity)
+  //    drumrox->ignore_velocity = *ignore_velocity?true:false;
+
+    if (ignore_velocity)
       drumrox->ignore_velocity = *ignore_velocity?true:false;
+
 
   const uint32_t* ignore_note_off = (uint32_t*) retrieve (handle, drumrox->uris.note_off_toggle, &size, &type, &fgs);
 
