@@ -20,7 +20,6 @@ class CDrumLayer
 {
 public:
 
-
   int session_samplerate; //uplink (session) samplerate
 
   //for mapped gain
@@ -68,7 +67,7 @@ public:
   float volume;
   int midiOutNote;
 
-  int samplerate; //session srate, taken from the upper object
+  int session_samplerate; //session srate, taken from the upper object
 
 
   char active;

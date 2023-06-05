@@ -58,8 +58,8 @@ std::string get_home_dir()
 
   char homeDirStr[MAX_PATH];
 
- if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homeDirStr)))
-   result = homeDirStr;
+  if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL, NULL, 0, homeDirStr)))
+    result = homeDirStr;
 
 #endif
 
@@ -184,9 +184,7 @@ void CDrumLayer::print()
   cout << "min: " << min << endl;
   cout << "max: " << max << endl;
 
-
   cout << "sample layer -- end"  << endl;
-
 }
 
 
@@ -199,15 +197,9 @@ CDrumLayer::~CDrumLayer()
 
 CDrumSample::CDrumSample (int sample_rate)
 {
-  samplerate = sample_rate;
+  session_samplerate = sample_rate;
   current_layer = 0;
   velocity = 0.0;
-  //dataoffset = 0;
-
-  //pan = 0;
-  //gain = 0;
-
-
 }
 
 
@@ -220,7 +212,6 @@ CDrumSample::~CDrumSample()
 }
 
 /*
-
 
 static inline void layer_to_sample (drmr_sample *sample, float gain)
 {
@@ -254,20 +245,23 @@ static inline void layer_to_sample (drmr_sample *sample, float gain)
 
  */
 
+
 #define GAIN_MIN -60.0f
 
 
 size_t CDrumSample::map_gain_to_layer_number (float gain)
 {
   if (v_layers.size() == 1)
-     return 0;
+     return 0; //return zero pos layer if we have just one layer
 
   size_t result = 0;
+
   float mapped_gain = (1 - (gain / GAIN_MIN));
 
   if (mapped_gain > 1.0f)
       mapped_gain = 1.0f;
 
+  //search for layer within its min..max gain
   for (size_t i = 0; i < v_layers.size(); i++)
       {
        if (v_layers[i]->min <= mapped_gain &&
@@ -283,10 +277,9 @@ size_t CDrumSample::map_gain_to_layer_number (float gain)
 }
 
 
-
 void CDrumSample::add_layer()
 {
-  CDrumLayer *l = new CDrumLayer (samplerate);
+  CDrumLayer *l = new CDrumLayer (session_samplerate);
   v_layers.push_back (l);
 }
 
@@ -299,31 +292,21 @@ void CDrumSample::print()
   cout << "name: " << name << endl;
   cout << "midiOutNote: " << midiOutNote << endl;
 
-
   for (auto l: v_layers)
       {
        l->print();
       }
 
   cout << "CDrumSample -- end"  << endl;
-
-
 }
-
-
 
 
 void CDrumSample::print_stats()
 {
-
 //  cout << "id: " << id << endl;
   cout << "name: " << name << endl;
  // cout << "midiOutNote: " << midiOutNote << endl;
-
-
 }
-
-
 
 
 CHydrogenXMLWalker::CHydrogenXMLWalker (CHydrogenKit *hkit)
@@ -333,8 +316,6 @@ CHydrogenXMLWalker::CHydrogenXMLWalker (CHydrogenKit *hkit)
   drumkit_info_passed = false;
   drumkitComponent_passed = false;
 }
-
-
 
 
 bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
@@ -411,7 +392,6 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      {
       if (kit->v_samples.size() != 0)
           kit->v_samples.back()->add_layer();
-
      }
 
   if (node_name == "filename" && ! kit->scan_mode)
@@ -435,11 +415,8 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
    samplerate = sample_rate;
 
-  //path = fname;
-
    kit_xml_filename = fname;
    kit_dir = get_file_path (kit_xml_filename);
-
 
   pugi::xml_document doc;
   //pugi::xml_parse_result result = doc.load_buffer (temp.utf16(),
@@ -457,7 +434,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
   cout << "loading kit: " << fname << endl;
   //cout << "source: " << source << endl;
 
-
   size_t r = source.find ("<layer>");
   if (r != std::string::npos)
      layers_supported = true;
@@ -466,17 +442,15 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
  ////////////
 
-  cout << "layers_supported: " << layers_supported  << endl;
+  //cout << "layers_supported: " << layers_supported  << endl;
+
   //delete empty instruments
 
   size_t idx_filename = source.rfind ("</filename>");
-
   size_t idx_instrument = source.find ("<instrument>", idx_filename);
 
-
-  cout << "idx_filename: " << idx_filename  << endl;
-  cout << "idx_instrument: " << idx_instrument  << endl;
-
+//  cout << "idx_filename: " << idx_filename  << endl;
+//  cout << "idx_instrument: " << idx_instrument  << endl;
 
   if (idx_instrument != std::string::npos)
   if (idx_instrument > idx_filename)
@@ -486,19 +460,15 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
       //idx_instrument
 
       //теперь найдем конец последнего
-
       size_t idx_instrument_end = source.rfind ("</instrument>");
-      cout << "idx_instrument_end: " << idx_instrument_end  << endl;
+//      cout << "idx_instrument_end: " << idx_instrument_end  << endl;
 
       size_t sz_to_remove = idx_instrument_end - idx_instrument + 13;
-      cout << "sz_to_remove: " << sz_to_remove  << endl;
+//      cout << "sz_to_remove: " << sz_to_remove  << endl;
 
       source = source.erase (idx_instrument, sz_to_remove);
-
-
       //cout << t << endl;
      }
-
 
   ////////////
 
@@ -512,37 +482,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    CHydrogenXMLWalker walker (this);
 
    doc.traverse (walker);
-
-  //remove all instruments that has no samples/layers!
-/*
-  std::vector<CDrumSample*>::iterator iter;
-
-  for (iter = v_samples.begin(); iter != v_samples.end();)
-      {
-       CDrumSample *s = *iter;
-
-       if (s->v_layers.size() == 0)
-          {
-           delete s;
-           iter = v_samples.erase(iter);
-           continue;
-          }
-
-       if (! s->v_layers[0]->data)
-          {
-           delete s;
-           iter = v_samples.erase(iter);
-           continue;
-          }
-
-       ++iter;
-      }
-
-*/
-
-
-
-
 }
 
 
@@ -558,16 +497,13 @@ CHydrogenKit::~CHydrogenKit()
       {
        delete v_samples[i];
       }
-
 }
 
 
 void CHydrogenKit::add_sample()
 {
-
   CDrumSample *s  = new CDrumSample (samplerate);
   v_samples.push_back (s);
-
 }
 
 
@@ -575,23 +511,16 @@ void CHydrogenKit::print()
 {
   cout << "void CHydrogenKit::print() -- start" << endl;
 
-//  cout << "samples count:" << v_samples.size() << endl;
-
-
   for (size_t i = 0; i < v_samples.size(); i++)
       {
        v_samples[i]->print();
       }
 
-        cout << "samples count:" << v_samples.size() << endl;
-
-
-
+  cout << "samples count:" << v_samples.size() << endl;
 
   cout << "void CHydrogenKit::print() -- end" << endl;
-
-
 }
+
 
 void CHydrogenKit::print_stats()
 {
@@ -604,23 +533,17 @@ void CHydrogenKit::print_stats()
        v_samples[i]->print_stats();
       }
 
-
   cout << "void CHydrogenKit::print-stats() -- end" << endl;
-
-
 }
-
 
 
 CHydrogenKits::CHydrogenKits()
 {
-//  scan();
 }
 
 
 CHydrogenKits::~CHydrogenKits()
 {
-
 }
 
 
@@ -668,7 +591,6 @@ void CHydrogenKits::scan()
   v_kits_dirs.erase (std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
 
 
-
   for (std::string kd :v_kits_dirs)
       {
        //cout << kd << endl;
@@ -682,27 +604,23 @@ void CHydrogenKits::scan()
            v_kits_names.push_back (kit_name);
           }
       }
-
 }
 
 
 void CHydrogenKits::print()
 {
-
  for (auto it = m_kits.begin(); it != m_kits.end(); ++it )
      {
-  cout << it->first; // key
-  string& value = it->second;
-  cout << ":" << value << endl;
-    }
+      cout << it->first; // key
+      string& value = it->second;
+      cout << ":" << value << endl;
+     }
 }
 
 
 
 CHydrogenKitsScanner::CHydrogenKitsScanner()
 {
-//  scan();
-
 }
 
 
@@ -719,8 +637,6 @@ CHydrogenKitsScanner::~CHydrogenKitsScanner()
 
 void CHydrogenKitsScanner::scan()
 {
-
-
   std::vector <std::string> v_kits_locations;
 
   v_kits_locations.push_back ("/usr/share/hydrogen/data/drumkits");
@@ -738,10 +654,8 @@ void CHydrogenKitsScanner::scan()
        v_kits_dirs.insert(v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
       }
 
-
   std::sort (v_kits_dirs.begin(), v_kits_dirs.end());
   v_kits_dirs.erase (std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
-
 
   for (std::string kd : v_kits_dirs)
       {
@@ -759,10 +673,7 @@ void CHydrogenKitsScanner::scan()
        v_kits_names.push_back (kit->name);
 
        m_kits.insert (pair<string,string> (kit->name, fname));
-
-
       }
-
 }
 
 
@@ -773,6 +684,4 @@ void CHydrogenKitsScanner::print()
       std::cout << i << ": ";
       v_scanned_kits[i]->print_stats();
      }
-
-
 }
