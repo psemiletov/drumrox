@@ -491,7 +491,7 @@ static inline void untrigger_sample (CDrumrox *drumrox,
 
 static void run (LV2_Handle instance, uint32_t n_samples)
 {
-  std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 1" << std::endl;
+  //std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 1" << std::endl;
 
   int baseNote;
 
@@ -510,7 +510,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   LV2_Atom_Forge_Frame seq_frame;
   lv2_atom_forge_sequence_head (&drumrox->forge, &seq_frame, 0);
 
-   std::cout << "===1\n";
+   //std::cout << "===1\n";
 
 
   /*
@@ -523,7 +523,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   {
     if (ev->body.type == drumrox->uris.midi_event)
        {
-        std::cout << "ev->body.type == drumrox->uris.midi_event\n";
+        //std::cout << "ev->body.type == drumrox->uris.midi_event\n";
 
         uint8_t note_number;
         uint8_t* const data = (uint8_t* const)(ev + 1);
@@ -575,7 +575,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
          if (ev->body.type == drumrox->uris.atom_object)
 
           {
-           std::cout << "ev->body.type == drumrox->uris.atom_resource\n";
+         //  std::cout << "ev->body.type == drumrox->uris.atom_resource\n";
 
            const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
            if (obj->body.otype == drumrox->uris.ui_msg)
@@ -652,15 +652,12 @@ static void run (LV2_Handle instance, uint32_t n_samples)
       pthread_cond_signal(&drumrox->load_cond);
 
 
-
-
    if (current_kit_changed)
       {
        current_kit_changed = 0;
        lv2_atom_forge_frame_time (&drumrox->forge, 0);
        build_update_message (drumrox);
       }
-
 
 
    lv2_atom_forge_pop (&drumrox->forge, &seq_frame);
@@ -680,30 +677,22 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
    if (drumrox->kit)
    for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
-//  for (int i = 0; i < drmr->num_samples; i++)
       {
-
        int pos;
        int lim;
 
-       //cs - current sample
-       //CDrumSample *current_sample = drmr->samples + i;
        CDrumSample *current_sample = drumrox->kit->v_samples[i];
        CDrumLayer *drum_layer = current_sample->v_layers[current_sample->current_layer];
 
        if ((current_sample->active || drum_layer->dataoffset) && (drum_layer->samples_count > 0))
           {
-           float coef_right, coef_left;
+           float coef_right;
+           float coef_left;
+
            if (i < 32)
               {
-               //float gain = DB_CO(*(drmr->gains[i]));
-
-                //change to db2lin
-             //  float gain = DB_CO(*(current_sample->gain));
-
-                 //float gain = DB_CO(*(drumrox->gains[i]));
-                 float gain = db2lin(*(drumrox->gains[i]));
-
+                //float gain = DB_CO(*(drumrox->gains[i]));
+               float gain = db2lin(*(drumrox->gains[i]));
 
                /*
                float pan_right = ((*drmr->pans[i]) + 1) / 2.0f;
@@ -714,7 +703,6 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                float pan_left = 0;
 
                float pan = *drumrox->pans[i];
-
 
                if (drumrox->panlaw == PANLAW_LINEAR6)
                   pan_linear6 (pan_left, pan_right, pan);
@@ -762,62 +750,62 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                 coef_left = 1.0f;
                }
 
-          int datastart;
-          int dataend;
+           int datastart;
+           int dataend;
 
-          if (current_sample->active)
-             {
-              datastart = drum_layer->dataoffset;
-             // datastart = current_sample->dataoffset;
-              dataend = n_samples;
-             }
-          else
+           if (current_sample->active)
               {
-               datastart = 0;
-//               dataend = current_sample->dataoffset;
-               dataend = drum_layer->dataoffset;
+               datastart = drum_layer->dataoffset;
+              // datastart = current_sample->dataoffset;
+               dataend = n_samples;
               }
+           else
+               {
+                datastart = 0;
+//                dataend = current_sample->dataoffset;
+                dataend = drum_layer->dataoffset;
+               }
 
           //current_sample->dataoffset = 0;
 
-          drum_layer->dataoffset = 0;
+           drum_layer->dataoffset = 0;
 
-         if (drum_layer->/*info.*/channels == 1)
-            { // play mono sample
+           if (drum_layer->/*info.*/channels == 1)
+              { // play mono sample
 
-             if (n_samples < (drum_layer->samples_count - drum_layer->offset))
-                 lim = n_samples;
-             else
-                 lim = drum_layer->samples_count - drum_layer->offset;
-
-             for (pos = datastart; pos < lim && pos < dataend; pos++)
-                 {
-                  drumrox->left[pos] += drum_layer->data[drum_layer->offset] * coef_left;
-                  drumrox->right[pos] += drum_layer->data[drum_layer->offset] * coef_right;
-                  drum_layer->offset++;
-                 }
-           }
-          else
-              {
-               // play stereo sample
-              lim = (drum_layer->samples_count - drum_layer->offset) / drum_layer->/*info.*/channels;
-
-              if (lim > n_samples)
+               if (n_samples < (drum_layer->samples_count - drum_layer->offset))
                   lim = n_samples;
+               else
+                   lim = drum_layer->samples_count - drum_layer->offset;
 
-              for (pos = datastart; pos < lim && pos < dataend; pos++)
-                  {
-                   drumrox->left[pos] += drum_layer->data[drum_layer->offset++] * coef_left;
-                   drumrox->right[pos] += drum_layer->data[drum_layer->offset++] * coef_right;
-                  }
+               for (pos = datastart; pos < lim && pos < dataend; pos++)
+                   {
+                    drumrox->left[pos] += drum_layer->data[drum_layer->offset] * coef_left;
+                    drumrox->right[pos] += drum_layer->data[drum_layer->offset] * coef_right;
+                    drum_layer->offset++;
+                   }
+               }
+           else
+               {
+               // play stereo sample
+               lim = (drum_layer->samples_count - drum_layer->offset) / drum_layer->/*info.*/channels;
+
+               if (lim > n_samples)
+                   lim = n_samples;
+
+               for (pos = datastart; pos < lim && pos < dataend; pos++)
+                   {
+                    drumrox->left[pos] += drum_layer->data[drum_layer->offset++] * coef_left;
+                    drumrox->right[pos] += drum_layer->data[drum_layer->offset++] * coef_right;
+                   }
                }
 
-        if (drum_layer->offset >= drum_layer->samples_count) //maybe info frames???
-            current_sample->active = 0;
+           if (drum_layer->offset >= drum_layer->samples_count)
+               current_sample->active = 0;
        }
       }
 
-   std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 2" << std::endl;
+//   std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 2" << std::endl;
 
 
   pthread_mutex_unlock (&drumrox->load_mutex);
@@ -828,16 +816,10 @@ static void cleanup (LV2_Handle instance)
 {
   std::cout << "void cleanup (LV2_Handle instance) //DRUMROX \n";
 
-
   CDrumrox* drumrox = (CDrumrox*)instance;
   pthread_cancel (drumrox->load_thread);
   pthread_join (drumrox->load_thread, 0);
 
-  //if (drmr->num_samples > 0)
-    //  free_samples (drmr->samples, drmr->num_samples);
-
-  //free (drumrox->gains);
-  //free (instance);
   delete drumrox;
 }
 
@@ -937,8 +919,7 @@ static LV2_State_Status restore_state (LV2_Handle instance,
                                        uint32_t flags,
                                        const LV2_Feature *const *features)
 {
-   std::cout << "LV2_State_Status restore_state " << std::endl;
-
+  std::cout << "LV2_State_Status restore_state " << std::endl;
 
   CDrumrox* drumrox = (CDrumrox*)instance;
 
@@ -976,7 +957,6 @@ static LV2_State_Status restore_state (LV2_Handle instance,
 */
 
   const char *kit_path = (char*) retrieve (handle, drumrox->uris.kit_path, &size, &type, &fgs);
-
 
   if (kit_path)
      { // safe as we're in "Instantiation" threading class
@@ -1022,7 +1002,7 @@ static const void* extension_data (const char* uri)
 
 
 static const LV2_Descriptor descriptor = {
-  DRMR_URI,
+  DRUMROX_URI,
   instantiate,
   connect_port,
   NULL, // activate
