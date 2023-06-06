@@ -15,9 +15,39 @@ this code is the public domain
 #include <samplerate.h>
 #include <sndfile.h>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #include "kits.h"
 
 using namespace std;
+
+
+std::string resolve_symlink (const std::string &path)
+{
+  bool is_symlink = false;
+
+    struct stat buf;
+    int r = stat (path.c_str(), &buf);
+
+    if (S_ISLNK(buf.st_mode))
+       is_symlink = true;
+
+    //if (S_ISREG(buf.st_mode)) printf (" stat says file\n");
+    if (is_symlink)
+       {
+        char resolved_fname[FILENAME_MAX];
+        int count = readlink (path.c_str(), resolved_fname, sizeof(resolved_fname));
+        if (count >= 0)
+          {
+           resolved_fname[count] = '\0';
+           return resolved_fname;
+          }
+     }
+
+   return path;
+}
 
 
 std::vector <std::string> files_get_list (const std::string &path)
@@ -367,12 +397,78 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
 
 void CHydrogenKit::load (const char *fname, int sample_rate)
 {
+  cout << "void CHydrogenKit::load: " << fname << endl;
+
+  samplerate = sample_rate;
+
+  string filename = resolve_symlink (fname);
+
+  cout << "resolved filename :" << filename << endl;
+
+  kit_xml_filename = filename;
+  kit_dir = get_file_path (kit_xml_filename);
+
+  pugi::xml_document doc;
+
+  std::string source = string_file_load (filename);
+
+ // cout << "loading kit: " << fname << endl;
+  //cout << "source: " << source << endl;
+
+  size_t r = source.find ("<layer>");
+  if (r != std::string::npos)
+     layers_supported = true;
+   else
+       layers_supported = false;
+
+
+  //cout << "layers_supported: " << layers_supported  << endl;
+
+  //delete empty instruments
+  //because we don't want parse them
+
+  size_t idx_filename = source.rfind ("</filename>");
+  size_t idx_instrument = source.find ("<instrument>", idx_filename);
+
+//  cout << "idx_filename: " << idx_filename  << endl;
+//  cout << "idx_instrument: " << idx_instrument  << endl;
+
+  if (idx_instrument != std::string::npos)
+  if (idx_instrument > idx_filename)
+     //oops, we wave empty instruments!
+     {
+      //первый пустой инструмент у нас уже есть, он находится по
+      //idx_instrument
+
+      //теперь найдем конец последнего
+      size_t idx_instrument_end = source.rfind ("</instrument>");
+      size_t sz_to_remove = idx_instrument_end - idx_instrument + 13;
+
+      source = source.erase (idx_instrument, sz_to_remove);
+     }
+
+
+  pugi::xml_parse_result result = doc.load_buffer (source.c_str(), source.size());
+
+  if (! result)
+     return;
+
+   CHydrogenXMLWalker walker (this);
+
+   doc.traverse (walker);
+}
+
+/*
+void CHydrogenKit::load (const char *fname, int sample_rate)
+{
   cout << "void CHydrogenKit::load " << endl;
 
-   samplerate = sample_rate;
+  samplerate = sample_rate;
 
-   kit_xml_filename = fname;
-   kit_dir = get_file_path (kit_xml_filename);
+  string filename = resolve_symlink (fname);
+
+  kit_xml_filename = fname;
+  kit_dir = get_file_path (kit_xml_filename);
 
   pugi::xml_document doc;
 
@@ -423,7 +519,7 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
    doc.traverse (walker);
 }
-
+*/
 
 CHydrogenKit::CHydrogenKit()
 {

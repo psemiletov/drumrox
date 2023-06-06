@@ -1012,7 +1012,8 @@ static void port_event (LV2UI_Handle handle,
                   if (path)
                      {
                       char *kitpath = (char*)LV2_ATOM_BODY(path);
-                      if (! strncmp (kitpath, "file://", 7))
+
+                      /*if (! strncmp (kitpath, "file://", 7))
                           kitpath += 7;
 
                      char *realp = realpath (kitpath, NULL);
@@ -1021,12 +1022,12 @@ static void port_event (LV2UI_Handle handle,
                          fprintf (stderr, "Passed a path I can't resolve, bailing out\n");
                          return;
                         }
-
+*/
                      int kit_index;
 
                      //REWRITE!
                      for (kit_index = 0; kit_index < ui->kits.v_scanned_kits.size(); kit_index++)
-                         if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), realp))
+                         if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), /*realp*/kitpath))
                               break;
 
                      if (kit_index < ui->kits.v_scanned_kits.size())
@@ -1035,9 +1036,9 @@ static void port_event (LV2UI_Handle handle,
                          g_idle_add (kit_callback, ui);
                         }
                      else
-                         fprintf(stderr,"Couldn't find kit %s\n",realp);
+                         fprintf(stderr,"Couldn't find kit %s\n",/*realp*/kitpath);
 
-                     free (realp);
+                   //  free (realp);
                     }
 
                   if (obj->body.otype == ui->uris.get_state)
