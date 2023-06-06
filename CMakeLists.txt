@@ -1,11 +1,24 @@
 #CMake file for drumrox
 cmake_minimum_required(VERSION 3.0)
-project (drumrox VERSION 1.1.1 LANGUAGES CXX C)
+project (drumrox VERSION 2.0.0 LANGUAGES CXX C)
+
+
+
 
 set(LV2_INSTALL_DIR lib/lv2 CACHE PATH "Specifies where the LV2 libraries should be installed")
-set(CMAKE_C_FLAGS "-Wall")
+#set(CMAKE_C_FLAGS "-Wall")
 
-option(USE_STATIC "Static build" ON)
+SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -g -O3 ")
+
+
+option(USE_CLANG "Build with Clang" OFF)
+
+
+if(USE_CLANG)
+  set(CMAKE_CXX_COMPILER clang++)
+  set(CMAKE_C_COMPILER clang)
+  message("+ Build with Clang++")
+endif(USE_CLANG)
 
 
 
