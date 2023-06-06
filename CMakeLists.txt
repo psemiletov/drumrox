@@ -4,7 +4,6 @@ project (drumrox VERSION 2.0.0 LANGUAGES CXX C)
 
 
 
-
 set(LV2_INSTALL_DIR lib/lv2 CACHE PATH "Specifies where the LV2 libraries should be installed")
 #set(CMAKE_C_FLAGS "-Wall")
 
@@ -22,10 +21,9 @@ endif(USE_CLANG)
 
 
 
-
 # Available options
 option(USE_NKNOB  "Use custom NKnob widgets for gain/pan instead of Gtk sliders" ON)
-SET(SAMP_ZERO_POS "0" CACHE STRING "Default sample zero position 0=top left (tl) 1=bl 2=tr 3=br")
+#SET(SAMP_ZERO_POS "0" CACHE STRING "Default sample zero position 0=top left (tl) 1=bl 2=tr 3=br")
 
 # check for our various libraries
 find_package(PkgConfig)
@@ -78,51 +76,25 @@ target_link_libraries(drumrox_ui ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LI
 
 add_definitions ( -DPIC )
 
-#set_target_properties (drumrox
-#  PROPERTIES
-#  COMPILE_FLAGS "-std=gnu99"
-#)
-
-#set (ui_compile_flags "-std=gnu99")
 
 if (NOT USE_NKNOB)
-  set (ui_compile_flags "${ui_compile_flags} -DNO_NKNOB")
+#  set (ui_compile_flags "${ui_compile_flags} -DNO_NKNOB")
+#  SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNO_NKNOB")
+add_definitions(-DNO_NKNOB=1)
 endif (NOT USE_NKNOB)
 
-if (SAMP_ZERO_POS GREATER "-1" AND SAMP_ZERO_POS LESS "4")
-   set (ui_compile_flags "${ui_compile_flags} -DDRMR_UI_ZERO_SAMP=${SAMP_ZERO_POS}")
-else (SAMP_ZERO_POS GREATER "-1" AND SAMP_ZERO_POS LESS "4")
-   message(WARNING "Invalid SAMP_ZERO_POS, defaulting to 0 \(top left\).  Valid values are 0,1,2,3")
-   set (ui_compile_flags "${ui_compile_flags} -DDRMR_UI_ZERO_SAMP=0")
-endif (SAMP_ZERO_POS GREATER "-1" AND SAMP_ZERO_POS LESS "4")
+#if (SAMP_ZERO_POS GREATER "-1" AND SAMP_ZERO_POS LESS "4")
+#   set (ui_compile_flags "${ui_compile_flags} -DDRMR_UI_ZERO_SAMP=${SAMP_ZERO_POS}")
+#else (SAMP_ZERO_POS GREATER "-1" AND SAMP_ZERO_POS LESS "4")
+#   message(WARNING "Invalid SAMP_ZERO_POS, defaulting to 0 \(top left\).  Valid values are 0,1,2,3")
+#   set (ui_compile_flags "${ui_compile_flags} -DDRMR_UI_ZERO_SAMP=0")
+#endif (SAMP_ZERO_POS GREATER "-1" AND SAMP_ZERO_POS LESS "4")
 
-set_target_properties (drumrox_ui
-  PROPERTIES
-  COMPILE_FLAGS ${ui_compile_flags}
-)
-
-# Custom test commands
-#add_executable ( htest drumrox.cpp
-#  EXCLUDE_FROM_ALL
-#)
-
-#add_executable ( knobt
-#  EXCLUDE_FROM_ALL
-#  nknob.c
-#)
-
-# config test executables
-#target_link_libraries(htest ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} ${SAMPLERATE_LIBRARIES} m)
-#set_target_properties ( htest
+#set_target_properties (drumrox_ui
 #  PROPERTIES
-#  COMPILE_FLAGS "-D_TEST_HYDROGEN_PARSER"
+  #COMPILE_FLAGS ${ui_compile_flags}
 #)
 
-#target_link_libraries(knobt ${LV2_LIBRARIES} ${GTK2_LIBRARIES} ${SNDFILE_LIBRARIES} $#{SAMPLERATE_LIBRARIES} m)
-#set_target_properties ( knobt
-#  PROPERTIES
-  #COMPILE_FLAGS "-D_TEST_N_KNOB"
-#)
 
 # config install
 install(TARGETS drumrox drumrox_ui
