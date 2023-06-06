@@ -409,19 +409,19 @@ static void sample_triggered (CDrumroxGTKGUI *ui, int si)
 
 
 static const char* nstrs = "C C#D D#E F F#G G#A A#B ";
-static char baseLabelBuf[32];
+static char baseLabelBuf[128];
 
 static void setBaseLabel (int noteIdx)
 {
   int oct = (noteIdx / 12) - 1;
   int nmt = (noteIdx % 12) * 2;
-  snprintf (baseLabelBuf, 32, "Midi Base Note <b>(%c%c%i)</b>:", nstrs[nmt], nstrs[nmt + 1], oct);
+  snprintf (baseLabelBuf, 128, "Midi Base Note <b>(%c%c%i)</b>:", nstrs[nmt], nstrs[nmt + 1], oct);
 }
 
 
 static void base_changed (GtkSpinButton *base_spin, gpointer data)
 {
-    std::cout << "static void base_changed (\n";
+    //std::cout << "static void base_changed (\n";
 
 
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
@@ -615,7 +615,7 @@ static LV2_Atom* build_get_state_message (CDrumroxGTKGUI *ui)
 
 static void kit_combobox_changed (GtkComboBox* box, gpointer data)
 {
-   std::cout << "void kit_combobox_changed \n";
+   //std::cout << "void kit_combobox_changed \n";
 
 
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
@@ -634,7 +634,7 @@ static void kit_combobox_changed (GtkComboBox* box, gpointer data)
 
 static void panlaw_data (CDrumroxGTKGUI *ui, gpointer data)
 {
-   std::cout << "void panlaw_data \n";
+   //std::cout << "void panlaw_data \n";
 
   lv2_atom_forge_property_head (&ui->forge, ui->uris.panlaw, 0);
   lv2_atom_forge_int(&ui->forge, GPOINTER_TO_INT(data));
@@ -643,7 +643,7 @@ static void panlaw_data (CDrumroxGTKGUI *ui, gpointer data)
 
 static void panlaw_combobox_changed (GtkComboBox* box, gpointer data)
 {
-  std::cout << "panlaw_combobox_changed  \n";
+ // std::cout << "panlaw_combobox_changed  \n";
 
 
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
@@ -852,7 +852,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   //DrMrUi *ui = (DrMrUi*)malloc(sizeof(DrMrUi));
 
-  std::cout << "  CDrumroxGTKGUI *ui = new CDrumroxGTKGUI = start" << std::endl;;
+  //std::cout << "  CDrumroxGTKGUI *ui = new CDrumroxGTKGUI = start" << std::endl;;
 
   CDrumroxGTKGUI *ui = new CDrumroxGTKGUI;
 
@@ -874,7 +874,8 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
   if (! ui->map)
      {
       fprintf (stderr, "LV2 host does not support urid#map.\n");
-      free (ui);
+      //free (ui);
+      delete ui;
       return 0;
      }
 

@@ -1,3 +1,8 @@
+/*
+written at 2023 by Peter Semiletov
+this code is the public domain
+ */
+
 #include <iostream>
 #include <fstream>
 #include <algorithm>
@@ -22,12 +27,9 @@ std::vector <std::string> files_get_list (const std::string &path)
 
   std::vector <std::string> result;
 
-  directory = opendir(path.c_str());
+  directory = opendir (path.c_str());
   if (! directory)
-     {
-      closedir (directory);
-      return result;
-     }
+     return result;
 
   while ((dir_entry = readdir (directory)))
         {
@@ -211,43 +213,9 @@ CDrumSample::~CDrumSample()
       }
 }
 
-/*
-
-static inline void layer_to_sample (drmr_sample *sample, float gain)
-{
-  float mapped_gain = (1 - (gain / GAIN_MIN));
-
-  if (mapped_gain > 1.0f)
-      mapped_gain = 1.0f;
-
-  for (int i = 0; i < sample->layer_count; i++)
-      {
-       if (sample->layers[i].min <= mapped_gain &&
-          (sample->layers[i].max > mapped_gain ||
-          (sample->layers[i].max == 1 && mapped_gain == 1)))
-          {
-           sample->limit = sample->layers[i].limit;
-           sample->info = sample->layers[i].info;
-           sample->data = sample->layers[i].data;
-           return;
-          }
-       }
-
-  fprintf (stderr, "Couldn't find layer for gain %f in sample\n\n", gain);
-
-  // to avoid not playing something, and to deal with kits like the
-     //k-27_trash_kit, let's just use the first layer
-  sample->limit = sample->layers[0].limit;
-  sample->info = sample->layers[0].info;
-  sample->data = sample->layers[0].data;
-}
-
-
- */
 
 
 #define GAIN_MIN -60.0f
-
 
 size_t CDrumSample::map_gain_to_layer_number (float gain)
 {
@@ -376,18 +344,6 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      }
 
 
-/*
-  if (node_name == "instrument")
-     {
-      drumkit_info_passed = true;
-
-      kit->add_sample();
-
-      if (! kit->layers_supported) //non-layered
-         kit->v_samples.back()->add_layer(); //add default layer
-     }
-*/
-
   if (node_name == "layer" && ! kit->scan_mode)
      {
       if (kit->v_samples.size() != 0)
@@ -419,15 +375,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    kit_dir = get_file_path (kit_xml_filename);
 
   pugi::xml_document doc;
-  //pugi::xml_parse_result result = doc.load_buffer (temp.utf16(),
-    //                                               temp.size() * 2,
-      //                                             pugi::parse_default,
-        //                                           pugi::encoding_utf16);
-
-//  load_buffer(const void* contents, size_t size, unsigned int options = parse_default, xml_encoding encoding = encoding_auto);
-
-
- // pugi::xml_parse_result result = doc.load_file (fname);
 
   std::string source = string_file_load (fname);
 
@@ -440,11 +387,11 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    else
        layers_supported = false;
 
- ////////////
 
   //cout << "layers_supported: " << layers_supported  << endl;
 
   //delete empty instruments
+  //because we don't want parse them
 
   size_t idx_filename = source.rfind ("</filename>");
   size_t idx_instrument = source.find ("<instrument>", idx_filename);
@@ -461,20 +408,13 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
       //теперь найдем конец последнего
       size_t idx_instrument_end = source.rfind ("</instrument>");
-//      cout << "idx_instrument_end: " << idx_instrument_end  << endl;
-
       size_t sz_to_remove = idx_instrument_end - idx_instrument + 13;
-//      cout << "sz_to_remove: " << sz_to_remove  << endl;
 
       source = source.erase (idx_instrument, sz_to_remove);
-      //cout << t << endl;
      }
-
-  ////////////
 
 
   pugi::xml_parse_result result = doc.load_buffer (source.c_str(), source.size());
-
 
   if (! result)
      return;
@@ -618,7 +558,6 @@ void CHydrogenKits::print()
 }
 
 
-
 CHydrogenKitsScanner::CHydrogenKitsScanner()
 {
 }
@@ -631,8 +570,6 @@ CHydrogenKitsScanner::~CHydrogenKitsScanner()
        delete v_scanned_kits[i];
       }
 }
-
-
 
 
 void CHydrogenKitsScanner::scan()

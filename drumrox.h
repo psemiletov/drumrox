@@ -1,9 +1,11 @@
-/* drmr.h
- * LV2 DrMr plugin
+/* drumrox.h
+ * LV2 Drumrox plugin
+ * 2023 Peter Semiletov
+ * based on DrMr
  * Copyright 2012 Nick Lanham <nick@afternight.org>
+ * and Filipe Coelho's DrMr fork (https://github.com/falkTX/drmr).
  *
- * Public License v3. source code is available at 
- * <http://github.com/nicklan/drmr>
+ * GPL Public License v3
 
  * THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -151,13 +153,9 @@ public:
   int panlaw;
 
   //32 gains and pans
-  //float** gains;
-  //float** pans;
-
   float* gains[32];
   float* pans[32];
 
-//we use kit's v_samples[n] gain and pan instead
 
   float* baseNote;
   double rate;
@@ -179,10 +177,8 @@ public:
   pthread_cond_t  load_cond;
   pthread_t load_thread;
 
-
   CDrumrox();
-~CDrumrox();
-
+  ~CDrumrox();
 };
 
 
@@ -202,9 +198,7 @@ static inline void map_drmr_uris (LV2_URID_Map *map, SDrumroxUris *uris)
   uris->panlaw = map->map(map->handle, DRUMROX_URI "#panlaw");
   uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
   //uris->atom_resource = map->map(map->handle, LV2_ATOM__Resource);
-
   uris->atom_object = map->map(map->handle, LV2_ATOM__Object);
-
 }
 
 

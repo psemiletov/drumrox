@@ -1,11 +1,12 @@
-//1.1.0
+Drumrox 2.0.0
 
-This release features the "Panning mode" option, where you can select one of the tapers:
-
-1. linear panner, law: -6 dB //default
-2. linear panner, law: 0 dB
-3. square root panner, law: -3 dB
-4. sin/cos panner, law: -3 dB
-
-This option affects to all instrument panners.
-Also, in 1.1.0, the Gain knob is more precise - the original DrMr step was 1 dB, the current one os 0.1 dB
+Hello!
+This release of Drumrox differs from DrMr more than 1.x
+What is new?
++ New drum kit loader. Written in C++, uses pugixml to parse kits (was: C/libexpat).
+* The save state is not full compatible with Drumrox 1.0, but projects loads well (just re-select the drumkit). Now Drumrox simple saves the path to the drumkit, not the symlink.
++ Less CPU consumption.
+* Simplified CMakeList.txt.
++ Compiler optimization flags.
+* Default panning mode is "sin/cos panner, law: -3 dB".
+- Unused code
