@@ -182,7 +182,7 @@ public:
 };
 
 
-static inline void map_drmr_uris (LV2_URID_Map *map, SDrumroxUris *uris)
+static inline void map_drumrox_uris (LV2_URID_Map *map, SDrumroxUris *uris)
 {
   uris->midi_event = map->map (map->handle, "http://lv2plug.in/ns/ext/midi#MidiEvent");
   uris->string_urid = map->map(map->handle, LV2_ATOM__String);

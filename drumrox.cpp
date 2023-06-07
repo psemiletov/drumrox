@@ -166,7 +166,7 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
       return 0;
      }
 
-  map_drmr_uris (drumrox->map, &(drumrox->uris));
+  map_drumrox_uris (drumrox->map, &(drumrox->uris));
   
   lv2_atom_forge_init (&drumrox->forge, drumrox->map);
 

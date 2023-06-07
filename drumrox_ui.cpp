@@ -1,9 +1,11 @@
-/* drumrox_ui.cpp
- * LV2 DrMr plugin
+/* drumrox.h
+ * LV2 Drumrox plugin
+ * 2023 Peter Semiletov
+ * based on DrMr
  * Copyright 2012 Nick Lanham <nick@afternight.org>
+ * and Filipe Coelho's DrMr fork (https://github.com/falkTX/drmr).
  *
- * Public License v3. source code is available at 
- * <http://github.com/nicklan/drmr>
+ * GPL Public License v3
 
  * THIS SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -14,18 +16,13 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+
 #include <limits.h>
 #include <stdlib.h>
-
 #include <iostream>
-
 
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
-
-#include "drumrox.h"
-#include "nknob.h"
-#include "dsp.h"
 
 #include <lv2/lv2plug.in/ns/ext/atom/atom.h>
 #include <lv2/lv2plug.in/ns/ext/atom/forge.h>
@@ -33,10 +30,15 @@
 #include <lv2/lv2plug.in/ns/ext/urid/urid.h>
 #include <lv2/lv2plug.in/ns/extensions/ui/ui.h>
 
+
+#include "drumrox.h"
+#include "nknob.h"
+#include "dsp.h"
+
 //#include <gdk/gdkx.h>
 
 
-#define DRMR_UI_URI "https://github.com/psemiletov/drumrox#ui"
+#define DRUMROX_UI_URI "https://github.com/psemiletov/drumrox#ui"
 #define NO_KIT_STRING "[No Current Kit]"
 
 class CDrumroxGTKGUI
@@ -96,8 +98,6 @@ static GdkPixbuf *led_on_pixbuf = NULL, *led_off_pixbuf = NULL;
 
 static gboolean gain_callback (GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
 {
-  std::cout << "gain_callback\n";
-
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
   int gidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range),ui->gain_quark));
   float gain = (float)value;
@@ -109,8 +109,6 @@ static gboolean gain_callback (GtkRange* range, GtkScrollType type, gdouble valu
 
 static gboolean pan_callback (GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
 {
-  std::cout << "pan_callback\n";
-
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
   int pidx = GPOINTER_TO_INT(g_object_get_qdata(G_OBJECT(range), ui->pan_quark));
   float pan = (float)value;
@@ -144,8 +142,6 @@ static void led_data (CDrumroxGTKGUI *ui, gpointer data)
 
 static void ignore_velocity_data (CDrumroxGTKGUI* ui, gpointer data)
 {
-  std::cout << "void ignore_velocity_data\n";
-
   lv2_atom_forge_property_head (&ui->forge, ui->uris.velocity_toggle, 0);
   lv2_atom_forge_bool(&ui->forge, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)));
 }
@@ -153,8 +149,6 @@ static void ignore_velocity_data (CDrumroxGTKGUI* ui, gpointer data)
 
 static void ignore_note_off_data (CDrumroxGTKGUI* ui, gpointer data)
 {
-  std::cout << "void ignore_note_off_data\n";
-
   lv2_atom_forge_property_head (&ui->forge, ui->uris.note_off_toggle,0);
   lv2_atom_forge_bool(&ui->forge, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)));
 }
@@ -185,8 +179,6 @@ static gboolean ignore_note_off_toggled (GtkToggleButton *button, gpointer data)
 
 
 static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index, GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
-
-//static void fill_sample_table (CDrumroxGTKGUI* ui, int samples, /*char** names, */GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
 {
   std::cout << "fill_sample_table\n";
 
@@ -201,7 +193,6 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
   int rows = (samples_count / ui->cols);
 
  // int rows = (samples / 6);
-
 
   if (samples_count % ui->cols != 0)
       rows++;
@@ -218,14 +209,9 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        GtkWidget* pan_label;
        gboolean slide_expand;
 
-//       snprintf (buf, 64, "<b>%s</b> (%i)", names[si],si);
-
-     //  snprintf (buf, 64, "<b>%s</b> (%i)", ui->kits.v_kits_names[si].c_str(),si);
-
        const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
 
        snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
-
 
        frame = gtk_frame_new (buf);
 
@@ -299,16 +285,16 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
       pan_label = gtk_label_new ("Pan");
       pan_vbox = gtk_vbox_new (false, 0);
     
-      gtk_box_pack_start(GTK_BOX(gain_vbox),gain_slider,slide_expand,slide_expand,0);
-      gtk_box_pack_start(GTK_BOX(gain_vbox),gain_label,false,false,0);
+      gtk_box_pack_start(GTK_BOX(gain_vbox), gain_slider, slide_expand, slide_expand, 0);
+      gtk_box_pack_start(GTK_BOX(gain_vbox), gain_label, false, false, 0);
 
-      gtk_box_pack_start(GTK_BOX(pan_vbox),pan_slider,slide_expand,slide_expand,0);
-      gtk_box_pack_start(GTK_BOX(pan_vbox),pan_label,false,false,0);
+      gtk_box_pack_start(GTK_BOX(pan_vbox), pan_slider, slide_expand, slide_expand, 0);
+      gtk_box_pack_start(GTK_BOX(pan_vbox), pan_label, false, false,0);
 
-      gtk_box_pack_start(GTK_BOX(hbox),gain_vbox,true,true,0);
-      gtk_box_pack_start(GTK_BOX(hbox),pan_vbox,true,true,0);
+      gtk_box_pack_start(GTK_BOX(hbox), gain_vbox, true, true, 0);
+      gtk_box_pack_start(GTK_BOX(hbox), pan_vbox, true, true, 0);
 
-      gtk_box_pack_start(GTK_BOX(vbox),hbox,true,true,0);
+      gtk_box_pack_start(GTK_BOX(vbox), hbox, true, true, 0);
 
       button_box = gtk_hbox_new (false, 2);
 
@@ -316,7 +302,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
       g_object_set_qdata(G_OBJECT(led_event_box), ui->trigger_quark, GINT_TO_POINTER(si));
       g_signal_connect(G_OBJECT(led_event_box),"button-release-event", G_CALLBACK(trigger_led_clicked),ui);
 
-      led = gtk_image_new_from_pixbuf(led_off_pixbuf);
+      led = gtk_image_new_from_pixbuf (led_off_pixbuf);
       if (notify_leds)
          notify_leds[si] = led;
 
@@ -404,9 +390,8 @@ static void setBaseLabel (int noteIdx)
 static void base_changed (GtkSpinButton *base_spin, gpointer data)
 {
     //std::cout << "static void base_changed (\n";
-
-
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
+
   float base = (float)gtk_spin_button_get_value(base_spin);
 
   if (base >= 21.0f && base <= 107.0f)
@@ -417,7 +402,7 @@ static void base_changed (GtkSpinButton *base_spin, gpointer data)
       ui->baseNote = (int)base;
      }
   else
-      fprintf(stderr,"Base spin got out of range: %f\n",base);
+      fprintf(stderr, "Base spin got out of range: %f\n", base);
 }
 
 
@@ -454,7 +439,6 @@ static gboolean kit_callback (gpointer data)
       int samples_count; //samples count in the kit (kitReq index)
 
       samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
-
 
       GtkWidget** notify_leds;
       GtkWidget** gain_sliders;
@@ -527,7 +511,7 @@ static gboolean kit_callback (gpointer data)
      else
          {
           gtk_widget_show (ui->no_kit_label);
-          gtk_label_set_text (ui->current_kit_label,NO_KIT_STRING);
+          gtk_label_set_text (ui->current_kit_label, NO_KIT_STRING);
           gtk_widget_hide (GTK_WIDGET(ui->kit_combo));
          }
     }
@@ -536,17 +520,16 @@ static gboolean kit_callback (gpointer data)
   return FALSE; // don't keep calling
 }
 
-//lv2_atom_forge_object
+
 static LV2_Atom* build_path_message (CDrumroxGTKGUI *ui, const char* path)
 {
   std::cout << "LV2_Atom* build_path_message\n";
 
   std::cout << "path: " << path << std::endl;
 
-
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
-  lv2_atom_forge_property_head (&ui->forge, ui->uris.kit_path,0);
+  LV2_Atom* msg = (LV2_Atom*) lv2_atom_forge_object (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
+  lv2_atom_forge_property_head (&ui->forge, ui->uris.kit_path, 0);
   lv2_atom_forge_path (&ui->forge, path, strlen(path));
   lv2_atom_forge_pop (&ui->forge, &set_frame);
   return msg;
@@ -558,8 +541,8 @@ static LV2_Atom* build_get_state_message (CDrumroxGTKGUI *ui)
    std::cout << "LV2_Atom* build_get_state_message\n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object	 (&ui->forge, &set_frame, 1, ui->uris.get_state);
-  lv2_atom_forge_pop (&ui->forge,&set_frame);
+  LV2_Atom* msg = (LV2_Atom*) lv2_atom_forge_object (&ui->forge, &set_frame, 1, ui->uris.get_state);
+  lv2_atom_forge_pop (&ui->forge, &set_frame);
   return msg;
 }
 
@@ -585,8 +568,6 @@ static void kit_combobox_changed (GtkComboBox* box, gpointer data)
 
 static void panlaw_data (CDrumroxGTKGUI *ui, gpointer data)
 {
-   //std::cout << "void panlaw_data \n";
-
   lv2_atom_forge_property_head (&ui->forge, ui->uris.panlaw, 0);
   lv2_atom_forge_int(&ui->forge, GPOINTER_TO_INT(data));
 }
@@ -594,18 +575,12 @@ static void panlaw_data (CDrumroxGTKGUI *ui, gpointer data)
 
 static void panlaw_combobox_changed (GtkComboBox* box, gpointer data)
 {
- // std::cout << "panlaw_combobox_changed  \n";
-
-
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
 
   gint i = gtk_combo_box_get_active (GTK_COMBO_BOX(box));
   if (i != ui->panlaw)
      {
       ui->panlaw = i;
-    //  ui->forceUpdate = true; //?
-    //  kit_callback (ui);
-    //????????????????
       send_ui_msg (ui, &panlaw_data, GINT_TO_POINTER(i));
      }
 }
@@ -649,7 +624,7 @@ static gulong expose_id;
 
 static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
-    std::cout << "gboolean expose_callback  \n";
+  std::cout << "gboolean expose_callback  \n";
 
 
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
@@ -702,9 +677,9 @@ static void load_led_pixbufs (CDrumroxGTKGUI* ui)
 
 #define PADVAL 5
 
-static void build_drmr_ui (CDrumroxGTKGUI* ui)
+static void build_drumrox_ui (CDrumroxGTKGUI* ui)
 {
-  std::cout << "void build_drmr_ui \n";
+  //std::cout << "void build_drumrox_ui \n";
 
 
   GtkWidget *drumrox_ui_widget;
@@ -830,7 +805,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
       return 0;
      }
 
-  map_drmr_uris (ui->map, &(ui->uris));
+  map_drumrox_uris (ui->map, &(ui->uris));
 
   ui->bundle_path = g_strdup (bundle_path);
 
@@ -838,7 +813,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   lv2_atom_forge_init (&ui->forge, ui->map);
 
-  build_drmr_ui (ui);
+  build_drumrox_ui (ui);
 
 //  ui->kits = scan_kits();
 
@@ -1088,7 +1063,7 @@ static const void* extension_data (const char* uri)
 }
 
 static const LV2UI_Descriptor descriptor = {
-  DRMR_UI_URI,
+  DRUMROX_UI_URI,
   instantiate,
   cleanup,
   port_event,
@@ -1103,14 +1078,5 @@ LV2_SYMBOL_EXPORT const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index)
   else
       return NULL;
 
-  /*
-  switch (index)
-         {
-          case 0:
-                 return &descriptor;
-          default:
-                 return NULL;
-         }
-         */
 }
 
