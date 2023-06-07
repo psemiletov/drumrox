@@ -1,3 +1,5 @@
++ symlink resolve in kit path
+
 * CMakeLists simplified, compiler optimization added
 * major code cleanup and refactoring
 * Default panning mode is "sin/cos panner, law: -3 dB"

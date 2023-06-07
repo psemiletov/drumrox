@@ -119,22 +119,6 @@ static gboolean pan_callback (GtkRange* range, GtkScrollType type, gdouble value
   return FALSE;
 }
 
-/*
-static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui, gpointer data), gpointer data)
-{
-  std::cout << "send_ui_msg\n";
-
-  LV2_Atom_Forge_Frame set_frame;
-  uint8_t msg_buf[1024];
-
-  lv2_atom_forge_set_buffer (&ui->forge, msg_buf, 1024);
-  LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_resource (&ui->forge, &set_frame, 1, ui->uris.ui_msg);
-  (*add_data)(ui, data);
-  lv2_atom_forge_pop (&ui->forge, &set_frame);
-  ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
-}
-*/
-
 
 static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui, gpointer data), gpointer data)
 {
@@ -144,7 +128,7 @@ static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui
   uint8_t msg_buf[1024];
 
   lv2_atom_forge_set_buffer (&ui->forge, msg_buf, 1024);
-  LV2_Atom *msg = (LV2_Atom*)/*lv2_atom_forge_resource*/ lv2_atom_forge_object(&ui->forge, &set_frame, 1, ui->uris.ui_msg);
+  LV2_Atom *msg = (LV2_Atom*)lv2_atom_forge_object(&ui->forge, &set_frame, 1, ui->uris.ui_msg);
   (*add_data)(ui, data);
   lv2_atom_forge_pop (&ui->forge, &set_frame);
   ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
@@ -243,7 +227,6 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
 
 
-
        frame = gtk_frame_new (buf);
 
        //if (ui->frames)
@@ -253,8 +236,8 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
-       vbox = gtk_vbox_new (false,5);
-       hbox = gtk_hbox_new (false,0);
+       vbox = gtk_vbox_new (false, 5);
+       hbox = gtk_hbox_new (false, 0);
 
 #ifdef NO_NKNOB
 //       gain_slider = gtk_vscale_new_with_range(GAIN_MIN,6.0,1);
@@ -307,7 +290,6 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
       if (si < 32)
          gtk_range_set_value (GTK_RANGE(pan_slider), (gdouble) ui->pan_vals[si]);
-       //  gtk_range_set_value (GTK_RANGE(pan_slider), 0.5);
       else
           gtk_range_set_value (GTK_RANGE(pan_slider), 0.5f);
 
@@ -468,10 +450,8 @@ static gboolean kit_callback (gpointer data)
   if (ui->forceUpdate || (ui->kitReq != ui->current_kit_index))
      {
       ui->forceUpdate = false;
-      //int samples = (ui->kitReq<ui->kits->num_kits && ui->kitReq >= 0)? ui->kits->kits[ui->kitReq].samples: 0;
 
       int samples_count; //samples count in the kit (kitReq index)
-      //= (ui->kitReq<ui->kits->num_kits && ui->kitReq >= 0) ? ui->kits->kits[ui->kitReq].samples: 0;
 
       samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
 
@@ -562,35 +542,6 @@ static LV2_Atom* build_path_message (CDrumroxGTKGUI *ui, const char* path)
   std::cout << "LV2_Atom* build_path_message\n";
 
   std::cout << "path: " << path << std::endl;
-
- /*
-
-
-
-  lv2_atom_forge_resource()
-static LV2_DEPRECATED LV2_Atom_Forge_Ref lv2_atom_forge_resource	(	LV2_Atom_Forge * 	forge,
-LV2_Atom_Forge_Frame * 	frame,
-LV2_URID 	id,
-LV2_URID 	otype
-inlinestatic
-The same as
-
-
-
-static LV2_Atom_Forge_Ref lv2_atom_forge_object	(	LV2_Atom_Forge * 	forge,
-LV2_Atom_Forge_Frame * 	frame,
-LV2_URID 	id,
-LV2_URID 	otype
-inlinestatic
-Write the header of an atom:Object.
-
-The passed frame will be initialised to represent
-
-
-
-
-
-  */
 
 
   LV2_Atom_Forge_Frame set_frame;

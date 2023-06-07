@@ -29,6 +29,14 @@
 #define REQ_BUF_SIZE 10
 #define VELOCITY_MAX 127
 
+
+#define DB3SCALE -0.8317830986718104f
+#define DB3SCALEPO 1.8317830986718104f
+// taken from lv2 example amp plugin
+#define DB_CO(g) ((g) > GAIN_MIN ? powf(10.0f, (g) * 0.05f) : 0.0f)
+
+
+
 static int current_kit_changed = 0;
 
 
@@ -223,23 +231,13 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
          }
 
 
-//    std::cout << "PART 2\n";
-
 
   //link LV controls gains to kit's
   if (port_index >= DRUMROX_GAIN_01 && port_index <= DRUMROX_GAIN_32)
      {
-//       std::cout << "111\n";
       size_t gain_offset = port_index - DRUMROX_GAIN_01;
       drumrox->gains[gain_offset] = (float*)data;
- //     std::cout << "goff: " << goff << std::endl;
-  //    std::cout << "drumrox->kit->v_samples.size(): "  << std::endl;
-      //if (goff < drumrox->kit->v_samples.size())
-        //  drumrox->kit->v_samples[goff]->gain = (float*)data;
-//      std::cout << "222\n";
      }
-
-//    std::cout << "PART 3\n";
 
 
   //link LV controls pans to kit's
@@ -247,9 +245,6 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
      {
       size_t pan_offset = port_index - DRUMROX_PAN_01;
       drumrox->pans[pan_offset] = (float*)data;
-      //if (poff < drumrox->kit->v_samples.size())
-        //  drumrox->kit->v_samples[poff]->pan = (float*)data;
-
      }
 
    //std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -2" << std::endl;
@@ -260,9 +255,8 @@ static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 {
 //  std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 1 \n";
 
-
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.ui_msg);
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.ui_msg);
 
     std::cout << drumrox->current_path << std::endl;
 
@@ -318,7 +312,7 @@ static inline LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *dat
 //       std::cout << " LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *data) \n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource*/lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.midi_info);
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.midi_info);
   lv2_atom_forge_property_head (&drumrox->forge, drumrox->uris.midi_event, 0);
   lv2_atom_forge_write (&drumrox->forge, data, 3); //what is 3?
   lv2_atom_forge_pop (&drumrox->forge, &set_frame);
@@ -343,14 +337,11 @@ static inline void trigger_sample (CDrumrox *drumrox,
       float gain = *drumrox->gains[note_number];
       s->current_layer = s->map_gain_to_layer_number (gain);
 
-//      s->current_layer = s->map_gain_to_layer_number (*s->gain); //0 if there are just 1 layer
-
       if (data)
          {
           lv2_atom_forge_frame_time (&drumrox->forge, 0);
           build_midi_info_message (drumrox, data);
          }
-
 
       s->active = 1;
       s->v_layers[s->current_layer]->offset = 0; //? what is it
@@ -381,12 +372,9 @@ static inline void untrigger_sample (CDrumrox *drumrox,
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number];
-//      if (s->v_layers.size() > 1)
-//      s->current_layer = s->map_gain_to_layer_number (*s->gain);
       float gain = *drumrox->gains[note_number];
 
       s->current_layer = s->map_gain_to_layer_number (gain);
-//      s->current_layer = s->map_gain_to_layer_number (*s->gain);
 
       s->active = 0;
       s->v_layers[s->current_layer]->dataoffset = offset;
@@ -394,12 +382,6 @@ static inline void untrigger_sample (CDrumrox *drumrox,
 
   pthread_mutex_unlock (&drumrox->load_mutex);
 }
-
-
-#define DB3SCALE -0.8317830986718104f
-#define DB3SCALEPO 1.8317830986718104f
-// taken from lv2 example amp plugin
-#define DB_CO(g) ((g) > GAIN_MIN ? powf(10.0f, (g) * 0.05f) : 0.0f)
 
 
 static void run (LV2_Handle instance, uint32_t n_samples)
@@ -476,7 +458,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                         note_number -= baseNote;
                         trigger_sample (drumrox, note_number, data, offset);
                         break;
-                        }
+                       }
 
                 default:
                      //printf("Unhandeled status: %i\n",(*data)>>4);
@@ -484,11 +466,10 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                }
       }
    else
-//       if (ev->body.type == drumrox->uris.atom_resource)
        if (ev->body.type == drumrox->uris.atom_object)
           {
-         //  std::cout << "ev->body.type == drumrox->uris.atom_resource\n";
            const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
+
            if (obj->body.otype == drumrox->uris.ui_msg)
               {
                const LV2_Atom* path = NULL;
@@ -507,7 +488,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
               if (path)
                  {
-                  //FIX: elimimate mem alloc!!!
+                  //FIX: eliminate mem alloc!!!
 
                   int reqPos = (drumrox->curReq + 1) % REQ_BUF_SIZE;
                   char *tmp = NULL;
@@ -729,23 +710,7 @@ static LV2_State_Status save_state (LV2_Handle instance,
   int32_t flag;
   LV2_State_Status stat = LV2_STATE_SUCCESS;
 
-/*
-  LV2_State_Map_Path* map_path = NULL;
 
-  while (*features)
-        {
-         if (! strcmp((*features)->URI, LV2_STATE__mapPath))
-            map_path = (LV2_State_Map_Path*)((*features)->data);
-
-         features++;
-        }
-
-  if (map_path == NULL)
-     {
-      fprintf(stderr,"Host does not support map_path, cannot save state\n");
-      return LV2_STATE_ERR_NO_FEATURE;
-     }
-*/
   if (drumrox->current_path != NULL)  //drmr->current_path is absolute path
      {
       const char* path = drumrox->kit->kit_xml_filename.c_str();
@@ -817,35 +782,6 @@ static LV2_State_Status restore_state (LV2_Handle instance,
   size_t      size;
   uint32_t    type;
   uint32_t    fgs;
-/*
-  LV2_State_Map_Path* map_path = NULL;
-
-  while (*features)
-        {
-         if (! strcmp ((*features)->URI, LV2_STATE__mapPath))
-            map_path = (LV2_State_Map_Path*)((*features)->data);
-
-         features++;
-        }
-
-  if (map_path == NULL)
-     {
-      fprintf (stderr, "Host does not support map_path, cannot restore state\n");
-      return LV2_STATE_ERR_NO_FEATURE;
-     }
-*/
-/*
-  const char* abstract_path = (char*) retrieve (handle, drumrox->uris.kit_path, &size, &type, &fgs);
-
-
-  if (! abstract_path)
-     {
-      fprintf (stderr, "Found no path in state, not restoring\n");
-      return LV2_STATE_ERR_NO_PROPERTY;
-     }
-
-  const char *kit_path = abstract_path;
-*/
 
   const char *kit_path = (char*) retrieve (handle, drumrox->uris.kit_path, &size, &type, &fgs);
 
