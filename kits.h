@@ -27,7 +27,6 @@ public:
   float max;
 
   std::string file_name; //name of the loaded file
-//  SF_INFO info; //info about the loaded file
 
   int channels;
   int frames;
@@ -57,27 +56,14 @@ public:
 
   std::string name;
   int id;
-
   int current_layer;
-
-  //pointers to LV's pan and gain
-  //float *pan;
-  //float *gain;
-
   float volume;
   int midiOutNote;
-
   int session_samplerate; //session srate, taken from the upper object
-
-
   char active;
-  //uint32_t offset; //WHAT IS IT?
-
-
   float velocity;
 
   std::vector <CDrumLayer*> v_layers;
-
 
   CDrumSample (int sample_rate);
   ~CDrumSample();
@@ -88,7 +74,6 @@ public:
 
   void print();
   void print_stats();
-
 };
 
 
@@ -99,33 +84,24 @@ public:
 
   bool scan_mode; //if false, we do not load kit' samples
 
-  std::string name;
- // std::string path;
+  std::string kit_name; //parsed from XML
+  std::string kit_xml_filename; //full path to the kit xml file
+  std::string kit_dir; //full path to the kit
 
   int samplerate; //session srate
 
   bool layers_supported;
 
-  std::string kit_name; //parsed from XML
-  std::string kit_xml_filename; //full path to the kit xml file
-  std::string kit_dir; //full path to the kit
-
   std::vector <CDrumSample*> v_samples;
 
   void add_sample();
-
-
-//  CHydrogenKit (const char *fname, int sample_rate);
-
   void load (const char *fname, int sample_rate);
 
   CHydrogenKit();
-
   ~CHydrogenKit();
 
   void print();
   void print_stats();
-
 };
 
 
@@ -136,7 +112,7 @@ public:
   std::vector <std::string> v_kits_dirs;
   std::vector <std::string> v_kits_names;
 
-  std::map <std::string, std::string> m_kits; //name = full path
+  std::map <std::string, std::string> m_kits; //var=value i.e. name = full path
 
   CHydrogenKits();
   ~CHydrogenKits();
@@ -155,20 +131,15 @@ public:
 
   std::vector <std::string> v_kits_dirs;
   std::vector <std::string> v_kits_names;
-
   std::vector <CHydrogenKit*> v_scanned_kits;
-
   std::map <std::string, std::string> m_kits; //name = full path
 
   CHydrogenKitsScanner();
   ~CHydrogenKitsScanner();
 
-//  std::string get_kit_name (const std::string full_path);
-
   void scan();
   void print();
 };
-
 
 
 
@@ -178,19 +149,15 @@ public:
 
   CHydrogenKit *kit;
 
-  CHydrogenXMLWalker (CHydrogenKit *hkit);
-
   bool is_drumkit_info;
   bool is_instrument;
   bool is_layer;
-
   bool drumkit_info_passed;
   bool drumkitComponent_passed;
 
+  CHydrogenXMLWalker (CHydrogenKit *hkit);
   bool for_each (pugi::xml_node& node);
-
 };
-
 
 
 #endif
