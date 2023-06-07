@@ -517,7 +517,7 @@ static gboolean kit_callback (gpointer data)
 
 //      gtk_label_set_text(ui->current_kit_label,ui->kits->kits[ui->kitReq].name);
 
-          gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->name.c_str());
+          gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
 
           ui->current_kit_index = ui->kitReq;
           gtk_combo_box_set_active(ui->kit_combo, ui->current_kit_index); //SETS CURRENT KIT
@@ -938,7 +938,7 @@ static void port_event (LV2UI_Handle handle,
                         uint32_t     format,
                         const void*  buffer)
 {
-  std::cout << "GUI void port_event\n";
+  //std::cout << "GUI void port_event\n";
 
   DrumroxPortIndex index = (DrumroxPortIndex)port_index;
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)handle;

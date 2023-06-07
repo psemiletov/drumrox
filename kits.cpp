@@ -331,7 +331,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      drumkitComponent_passed = true;
 
   if (node_name == "name" && ! drumkit_info_passed)
-     kit->name = txt.as_string();
+     kit->kit_name = txt.as_string();
 
   if (node_name == "name" && drumkit_info_passed && drumkitComponent_passed)
      if (kit->v_samples.size() != 0)
@@ -458,68 +458,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    doc.traverse (walker);
 }
 
-/*
-void CHydrogenKit::load (const char *fname, int sample_rate)
-{
-  cout << "void CHydrogenKit::load " << endl;
-
-  samplerate = sample_rate;
-
-  string filename = resolve_symlink (fname);
-
-  kit_xml_filename = fname;
-  kit_dir = get_file_path (kit_xml_filename);
-
-  pugi::xml_document doc;
-
-  std::string source = string_file_load (fname);
-
-  cout << "loading kit: " << fname << endl;
-  //cout << "source: " << source << endl;
-
-  size_t r = source.find ("<layer>");
-  if (r != std::string::npos)
-     layers_supported = true;
-   else
-       layers_supported = false;
-
-
-  //cout << "layers_supported: " << layers_supported  << endl;
-
-  //delete empty instruments
-  //because we don't want parse them
-
-  size_t idx_filename = source.rfind ("</filename>");
-  size_t idx_instrument = source.find ("<instrument>", idx_filename);
-
-//  cout << "idx_filename: " << idx_filename  << endl;
-//  cout << "idx_instrument: " << idx_instrument  << endl;
-
-  if (idx_instrument != std::string::npos)
-  if (idx_instrument > idx_filename)
-     //oops, we wave empty instruments!
-     {
-      //первый пустой инструмент у нас уже есть, он находится по
-      //idx_instrument
-
-      //теперь найдем конец последнего
-      size_t idx_instrument_end = source.rfind ("</instrument>");
-      size_t sz_to_remove = idx_instrument_end - idx_instrument + 13;
-
-      source = source.erase (idx_instrument, sz_to_remove);
-     }
-
-
-  pugi::xml_parse_result result = doc.load_buffer (source.c_str(), source.size());
-
-  if (! result)
-     return;
-
-   CHydrogenXMLWalker walker (this);
-
-   doc.traverse (walker);
-}
-*/
 
 CHydrogenKit::CHydrogenKit()
 {
@@ -562,7 +500,7 @@ void CHydrogenKit::print_stats()
 {
   cout << "void CHydrogenKit::print-stats() -- start" << endl;
 
-  cout << "kitname: " << name << endl;
+  cout << "kitname: " << kit_name << endl;
 
   for (size_t i = 0; i < v_samples.size(); i++)
       {
@@ -703,9 +641,9 @@ void CHydrogenKitsScanner::scan()
        kit->scan_mode = true;
        kit->load (fname.c_str(), 44100);
        v_scanned_kits.push_back (kit);
-       v_kits_names.push_back (kit->name);
+       v_kits_names.push_back (kit->kit_name);
 
-       m_kits.insert (pair<string,string> (kit->name, fname));
+       m_kits.insert (pair<string,string> (kit->kit_name, fname));
       }
 }
 
