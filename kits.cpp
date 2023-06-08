@@ -675,7 +675,6 @@ CHydrogenKitsScanner::~CHydrogenKitsScanner()
       }
 }
 
-
 void CHydrogenKitsScanner::scan()
 {
   std::vector <std::string> v_kits_locations;
@@ -683,7 +682,7 @@ void CHydrogenKitsScanner::scan()
   v_kits_locations.push_back ("/usr/share/hydrogen/data/drumkits");
   v_kits_locations.push_back ("/usr/local/share/hydrogen/data/drumkits");
   v_kits_locations.push_back ("/usr/share/drmr/drumkits");
-  v_kits_locations.push_back ("/usr/share/drmr/drumrox");
+  v_kits_locations.push_back ("/usr/share/drumrox-kits");
 
   v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits");
   v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits");
@@ -692,16 +691,16 @@ void CHydrogenKitsScanner::scan()
 
   std::vector <std::string> v_kits_dirs;
 
-  for (std::string i : v_kits_locations)
+  for (std::string i: v_kits_locations)
       {
        std::vector <std::string> v_kits_dirs_t = files_get_list (i);
-       v_kits_dirs.insert(v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
+       v_kits_dirs.insert (v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
       }
 
   std::sort (v_kits_dirs.begin(), v_kits_dirs.end());
-  v_kits_dirs.erase (std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
+  v_kits_dirs.erase (std::unique (v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
 
-  for (std::string kd : v_kits_dirs)
+  for (std::string kd: v_kits_dirs)
       {
        //cout << kd << endl;
        //cout << get_kit_name (kd + "/drumkit.xml") << endl;
@@ -715,9 +714,9 @@ void CHydrogenKitsScanner::scan()
            kit->scan_mode = true;
            kit->load (fname.c_str(), 44100);
            v_scanned_kits.push_back (kit);
-           v_kits_names.push_back (kit->kit_name);
+//           v_kits_names.push_back (kit->kit_name);
 
-           m_kits.insert (pair<string,string> (kit->kit_name, fname));
+          // m_kits.insert (pair<string,string> (kit->kit_name, fname));
           }
 
        fname = kd + "/drumkit.txt";
@@ -728,13 +727,30 @@ void CHydrogenKitsScanner::scan()
            kit->scan_mode = true;
            kit->load (fname.c_str(), 44100);
            v_scanned_kits.push_back (kit);
-           v_kits_names.push_back (kit->kit_name);
+  //         v_kits_names.push_back (kit->kit_name);
 
-           m_kits.insert (pair<string,string> (kit->kit_name, fname));
+        //   m_kits.insert (pair<string,string> (kit->kit_name, fname));
           }
 
-
       }
+
+    std::sort (v_scanned_kits.begin(), v_scanned_kits.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
+
+    for (auto i : v_scanned_kits)
+       {
+        v_kits_names.push_back (i->kit_name);
+
+       }
+
+
+
+
+//    std::sort ( v_kits_names.begin(),  v_kits_names.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
+
+   //std::sort (v_kits_names.begin(), v_kits_names.end());
+   //v_kits_names.erase (std::unique( v_kits_names.begin(), v_kits_names.end() ), v_kits_names.end() );
+
+
 }
 
 

@@ -133,7 +133,7 @@ public:
   std::vector <std::string> v_kits_dirs;
   std::vector <std::string> v_kits_names;
   std::vector <CHydrogenKit*> v_scanned_kits;
-  std::map <std::string, std::string> m_kits; //name = full path
+ // std::map <std::string, std::string> m_kits; //name = full path
 
   CHydrogenKitsScanner();
   ~CHydrogenKitsScanner();
