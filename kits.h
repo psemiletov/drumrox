@@ -104,7 +104,7 @@ public:
   void print_stats();
 };
 
-
+/*
 class CHydrogenKits
 {
 public:
@@ -123,7 +123,7 @@ public:
   void print();
 
 };
-
+*/
 
 class CHydrogenKitsScanner
 {
