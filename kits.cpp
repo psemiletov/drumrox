@@ -12,6 +12,10 @@ this code is the public domain
 #include <math.h>
 #include <sys/types.h>
 #include <dirent.h>
+
+#include <sstream>
+#include <iostream>
+
 #include <samplerate.h>
 #include <sndfile.h>
 
@@ -22,6 +26,22 @@ this code is the public domain
 #include "kits.h"
 
 using namespace std;
+
+
+inline bool ends_with (std::string const & value, std::string const & ending)
+{
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
+bool file_exists (const string &name)
+{
+  if (name.empty())
+     return false;
+
+  struct stat buffer;
+  return (stat (name.c_str(), &buffer) == 0);
+}
 
 
 std::string resolve_symlink (const std::string &path)
@@ -355,18 +375,6 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      {
       drumkit_info_passed = true;
 
-/*
-      pugi::xml_node child = node.child ("filename");
-      if (child.empty()) //instrument is empty? check more!
-         {
-          child = node.child ("layer");
-          if (child.empty()) //too sad, yes
-             return false;
-
-         }
-
-*/
-      //else instrument is not empty
       kit->add_sample();
 
       if (! kit->layers_supported) //non-layered
@@ -395,6 +403,51 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
 }
 
 
+void CHydrogenKit::load_txt (const std::string data)
+{
+//  cout << "void CHydrogenKit::load_txt (const std::string data)\n";
+
+  if (data.empty())
+      return;
+
+  size_t i = kit_dir.rfind ("/");
+  kit_name = kit_dir.substr (i + 1);
+
+  stringstream st (data);
+  string line;
+
+  while (getline (st, line))
+        {
+         if (line.empty())
+            continue;
+
+         size_t pos = line.find ("=");
+
+         if (pos == string::npos)
+             continue;
+
+         if (pos > line.size())
+             continue;
+
+         string sample_name = line.substr (0, pos);
+         string filename = line.substr (pos + 1, line.size() - pos);
+         filename = kit_dir + "/" + filename;
+
+         add_sample();
+         v_samples.back()->name = sample_name;
+
+//         cout << "added sample: " << sample_name << endl;
+
+         v_samples.back()->add_layer(); //add default layer
+
+
+         if (file_exists (filename) && ! scan_mode)
+            v_samples.back()->v_layers.back()->load (filename.c_str());
+         }
+
+}
+
+
 void CHydrogenKit::load (const char *fname, int sample_rate)
 {
   cout << "void CHydrogenKit::load: " << fname << endl;
@@ -403,14 +456,26 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
   string filename = resolve_symlink (fname);
 
-  cout << "resolved filename :" << filename << endl;
+//  cout << "resolved filename :" << filename << endl;
 
   kit_xml_filename = filename;
   kit_dir = get_file_path (kit_xml_filename);
 
+  std::string source = string_file_load (filename);
+  if (source.empty())
+     return;
+
+  if (ends_with (kit_xml_filename, ".txt"))
+     {
+      load_txt (source);
+      return;
+     }
+
+
+  //else Hydrogen format
+
   pugi::xml_document doc;
 
-  std::string source = string_file_load (filename);
 
  // cout << "loading kit: " << fname << endl;
   //cout << "source: " << source << endl;
@@ -462,6 +527,7 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 CHydrogenKit::CHydrogenKit()
 {
   scan_mode = false;
+  layers_supported = false;
 }
 
 
@@ -622,7 +688,7 @@ void CHydrogenKitsScanner::scan()
   v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits");
   v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits");
 //  v_kits_locations.push_back (get_home_dir() + "/.drumrox/drumkits");
-  v_kits_locations.push_back (get_home_dir() + "/drumrox");
+  v_kits_locations.push_back (get_home_dir() + "/drumrox-kits");
 
   std::vector <std::string> v_kits_dirs;
 
@@ -642,15 +708,32 @@ void CHydrogenKitsScanner::scan()
 
        std::string fname = kd + "/drumkit.xml";
 
-       //check for file exists
+       if (file_exists (fname))
+          {
+           //Hydrogen kit
+           CHydrogenKit *kit = new CHydrogenKit;
+           kit->scan_mode = true;
+           kit->load (fname.c_str(), 44100);
+           v_scanned_kits.push_back (kit);
+           v_kits_names.push_back (kit->kit_name);
 
-       CHydrogenKit *kit = new CHydrogenKit;
-       kit->scan_mode = true;
-       kit->load (fname.c_str(), 44100);
-       v_scanned_kits.push_back (kit);
-       v_kits_names.push_back (kit->kit_name);
+           m_kits.insert (pair<string,string> (kit->kit_name, fname));
+          }
 
-       m_kits.insert (pair<string,string> (kit->kit_name, fname));
+       fname = kd + "/drumkit.txt";
+       if (file_exists (fname))
+          {
+           //Hydrogen kit
+           CHydrogenKit *kit = new CHydrogenKit;
+           kit->scan_mode = true;
+           kit->load (fname.c_str(), 44100);
+           v_scanned_kits.push_back (kit);
+           v_kits_names.push_back (kit->kit_name);
+
+           m_kits.insert (pair<string,string> (kit->kit_name, fname));
+          }
+
+
       }
 }
 

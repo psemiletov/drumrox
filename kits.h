@@ -96,6 +96,7 @@ public:
 
   void add_sample();
   void load (const char *fname, int sample_rate);
+  void load_txt (std::string fname);
 
   CHydrogenKit();
   ~CHydrogenKit();
