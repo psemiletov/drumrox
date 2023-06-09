@@ -333,7 +333,7 @@ void CHydrogenKit::load_txt (const std::string data)
 
 void CHydrogenKit::load (const char *fname, int sample_rate)
 {
-  cout << "void CHydrogenKit::load: " << fname << endl;
+//  cout << "void CHydrogenKit::load: " << fname << endl;
 
   samplerate = sample_rate;
 
@@ -626,13 +626,10 @@ void CHydrogenKitsScanner::scan()
        }
 
 
-
-
 //    std::sort ( v_kits_names.begin(),  v_kits_names.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
 
    //std::sort (v_kits_names.begin(), v_kits_names.end());
    //v_kits_names.erase (std::unique( v_kits_names.begin(), v_kits_names.end() ), v_kits_names.end() );
-
 
 }
 

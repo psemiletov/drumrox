@@ -12,7 +12,7 @@
   lv2:binary <drumrox.so>;
   doap:name "Drumrox";
   doap:maintainer [
-	foaf:name "Nick Lanham / Modified by Peter Semiletov" ;
+	foaf:name "Drumrox project" ;
 	foaf:homepage <https://github.com/psemiletov/drumrox> ;
 	foaf:mbox <peter.semiletov@gmail.com>
   ] ;

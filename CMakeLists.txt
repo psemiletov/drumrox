@@ -1,6 +1,6 @@
 #CMake file for drumrox
 cmake_minimum_required(VERSION 3.0)
-project (drumrox VERSION 2.0.0 LANGUAGES CXX C)
+project (drumrox VERSION 2.1.0 LANGUAGES CXX C)
 
 
 
