@@ -2,7 +2,7 @@ Drumrox
 =======
 
 [OpenSUSE](https://build.opensuse.org/package/show/multimedia:proaudio/drumrox) *
-[AUR](https://aur.archlinux.org/packages/drumrox)
+[AUR](https://aur.archlinux.org/packages/drumrox) * [Drumrox kits repo](https://github.com/psemiletov/drumrox-kits)
 
 =======
 
@@ -39,7 +39,9 @@ Drumrox additions:
 
 - Compatibility with modern Hydrogen kit format
 - Presets are sorted in alphabetical order
+- Drumrox format drumkits and [kits repo](https://github.com/psemiletov/drumrox-kits)
 - Plugin window is more fits to the screen
+- Drumkit picture support
 - Panning modes (linear panner, law: -6 dB //default; linear panner, law: 0 dB;                    square root panner, law: -3 dB; sin/cos panner, law: -3 dB
 - best resampler mode at sample load (SRC_SINC_BEST_QUALITY from libsamplerate)
 - Partial conversion from C to C++ to further development
