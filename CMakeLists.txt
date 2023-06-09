@@ -38,6 +38,8 @@ link_directories (${LV2_LIBRARY_DIRS} ${SNDFILE_LIBRARY_DIRS} ${SAMPLERATE_LIBRA
 # config libraries
 
 add_library(drumrox SHARED
+  utl.cpp
+  utl.h
   kits.cpp
   kits.h
   pugiconfig.hpp
@@ -50,6 +52,8 @@ add_library(drumrox SHARED
 )
 
 add_library(drumrox_ui SHARED
+  utl.cpp
+  utl.h
   kits.cpp
   kits.h
   pugiconfig.hpp

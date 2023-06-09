@@ -34,6 +34,7 @@
 #include "drumrox.h"
 #include "nknob.h"
 #include "dsp.h"
+#include "utl.h"
 
 //#include <gdk/gdkx.h>
 
@@ -53,6 +54,9 @@ public:
 
   GtkWidget *drumrox_widget;
   GtkLabel *current_kit_label;
+
+  GtkWidget  *kit_image;
+
   GtkTable *sample_table;
   GtkComboBox *kit_combo;
   GtkWidget *no_kit_label;
@@ -503,6 +507,15 @@ static gboolean kit_callback (gpointer data)
 
           gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
 
+          std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->kit_dir + "/image.png";
+
+          if (file_exists (kitimg))
+             gtk_image_set_from_file ((GtkImage*)ui->kit_image, kitimg.c_str());
+          else
+              gtk_image_clear ((GtkImage*)ui->kit_image);
+
+
+
           ui->current_kit_index = ui->kitReq;
           gtk_combo_box_set_active(ui->kit_combo, ui->current_kit_index); //SETS CURRENT KIT
           gtk_widget_show(GTK_WIDGET(ui->kit_combo));
@@ -692,6 +705,7 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   PangoAttrList	*attr_lst;
   PangoAttribute *attr;
 
+
   drumrox_ui_widget = gtk_vbox_new (false, 0);
   expose_id = g_signal_connect (drumrox_ui_widget, "expose-event", G_CALLBACK (expose_callback), ui);
   g_object_set (drumrox_ui_widget, "border-width", 2, NULL);
@@ -704,6 +718,9 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   pango_attr_list_insert (attr_lst, attr);
   gtk_label_set_attributes (ui->current_kit_label, attr_lst);
   pango_attr_list_unref(attr_lst);
+
+  ui->kit_image = gtk_image_new();
+
 
   opts_hbox1 = gtk_hbox_new (false,0);
   opts_hbox2 = gtk_hbox_new (false,0);
@@ -733,6 +750,7 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   ui->note_off_checkbox = gtk_check_button_new_with_label("Ignore Note Off");
 
   gtk_box_pack_start (GTK_BOX(opts_hbox1), kit_label, false, false, PADVAL);
+
   gtk_box_pack_start (GTK_BOX(opts_hbox1),no_kit_label, true,true,0);
   gtk_box_pack_start (GTK_BOX(opts_hbox1),kit_combo_box, true,true,0);
   gtk_box_pack_start (GTK_BOX(opts_hbox1),base_label, false,false,PADVAL);
@@ -744,6 +762,9 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->note_off_checkbox, true,true,PADVAL);
 
   gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),GTK_WIDGET(ui->current_kit_label), false,false,5);
+  gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),GTK_WIDGET(ui->kit_image), false,false,5);
+
+
   gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),gtk_hseparator_new(), false,false,5);
   gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),opts_hbox1,false,false,5);
   gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),opts_hbox2,false,false,5);
