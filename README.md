@@ -10,8 +10,8 @@ Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen drumkits. The main 
 
 Some history: Drumrox is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one can save/load the preset by index, so when you install new kits or delete some, indexes are messing up. falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but at the some point of time it becomes incompatible with new Hydrogen kits, and I've edited them manually to fix (removing some section in XML). Fresh install of Hydrogen converts my edited kits to the modern kit format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that, I understand that I want to clean up the code, etc, etc. That how Drumrox continues DrMr...
 
-![image](
-https://user-images.githubusercontent.com/8168336/238193737-b7d1545b-69d7-4d5a-a043-8469cd21deef.png)
+![image](https://user-images.githubusercontent.com/8168336/244692820-9aa0c6a3-27cd-451c-9c9f-6149c374bd63.png)
+
 
 About:
 -----
