@@ -277,7 +277,6 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
   build_update_message
 
   вызывается при смене кита
-  записывает drumrox->current_path в drumrox->uris.kit_path
 
 */
 static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
@@ -308,7 +307,7 @@ static inline LV2_Atom *build_state_message (CDrumrox *drumrox)
 //    std::cout << "LV2_Atom *build_state_message (CDrumrox *drumrox) - 1 \n";
 
   LV2_Atom_Forge_Frame set_frame;
-  LV2_Atom* msg = (LV2_Atom*)/*lv2_atom_forge_resource */lv2_atom_forge_object(&drumrox->forge, &set_frame, 1, drumrox->uris.get_state);
+  LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object(&drumrox->forge, &set_frame, 1, drumrox->uris.get_state);
 
   if (drumrox->current_path)
      {
@@ -352,7 +351,7 @@ static inline LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *dat
 
 //used when drumrox->ignore_note_off
 static inline void trigger_sample (CDrumrox *drumrox,
-                                   int note_number,
+                                   int note_number, //translated to kit's sample index
                                    uint8_t* const data,
                                    uint32_t offset)
 {
@@ -373,7 +372,7 @@ static inline void trigger_sample (CDrumrox *drumrox,
          }
 
       s->active = 1;
-      s->v_layers[s->current_layer]->offset = 0; //? what is it
+      s->v_layers[s->current_layer]->offset = 0;
 
       //s->velocity = drumrox->ignore_velocity ? 1.0f : ((float)data[2]) / VELOCITY_MAX;
 
@@ -417,7 +416,6 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 {
   //std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 1" << std::endl;
 
-
   CDrumrox* drumrox = (CDrumrox*)instance;
 
   if (! drumrox)
@@ -435,7 +433,6 @@ static void run (LV2_Handle instance, uint32_t n_samples)
   lv2_atom_forge_sequence_head (&drumrox->forge, &seq_frame, 0);
 
    //std::cout << "===1\n";
-
 
   /*
    LV2_Atom_Event ev is:
@@ -472,7 +469,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
         switch ((*data) >> 4)
                {
-                case 8: //what is 8?
+                case 8: //sjaehn: The MIDI_NOTE_OFF byte is 0x8X with X is the channel number (0x0 to 0xF). And 0x8X shifted by 4 bytes is 8.
                        if (! drumrox->ignore_note_off)
                           {
                            note_number = data[1];
@@ -481,7 +478,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                           }
                        break;
 
-                case 9: //what is 9?
+                case 9: //sjaehn: Same as above, but for MIDI_NOTE_ON which is 0x
                        {
                         note_number = data[1];
                         note_number -= baseNote;
@@ -493,80 +490,82 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                      //printf("Unhandeled status: %i\n",(*data)>>4);
                        break;
                }
-      }
-   else
-       if (ev->body.type == drumrox->uris.atom_object)
-          {
-           const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
-
-           if (obj->body.otype == drumrox->uris.ui_msg)
-              {
-               const LV2_Atom* path = NULL;
-               const LV2_Atom* trigger = NULL;
-               const LV2_Atom* ignvel = NULL;
-               const LV2_Atom* ignno = NULL;
-               const LV2_Atom* panlaw = NULL;
-
-               lv2_atom_object_get (obj,
-                                    drumrox->uris.kit_path, &path,
-                                    drumrox->uris.sample_trigger, &trigger,
-                                    drumrox->uris.velocity_toggle, &ignvel,
-                                    drumrox->uris.note_off_toggle, &ignno,
-                                    drumrox->uris.panlaw, &panlaw,
-                                    0);
-
-              if (path)
-                 {
-                  int reqPos = (drumrox->curReq + 1) % REQ_BUF_SIZE;
-                  char *tmp = NULL;
-
-                  if (reqPos >= 0 && drumrox->request_buf[reqPos])
-                      tmp = drumrox->request_buf[reqPos]; //save drumrox->request_buf[reqPos];
-
-                  drumrox->request_buf[reqPos] = strdup((char *)LV2_ATOM_BODY(path)); //set new value
-                  drumrox->curReq = reqPos; //set new pos
-
-                  if (tmp) //free saved at tmp drumrox->request_buf[reqPos];
-                     free (tmp);
-                  }
-
-              if (trigger)
-                 {
-                  int32_t si = ((const LV2_Atom_Int*)trigger)->body;
-                  uint8_t mdata[3];
-
-                  //uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
-                  uint32_t offset = 0;
-                  if (ev->time.frames > 0 && ev->time.frames < n_samples)
-                     offset = ev->time.frames;
-
-                  mdata[0] = 0x90; // note on
-                  mdata[1] = si + baseNote;
-                  mdata[2] = 0x7f;
-                  trigger_sample (drumrox, si, mdata, offset);
-                 }
-
-              if (ignvel)
-                 drumrox->ignore_velocity = ((const LV2_Atom_Bool*)ignvel)->body;
-
-              if (ignno)
-                 drumrox->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
-
-              if (panlaw)
-                 drumrox->panlaw = ((const LV2_Atom_Int*)panlaw)->body;
-             }
-         else
-             if (obj->body.otype == drumrox->uris.get_state)
-                {
-              //   std::cout << "obj->body.otype == drumrox->uris.get_state\n";
-
-
-                 lv2_atom_forge_frame_time (&drumrox->forge, 0);
-                 build_state_message (drumrox);
-                }
         }
+         else
+             if (ev->body.type == drumrox->uris.atom_object)
+                {
+                 const LV2_Atom_Object *obj = (LV2_Atom_Object*)&ev->body;
+
+                 if (obj->body.otype == drumrox->uris.ui_msg)
+                    {
+                     const LV2_Atom* path = NULL;
+                     const LV2_Atom* trigger = NULL;
+                     const LV2_Atom* ignvel = NULL;
+                     const LV2_Atom* ignno = NULL;
+                     const LV2_Atom* panlaw = NULL;
+
+                     lv2_atom_object_get (obj,
+                                          drumrox->uris.kit_path, &path,
+                                          drumrox->uris.sample_trigger, &trigger,
+                                          drumrox->uris.velocity_toggle, &ignvel,
+                                          drumrox->uris.note_off_toggle, &ignno,
+                                          drumrox->uris.panlaw, &panlaw,
+                                         0);
+
+                     if (path)
+                        {
+                         int reqPos = (drumrox->curReq + 1) % REQ_BUF_SIZE;
+
+                         std::cout << "reqPos:" << std::endl;
+
+                         char *tmp = NULL;
+
+                         if (reqPos >= 0 && drumrox->request_buf[reqPos])
+                             tmp = drumrox->request_buf[reqPos]; //save drumrox->request_buf[reqPos];
+
+                         drumrox->request_buf[reqPos] = strdup((char *)LV2_ATOM_BODY(path)); //set new value
+                         drumrox->curReq = reqPos; //set new pos
+
+                         if (tmp) //free saved at tmp drumrox->request_buf[reqPos];
+                           free (tmp);
+                       }
+
+                     if (trigger)
+                        {
+                         int32_t sample_index = ((const LV2_Atom_Int*)trigger)->body;
+                         uint8_t mdata[3];
+
+                         //uint32_t offset = (ev->time.frames > 0 && ev->time.frames < n_samples) ? ev->time.frames : 0;
+                         uint32_t offset = 0;
+
+                         if (ev->time.frames > 0 && ev->time.frames < n_samples)
+                             offset = ev->time.frames;
+
+                         mdata[0] = 0x90; // note on
+                         mdata[1] = sample_index + baseNote;
+                         mdata[2] = 0x7f;
+                         trigger_sample (drumrox, sample_index, mdata, offset);
+                       }
+
+                     if (ignvel)
+                        drumrox->ignore_velocity = ((const LV2_Atom_Bool*)ignvel)->body;
+
+                     if (ignno)
+                        drumrox->ignore_note_off = ((const LV2_Atom_Bool*)ignno)->body;
+
+                     if (panlaw)
+                        drumrox->panlaw = ((const LV2_Atom_Int*)panlaw)->body;
+                    }
+                else
+                    if (obj->body.otype == drumrox->uris.get_state)
+                       {
+              //   std::cout << "obj->body.otype == drumrox->uris.get_state\n";
+                        lv2_atom_forge_frame_time (&drumrox->forge, 0);
+                        build_state_message (drumrox);
+                       }
+               }
     //else printf("unrecognized event\n");
-      }
+       }
 
    if ((drumrox->curReq >= 0) && drumrox->request_buf[drumrox->curReq] &&
       (! drumrox->current_path || strcmp (drumrox->current_path, drumrox->request_buf[drumrox->curReq])))
@@ -597,10 +596,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
    pthread_mutex_lock (&drumrox->load_mutex);
 
-
    if (! drumrox->kit)
        std::cout << "! drumrox->kit\n";
-
 
    if (drumrox->kit)
    for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
@@ -670,7 +667,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
            drum_layer->dataoffset = 0;
 
-           if (drum_layer->/*info.*/channels == 1)
+           if (drum_layer->channels == 1)
               { // play mono sample
 
                if (n_samples < (drum_layer->samples_count - drum_layer->offset))
@@ -706,7 +703,6 @@ static void run (LV2_Handle instance, uint32_t n_samples)
       }
 
 //   std::cout << "void run (LV2_Handle instance, uint32_t n_samples) - 2" << std::endl;
-
 
   pthread_mutex_unlock (&drumrox->load_mutex);
 }

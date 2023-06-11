@@ -36,7 +36,7 @@
 #define GAIN_MIN -60.0f
 #define GAIN_MAX 6.0f
 
-#define REQ_BUF_SIZE 16
+#define REQ_BUF_SIZE 10
 
 
 typedef enum {
