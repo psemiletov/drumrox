@@ -507,13 +507,14 @@ static gboolean kit_callback (gpointer data)
 
           gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
 
-          std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->kit_dir + "/image.png";
+          std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->kit_dir + "/image.jpg";
+          if (! file_exists (kitimg))
+              kitimg = ui->kits.v_scanned_kits[ui->kitReq]->kit_dir + "/image.png";
 
           if (file_exists (kitimg))
              gtk_image_set_from_file ((GtkImage*)ui->kit_image, kitimg.c_str());
           else
               gtk_image_clear ((GtkImage*)ui->kit_image);
-
 
 
           ui->current_kit_index = ui->kitReq;
@@ -534,6 +535,10 @@ static gboolean kit_callback (gpointer data)
 }
 
 
+/*
+ *
+ * called when Kit combobox changed
+ */
 static LV2_Atom* build_path_message (CDrumroxGTKGUI *ui, const char* path)
 {
   std::cout << "LV2_Atom* build_path_message\n";
@@ -563,8 +568,6 @@ static LV2_Atom* build_get_state_message (CDrumroxGTKGUI *ui)
 static void kit_combobox_changed (GtkComboBox* box, gpointer data)
 {
    //std::cout << "void kit_combobox_changed \n";
-
-
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
   gint new_kit_index = gtk_combo_box_get_active (GTK_COMBO_BOX(box));
 
