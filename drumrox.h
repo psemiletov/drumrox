@@ -169,7 +169,7 @@ public:
   // Kit info
   char* current_path; //absolute path to drumkit.xml
 
-  char* request_buf[16];
+  char* request_buf[REQ_BUF_SIZE];
   int curReq;
 
   // Samples
