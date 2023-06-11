@@ -26,7 +26,7 @@
 #include "drumrox.h"
 
 
-#define REQ_BUF_SIZE 10
+//#define REQ_BUF_SIZE 10
 #define VELOCITY_MAX 127
 
 
@@ -79,22 +79,38 @@ static void* load_thread (void* arg)
 
       old_kit = drumrox->kit;
 
-      request_orig = request = drumrox->request_buf[drumrox->curReq];
+      //ссылаемся на drumrox->request_buf[drumrox->curReq]
+      //как понримаю, drumrox->curReq это текущий индекс кита
+      //откуда он берется?
 
+      request = drumrox->request_buf[drumrox->curReq];
+
+      //типа сохраняем исходный указатель
+      request_orig = request;
+
+
+      //если в имени кита каким-то боком file://, смещаем начало указателя на 7 символов
       if (! strncmp (request, "file://", 7))
           request += 7;
 
-      new_kit = new CHydrogenKit();
-
-      new_kit->load (request, drumrox->rate);
-
       std::cout << "request: " << request << std::endl;
 
-      if (new_kit->v_samples.size() == 0)
+      new_kit = new CHydrogenKit();
+
+      //загружаем кит, в request у нас полное имя xml или txt файла
+      new_kit->load (request, drumrox->rate);
+
+
+      if (new_kit->v_samples.size() == 0) //если кит пустой
          {
           fprintf (stderr, "Failed to load kit at: %s\n", request);
           pthread_mutex_lock (&drumrox->load_mutex);
+
+          //нужно ли? ведь мы загрузили новый кит во временный new_kit
           drumrox->kit = NULL;
+
+          delete new_kit;
+
           pthread_mutex_unlock (&drumrox->load_mutex);
          }
      else
@@ -112,7 +128,9 @@ static void* load_thread (void* arg)
           pthread_mutex_unlock (&drumrox->load_mutex);
          }
 
+     //новый путь = request_orig
      drumrox->current_path = request_orig;
+
      current_kit_changed = 1;
     }
 
@@ -178,8 +196,12 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
      }
 
 
-  drumrox->request_buf = (char**) malloc (REQ_BUF_SIZE * sizeof(char*));
-  memset (drumrox->request_buf, 0, REQ_BUF_SIZE * sizeof(char*));
+  //drumrox->request_buf = (char**) malloc (REQ_BUF_SIZE * sizeof(char*));
+  //memset (drumrox->request_buf, 0, REQ_BUF_SIZE * sizeof(char*));
+
+  for (size_t i = 0; i < 16; i++)
+     drumrox->request_buf[i] = 0;
+
 
   for (int i = 0; i < 32; i++)
       {
@@ -251,6 +273,13 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 }
 
 
+/*
+  build_update_message
+
+  вызывается при смене кита
+  записывает drumrox->current_path в drumrox->uris.kit_path
+
+*/
 static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 {
 //  std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 1 \n";
@@ -258,7 +287,7 @@ static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.ui_msg);
 
-    std::cout << drumrox->current_path << std::endl;
+  std::cout << drumrox->current_path << std::endl;
 
   if (drumrox->current_path)
      {
@@ -488,18 +517,16 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
               if (path)
                  {
-                  //FIX: eliminate mem alloc!!!
-
                   int reqPos = (drumrox->curReq + 1) % REQ_BUF_SIZE;
                   char *tmp = NULL;
 
                   if (reqPos >= 0 && drumrox->request_buf[reqPos])
-                      tmp = drumrox->request_buf[reqPos];
+                      tmp = drumrox->request_buf[reqPos]; //save drumrox->request_buf[reqPos];
 
-                  drumrox->request_buf[reqPos] = strdup((char *)LV2_ATOM_BODY(path));
-                  drumrox->curReq = reqPos;
+                  drumrox->request_buf[reqPos] = strdup((char *)LV2_ATOM_BODY(path)); //set new value
+                  drumrox->curReq = reqPos; //set new pos
 
-                  if (tmp)
+                  if (tmp) //free saved at tmp drumrox->request_buf[reqPos];
                      free (tmp);
                   }
 
@@ -546,6 +573,7 @@ static void run (LV2_Handle instance, uint32_t n_samples)
       pthread_cond_signal(&drumrox->load_cond);
 
 
+   //если кит сменился, скидываем флаг и вызываем build_update_message
    if (current_kit_changed)
       {
        current_kit_changed = 0;
@@ -789,11 +817,13 @@ static LV2_State_Status restore_state (LV2_Handle instance,
      { // safe as we're in "Instantiation" threading class
       int reqPos = (drumrox->curReq + 1) % REQ_BUF_SIZE;
       char *tmp = NULL;
+
       if (reqPos >= 0 && drumrox->request_buf[reqPos])
          tmp = drumrox->request_buf[reqPos];
 
       drumrox->request_buf[reqPos] = strdup (kit_path);
       drumrox->curReq = reqPos;
+
       if (tmp)
          free(tmp);
     }

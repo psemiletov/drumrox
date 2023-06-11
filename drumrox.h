@@ -36,6 +36,8 @@
 #define GAIN_MIN -60.0f
 #define GAIN_MAX 6.0f
 
+#define REQ_BUF_SIZE 16
+
 
 typedef enum {
   DRUMROX_CONTROL = 0,
@@ -166,7 +168,8 @@ public:
 
   // Kit info
   char* current_path; //absolute path to drumkit.xml
-  char** request_buf;
+
+  char* request_buf[16];
   int curReq;
 
   // Samples
