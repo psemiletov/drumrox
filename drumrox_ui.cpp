@@ -946,9 +946,8 @@ static void port_event (LV2UI_Handle handle,
       if (format == ui->uris.atom_eventTransfer)
          {
           LV2_Atom* atom = (LV2_Atom*)buffer;
-          //if (atom->type == ui->uris.atom_resource)
-          if (atom->type == ui->uris.atom_object)
 
+          if (atom->type == ui->uris.atom_object)
              {
               LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
 
@@ -958,37 +957,27 @@ static void port_event (LV2UI_Handle handle,
                   const LV2_Atom* path = NULL;
 
                   lv2_atom_object_get (obj, ui->uris.kit_path, &path, 0);
+
                   if (path)
                      {
                       char *kitpath = (char*)LV2_ATOM_BODY(path);
 
-                      /*if (! strncmp (kitpath, "file://", 7))
-                          kitpath += 7;
-
-                     char *realp = realpath (kitpath, NULL);
-                     if (! realp)
-                        {
-                         fprintf (stderr, "Passed a path I can't resolve, bailing out\n");
-                         return;
-                        }
-*/
-                     int kit_index;
+                      int kit_index;
 
                      //REWRITE!
-                     for (kit_index = 0; kit_index < ui->kits.v_scanned_kits.size(); kit_index++)
-                         if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), /*realp*/kitpath))
-                              break;
+                      for (kit_index = 0; kit_index < ui->kits.v_scanned_kits.size(); kit_index++)
+                          if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), /*realp*/kitpath))
+                               break;
 
-                     if (kit_index < ui->kits.v_scanned_kits.size())
-                        {
-                         ui->kitReq = kit_index;
-                         g_idle_add (kit_callback, ui);
-                        }
-                     else
-                         fprintf(stderr,"Couldn't find kit %s\n",/*realp*/kitpath);
+                      if (kit_index < ui->kits.v_scanned_kits.size())
+                         {
+                          ui->kitReq = kit_index;
+                          g_idle_add (kit_callback, ui);
+                         }
+                      else
+                          fprintf(stderr,"Couldn't find kit %s\n",/*realp*/kitpath);
 
-                   //  free (realp);
-                    }
+                     }
 
                   if (obj->body.otype == ui->uris.get_state)
                      { // read out extra state info
@@ -1025,10 +1014,10 @@ static void port_event (LV2UI_Handle handle,
                      sample_triggered (ui, nn);
                     }
                  else
-                     fprintf(stderr, "Unknown resource type passed to ui.\n");
+                     fprintf(stderr, "Unknown object type passed to ui.\n");
             }
             else
-                fprintf(stderr, "Non resource message passed to ui.\n");
+                fprintf(stderr, "Non object message passed to ui.\n");
            }
           else
               fprintf(stderr, "Unknown format.\n");
@@ -1100,6 +1089,5 @@ LV2_SYMBOL_EXPORT const LV2UI_Descriptor* lv2ui_descriptor(uint32_t index)
      return &descriptor;
   else
       return NULL;
-
 }
 
