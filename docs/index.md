@@ -7,6 +7,9 @@ Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen drumkits. The main 
 [OpenSUSE](https://build.opensuse.org/package/show/multimedia:proaudio/drumrox) *
 [AUR](https://aur.archlinux.org/packages/drumrox)
 
+
+[Drumrox group at Telegram](https://t.me/drumrox) [More Drumrox kits at Telegram](https://t.me/drumrox_kits)
+
 ## News
 
 Drumrox 2.1.0 + 3 drumkits (Lel PSR, Lel DR8, LinnDrum)

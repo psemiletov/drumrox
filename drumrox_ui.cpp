@@ -541,9 +541,8 @@ static gboolean kit_callback (gpointer data)
  */
 static LV2_Atom* build_path_message (CDrumroxGTKGUI *ui, const char* path)
 {
-  std::cout << "LV2_Atom* build_path_message\n";
+  std::cout << "LV2_Atom* build_path_message: " << path << endl;
 
-  std::cout << "path: " << path << std::endl;
 
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*) lv2_atom_forge_object (&ui->forge, &set_frame, 1, ui->uris.ui_msg);

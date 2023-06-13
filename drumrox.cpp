@@ -281,12 +281,10 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 */
 static inline LV2_Atom *build_update_message (CDrumrox *drumrox)
 {
-//  std::cout << "LV2_Atom *build_update_message (CDrumrox *drumrox) - 1 \n";
+  std::cout << "drumrox.cpp::LV2_Atom *build_update_message (CDrumrox *drumrox): " << drumrox->current_path << std::endl;;
 
   LV2_Atom_Forge_Frame set_frame;
   LV2_Atom* msg = (LV2_Atom*)lv2_atom_forge_object (&drumrox->forge, &set_frame, 1, drumrox->uris.ui_msg);
-
-  std::cout << drumrox->current_path << std::endl;
 
   if (drumrox->current_path)
      {
