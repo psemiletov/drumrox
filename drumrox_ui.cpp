@@ -541,7 +541,7 @@ static gboolean kit_callback (gpointer data)
  */
 static LV2_Atom* build_path_message (CDrumroxGTKGUI *ui, const char* path)
 {
-  std::cout << "LV2_Atom* build_path_message: " << path << endl;
+  std::cout << "LV2_Atom* build_path_message: " << path << std::endl;
 
 
   LV2_Atom_Forge_Frame set_frame;
@@ -692,10 +692,10 @@ static void load_led_pixbufs (CDrumroxGTKGUI* ui)
 
 #define PADVAL 5
 
+
 static void build_drumrox_ui (CDrumroxGTKGUI* ui)
 {
   //std::cout << "void build_drumrox_ui \n";
-
 
   GtkWidget *drumrox_ui_widget;
   GtkWidget *opts_hbox1, *opts_hbox2,
@@ -711,6 +711,7 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   drumrox_ui_widget = gtk_vbox_new (false, 0);
   expose_id = g_signal_connect (drumrox_ui_widget, "expose-event", G_CALLBACK (expose_callback), ui);
   g_object_set (drumrox_ui_widget, "border-width", 2, NULL);
+
 
   ui->kit_store = gtk_list_store_new (1, G_TYPE_STRING);
 
