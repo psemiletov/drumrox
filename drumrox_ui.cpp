@@ -566,7 +566,7 @@ static LV2_Atom* build_get_state_message (CDrumroxGTKGUI *ui)
 
 static void kit_combobox_changed (GtkComboBox* box, gpointer data)
 {
-   //std::cout << "void kit_combobox_changed \n";
+   std::cout << "void kit_combobox_changed \n";
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
   gint new_kit_index = gtk_combo_box_get_active (GTK_COMBO_BOX(box));
 
@@ -576,6 +576,9 @@ static void kit_combobox_changed (GtkComboBox* box, gpointer data)
       lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
 
       LV2_Atom *msg = build_path_message (ui, ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename.c_str());
+
+       std::cout << "ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename: " << ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename << std::endl;
+
       ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
      }
 }
