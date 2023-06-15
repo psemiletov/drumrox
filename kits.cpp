@@ -280,7 +280,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      {
       std::string fname = txt.as_string();
       std::string path = kit->kit_dir + "/" + fname;
-
+/*
       if (findStringIC (fname, "hihat"))
          kit->v_samples.back()->hihat = true;
 
@@ -289,7 +289,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
 
       if (findStringIC (fname, "close"))
          kit->v_samples.back()->hihat_close = true;
-
+*/
 
       if (kit->v_samples.size() != 0)
           if (kit->v_samples.back()->v_layers.size() != 0)
