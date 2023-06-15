@@ -13,4 +13,7 @@ std::vector <std::string> files_get_list (const std::string &path);
 std::string get_file_path (const std::string &path);
 std::string string_file_load (const std::string &fname);
 
+bool findStringIC(const std::string & strHaystack, const std::string & strNeedle);
+
+
 #endif

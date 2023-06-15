@@ -135,6 +135,11 @@ CDrumSample::CDrumSample (int sample_rate)
   session_samplerate = sample_rate;
   current_layer = 0;
   velocity = 0.0;
+
+  hihat = false;
+  hihat_open = false;
+  hihat_close = false;
+
 }
 
 
@@ -276,10 +281,49 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
       std::string fname = txt.as_string();
       std::string path = kit->kit_dir + "/" + fname;
 
+      if (findStringIC (fname, "hihat"))
+         kit->v_samples.back()->hihat = true;
+
+      if (findStringIC (fname, "open"))
+         kit->v_samples.back()->hihat_open = true;
+
+      if (findStringIC (fname, "close"))
+         kit->v_samples.back()->hihat_close = true;
+
+
       if (kit->v_samples.size() != 0)
           if (kit->v_samples.back()->v_layers.size() != 0)
                 kit->v_samples.back()->v_layers.back()->load (path.c_str());
      }
+
+/*
+  if (node_name == "layer" && ! kit->scan_mode)
+     {
+      if (kit->v_samples.size() != 0)
+          kit->v_samples.back()->add_layer();
+     }
+
+  if (node_name == "filename")
+     {
+      std::string fname = txt.as_string();
+      std::string path = kit->kit_dir + "/" + fname;
+
+      if (findStringIC (fname, "hihat"))
+         kit->v_samples.back()->hihat = true;
+
+      if (findStringIC (fname, "open"))
+         kit->v_samples.back()->hihat_open = true;
+
+      if (findStringIC (fname, "close"))
+         kit->v_samples.back()->hihat_close = true;
+
+
+
+      if (! kit->scan_mode && kit->v_samples.size() != 0)
+          if (kit->v_samples.back()->v_layers.size() != 0)
+                kit->v_samples.back()->v_layers.back()->load (path.c_str());
+     }
+*/
 
 
   return true;

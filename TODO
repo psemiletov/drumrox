@@ -1,22 +1,6 @@
+* add "humanize" via pitch shifting/light dist/etc
 * add selectable drummaps //as in Cubase, but n1=n2 format
 
-* is ignore velocity works????
-* FIX ignore velocity off by default (make ON)
-
-* velocity and gain (how related?)
-
 * move presets to plugins's window drop down list
-* remove LV2 deprecated functions
-* refactor
 
 
-KITS THAT NOT WORKING
-
-Alesis_HR16_chaserKit - wrong parse, show one unnamed instrument
-acustica_percussoes - crash at Adroud
-
-* some instruments can be not fully working after kit change, for example:
-
-ColomboAcousticDrumkit - //Share (1) muted
-Kawai_R100kit // 35Kick (0) - muted
-The Black Pearl 1.0 // Pearl Snare (2) muted

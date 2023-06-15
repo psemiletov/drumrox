@@ -357,6 +357,14 @@ static inline void trigger_sample (CDrumrox *drumrox,
   // changed after the check that the midi-note is valid
   pthread_mutex_lock (&drumrox->load_mutex);
 
+
+  /*also untrigger open hihat if closed hihat triggering
+   * so find the open hihat
+  */
+
+
+  //
+
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number]; //point to the sample
