@@ -410,20 +410,25 @@ static inline void trigger_sample (CDrumrox *drumrox,
    * so find the open hihat
   */
     if (s->hihat_close)
-    {
-
-     std::cout << "untrigger=n" << note_number << std::endl;
-    for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
        {
-        CDrumSample *s2 = drumrox->kit->v_samples[i]; //point to the sample
-        if (s2->hihat_open)
-           {
-            s2->active = 0;
-
-          }
-
-        }
-    }
+        for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
+            {
+             CDrumSample *s2 = drumrox->kit->v_samples[i]; //point to the sample
+             if (s2->hihat_open)
+               s2->active = 0;
+            }
+       }
+/*
+   if (s->hihat_open)
+       {
+        for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
+            {
+             CDrumSample *s2 = drumrox->kit->v_samples[i]; //point to the sample
+             if (s2->hihat_close)
+               s2->active = 0;
+            }
+       }
+*/
 
      }
 

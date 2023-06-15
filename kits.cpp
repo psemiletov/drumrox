@@ -300,14 +300,28 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
 
 
       std::string samp_name = kit->v_samples.back()->name;
+      std::string fsamp_name = fname;
 
-      if (findStringIC (samp_name, "hihat"))
-         kit->v_samples.back()->hihat = true;
+      //if (findStringIC (samp_name, "hihat"))
+        // kit->v_samples.back()->hihat = true;
 
       if (findStringIC (samp_name, "open"))
          kit->v_samples.back()->hihat_open = true;
 
       if (findStringIC (samp_name, "close"))
+         kit->v_samples.back()->hihat_close = true;
+
+      if (findStringIC (fsamp_name, "open"))
+         kit->v_samples.back()->hihat_open = true;
+
+      if (findStringIC (fsamp_name, "swish"))
+         kit->v_samples.back()->hihat_open = true;
+
+
+      if (findStringIC (fsamp_name, "close"))
+         kit->v_samples.back()->hihat_close = true;
+
+       if (findStringIC (fsamp_name, "choke"))
          kit->v_samples.back()->hihat_close = true;
 
 
@@ -358,8 +372,8 @@ void CHydrogenKit::load_txt (const std::string data)
 
 
 
-        if (findStringIC (sample_name, "hihat"))
-            v_samples.back()->hihat = true;
+        //if (findStringIC (sample_name, "hihat"))
+          //  v_samples.back()->hihat = true;
 
          if (findStringIC (sample_name, "open"))
          v_samples.back()->hihat_open = true;
@@ -367,8 +381,23 @@ void CHydrogenKit::load_txt (const std::string data)
         if (findStringIC (sample_name, "close"))
          v_samples.back()->hihat_close = true;
 
-      if (v_samples.back()->hihat_open)
-          cout << "!!!!!!!!!!!!!!\n";
+        if (findStringIC (filename, "open"))
+         v_samples.back()->hihat_open = true;
+
+        if (findStringIC (filename, "swish"))
+         v_samples.back()->hihat_open = true;
+
+
+      if (findStringIC (filename, "close"))
+         v_samples.back()->hihat_close = true;
+
+      if (findStringIC (filename, "choke"))
+         v_samples.back()->hihat_close = true;
+
+
+
+    //  if (v_samples.back()->hihat_open)
+      //    cout << "!!!!!!!!!!!!!!\n";
 
 
 //         cout << "added sample: " << sample_name << endl;
