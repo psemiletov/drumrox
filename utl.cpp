@@ -148,3 +148,18 @@ bool findStringIC(const std::string & strHaystack, const std::string & strNeedle
   );
   return (it != strHaystack.end() );
 }
+
+
+std::string string_to_lower (const std::string &s)
+{
+  string result = s;
+
+  std::for_each (
+                 result.begin(),
+                 result.end(),
+                 [](char & c) {
+                               c = ::tolower(c);
+                              });
+
+  return result;
+}

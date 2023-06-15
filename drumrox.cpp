@@ -347,6 +347,29 @@ static inline LV2_Atom *build_midi_info_message (CDrumrox *drumrox, uint8_t *dat
 }
 
 
+//used when ! drumrox->ignore_note_off
+static inline void untrigger_sample (CDrumrox *drumrox,
+                                     int note_number,
+                                     uint32_t offset)
+{
+  pthread_mutex_lock (&drumrox->load_mutex);
+
+  if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
+     {
+      CDrumSample *s = drumrox->kit->v_samples[note_number];
+      float gain = *drumrox->gains[note_number];
+
+      s->current_layer = s->map_gain_to_layer_number (gain);
+
+      s->active = 0;
+      s->v_layers[s->current_layer]->dataoffset = offset;
+     }
+
+  pthread_mutex_unlock (&drumrox->load_mutex);
+}
+
+
+
 //used when drumrox->ignore_note_off
 static inline void trigger_sample (CDrumrox *drumrox,
                                    int note_number, //translated to kit's sample index
@@ -357,13 +380,6 @@ static inline void trigger_sample (CDrumrox *drumrox,
   // changed after the check that the midi-note is valid
   pthread_mutex_lock (&drumrox->load_mutex);
 
-
-  /*also untrigger open hihat if closed hihat triggering
-   * so find the open hihat
-  */
-
-
-  //
 
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
@@ -388,34 +404,33 @@ static inline void trigger_sample (CDrumrox *drumrox,
          s->velocity = ((float)data[2]) / VELOCITY_MAX;
 
       s->v_layers[s->current_layer]->dataoffset = offset;
+
+
+  /*also untrigger open hihat if closed hihat triggering
+   * so find the open hihat
+  */
+    if (s->hihat_close)
+    {
+
+     std::cout << "untrigger=n" << note_number << std::endl;
+    for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
+       {
+        CDrumSample *s2 = drumrox->kit->v_samples[i]; //point to the sample
+        if (s2->hihat_open)
+           {
+            s2->active = 0;
+
+          }
+
+        }
+    }
+
      }
 
 
   pthread_mutex_unlock (&drumrox->load_mutex);
 }
 
-
-
-//used when ! drumrox->ignore_note_off
-static inline void untrigger_sample (CDrumrox *drumrox,
-                                     int note_number,
-                                     uint32_t offset)
-{
-  pthread_mutex_lock (&drumrox->load_mutex);
-
-  if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
-     {
-      CDrumSample *s = drumrox->kit->v_samples[note_number];
-      float gain = *drumrox->gains[note_number];
-
-      s->current_layer = s->map_gain_to_layer_number (gain);
-
-      s->active = 0;
-      s->v_layers[s->current_layer]->dataoffset = offset;
-     }
-
-  pthread_mutex_unlock (&drumrox->load_mutex);
-}
 
 
 static void run (LV2_Handle instance, uint32_t n_samples)

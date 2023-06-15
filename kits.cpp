@@ -269,7 +269,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
          kit->v_samples.back()->add_layer(); //add default layer
      }
 
-
+/*
   if (node_name == "layer" && ! kit->scan_mode)
      {
       if (kit->v_samples.size() != 0)
@@ -280,23 +280,13 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      {
       std::string fname = txt.as_string();
       std::string path = kit->kit_dir + "/" + fname;
-/*
-      if (findStringIC (fname, "hihat"))
-         kit->v_samples.back()->hihat = true;
-
-      if (findStringIC (fname, "open"))
-         kit->v_samples.back()->hihat_open = true;
-
-      if (findStringIC (fname, "close"))
-         kit->v_samples.back()->hihat_close = true;
-*/
 
       if (kit->v_samples.size() != 0)
           if (kit->v_samples.back()->v_layers.size() != 0)
                 kit->v_samples.back()->v_layers.back()->load (path.c_str());
      }
+*/
 
-/*
   if (node_name == "layer" && ! kit->scan_mode)
      {
       if (kit->v_samples.size() != 0)
@@ -308,22 +298,23 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
       std::string fname = txt.as_string();
       std::string path = kit->kit_dir + "/" + fname;
 
-      if (findStringIC (fname, "hihat"))
+
+      std::string samp_name = kit->v_samples.back()->name;
+
+      if (findStringIC (samp_name, "hihat"))
          kit->v_samples.back()->hihat = true;
 
-      if (findStringIC (fname, "open"))
+      if (findStringIC (samp_name, "open"))
          kit->v_samples.back()->hihat_open = true;
 
-      if (findStringIC (fname, "close"))
+      if (findStringIC (samp_name, "close"))
          kit->v_samples.back()->hihat_close = true;
-
 
 
       if (! kit->scan_mode && kit->v_samples.size() != 0)
           if (kit->v_samples.back()->v_layers.size() != 0)
                 kit->v_samples.back()->v_layers.back()->load (path.c_str());
      }
-*/
 
 
   return true;
@@ -360,10 +351,43 @@ void CHydrogenKit::load_txt (const std::string data)
          string filename = line.substr (pos + 1, line.size() - pos);
          filename = kit_dir + "/" + filename;
 
+
+
          add_sample();
          v_samples.back()->name = sample_name;
 
+
+
+        if (findStringIC (sample_name, "hihat"))
+            v_samples.back()->hihat = true;
+
+         if (findStringIC (sample_name, "open"))
+         v_samples.back()->hihat_open = true;
+
+        if (findStringIC (sample_name, "close"))
+         v_samples.back()->hihat_close = true;
+
+      if (v_samples.back()->hihat_open)
+          cout << "!!!!!!!!!!!!!!\n";
+
+
 //         cout << "added sample: " << sample_name << endl;
+
+/*
+      std::string lname = string_to_lower (sample_name);
+
+      std::cout << "lower_fname: " << lname << std::endl;
+
+      if (lname.find ("open") != std::string::npos)
+        {
+         v_samples.back()->hihat_open = true;
+         std::cout << "!!!!!: " << lname << std::endl;
+        }
+
+      if (lname.find ("close") != std::string::npos)
+          v_samples.back()->hihat_close = true;
+*/
+
 
          v_samples.back()->add_layer(); //add default layer
 
