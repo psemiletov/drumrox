@@ -226,7 +226,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
-       vbox = gtk_vbox_new (false, 5);
+       vbox = gtk_vbox_new (false, 3);
        hbox = gtk_hbox_new (false, 0);
 
 #ifdef NO_NKNOB
@@ -317,7 +317,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
 
       gtk_box_pack_start(GTK_BOX(hbox),button_box,false,false,0);
-      g_object_set(vbox,"border-width", 5, NULL);
+      g_object_set(vbox,"border-width", 3, NULL);
       gtk_container_add(GTK_CONTAINER(frame),vbox);
 
       gtk_table_attach_defaults (ui->sample_table, frame, col, col + 1, row, row + 1);
@@ -332,7 +332,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
      }
 
   gtk_widget_queue_resize (GTK_WIDGET(ui->sample_table));
-  gtk_widget_set_size_request (ui->drumrox_widget, -1,-1);
+//  gtk_widget_set_size_request (ui->drumrox_widget, 320,-1);
 
   /*
 

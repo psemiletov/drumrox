@@ -1,3 +1,5 @@
+* use initial layer gain from drumkit.xml (see Millo_MultiLayered3)
+
 * add "humanize" via pitch shifting/light dist/etc
 * add selectable drummaps //as in Cubase, but n1=n2 format
 
