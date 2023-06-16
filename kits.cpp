@@ -299,11 +299,29 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
       std::string path = kit->kit_dir + "/" + fname;
 
 
-      std::string samp_name = kit->v_samples.back()->name;
-      std::string fsamp_name = fname;
+      std::string sample_name = kit->v_samples.back()->name;
+      //std::string fsamp_name = fname;
 
-      //if (findStringIC (samp_name, "hihat"))
-        // kit->v_samples.back()->hihat = true;
+
+     for (auto signature: kit->v_hat_open_signatures)
+        {
+         if (findStringIC (sample_name, signature) || findStringIC (fname, signature))
+           {
+            kit->v_samples.back()->hihat_open = true;
+            break;
+           }
+        }
+
+     for (auto signature: kit->v_hat_close_signatures)
+        {
+         if (findStringIC (sample_name, signature) || findStringIC (fname, signature))
+           {
+            kit->v_samples.back()->hihat_close = true;
+            break;
+           }
+        }
+
+/*
 
       if (findStringIC (samp_name, "open"))
          kit->v_samples.back()->hihat_open = true;
@@ -323,7 +341,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
 
        if (findStringIC (fsamp_name, "choke"))
          kit->v_samples.back()->hihat_close = true;
-
+*/
 
       if (! kit->scan_mode && kit->v_samples.size() != 0)
           if (kit->v_samples.back()->v_layers.size() != 0)
@@ -362,18 +380,15 @@ void CHydrogenKit::load_txt (const std::string data)
              continue;
 
          string sample_name = line.substr (0, pos);
-         string filename = line.substr (pos + 1, line.size() - pos);
-         filename = kit_dir + "/" + filename;
-
+         string fname = line.substr (pos + 1, line.size() - pos);
+         string filename = kit_dir + "/" + fname;
 
 
          add_sample();
          v_samples.back()->name = sample_name;
 
 
-
-        //if (findStringIC (sample_name, "hihat"))
-          //  v_samples.back()->hihat = true;
+/*
 
          if (findStringIC (sample_name, "open"))
          v_samples.back()->hihat_open = true;
@@ -393,32 +408,28 @@ void CHydrogenKit::load_txt (const std::string data)
 
       if (findStringIC (filename, "choke"))
          v_samples.back()->hihat_close = true;
-
-
-
-    //  if (v_samples.back()->hihat_open)
-      //    cout << "!!!!!!!!!!!!!!\n";
-
-
-//         cout << "added sample: " << sample_name << endl;
-
-/*
-      std::string lname = string_to_lower (sample_name);
-
-      std::cout << "lower_fname: " << lname << std::endl;
-
-      if (lname.find ("open") != std::string::npos)
-        {
-         v_samples.back()->hihat_open = true;
-         std::cout << "!!!!!: " << lname << std::endl;
-        }
-
-      if (lname.find ("close") != std::string::npos)
-          v_samples.back()->hihat_close = true;
 */
 
+     for (auto signature: v_hat_open_signatures)
+        {
+         if (findStringIC (sample_name, signature) || findStringIC (fname, signature))
+           {
+            v_samples.back()->hihat_open = true;
+            break;
+           }
+        }
 
-         v_samples.back()->add_layer(); //add default layer
+     for (auto signature: v_hat_close_signatures)
+        {
+         if (findStringIC (sample_name, signature) || findStringIC (fname, signature))
+           {
+            v_samples.back()->hihat_close = true;
+            break;
+           }
+        }
+
+
+       v_samples.back()->add_layer(); //add default layer
 
 
          if (file_exists (filename) && ! scan_mode)
@@ -508,6 +519,15 @@ CHydrogenKit::CHydrogenKit()
 {
   scan_mode = false;
   layers_supported = false;
+
+  v_hat_open_signatures.push_back ("hat_o");
+  v_hat_open_signatures.push_back ("open");
+  v_hat_open_signatures.push_back ("swish");
+
+  v_hat_close_signatures.push_back ("close");
+  v_hat_close_signatures.push_back ("choke");
+  v_hat_close_signatures.push_back ("hat_c");
+
 }
 
 
