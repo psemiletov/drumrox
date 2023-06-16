@@ -257,6 +257,8 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      if (kit->v_samples.size() != 0)
          kit->v_samples.back()->v_layers.back()->max = txt.as_float();
 
+  if (node_name == "image")
+     kit->image_fname = kit->kit_dir + "/" + txt.as_string();
 
 
   if (node_name == "instrument")
@@ -435,6 +437,15 @@ void CHydrogenKit::load_txt (const std::string data)
          if (file_exists (filename) && ! scan_mode)
             v_samples.back()->v_layers.back()->load (filename.c_str());
          }
+
+     std::string kitimg = kit_dir + "/image.jpg";
+
+     if (! file_exists (kitimg))
+          kitimg = kit_dir + "/image.png";
+
+     if (file_exists (kitimg))
+        image_fname = kitimg;
+
 
 }
 

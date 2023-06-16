@@ -92,6 +92,8 @@ public:
   std::string kit_xml_filename; //full path to the kit xml file
   std::string kit_dir; //full path to the kit
 
+  std::string image_fname;
+
   int samplerate; //session srate
 
   bool layers_supported;

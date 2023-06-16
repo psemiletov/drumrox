@@ -515,7 +515,7 @@ static gboolean kit_callback (gpointer data)
 //      gtk_label_set_text(ui->current_kit_label,ui->kits->kits[ui->kitReq].name);
 
           gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
-
+/*
           std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->kit_dir + "/image.jpg";
           if (! file_exists (kitimg))
               kitimg = ui->kits.v_scanned_kits[ui->kitReq]->kit_dir + "/image.png";
@@ -524,7 +524,39 @@ static gboolean kit_callback (gpointer data)
              gtk_image_set_from_file ((GtkImage*)ui->kit_image, kitimg.c_str());
           else
               gtk_image_clear ((GtkImage*)ui->kit_image);
+*/
 
+          std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->image_fname;
+          if (! kitimg.empty())
+             {
+              if (file_exists (kitimg))
+                 {
+                GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(),
+                                  162,
+                                  -1,
+                                  NULL);
+
+                gtk_image_set_from_pixbuf ((GtkImage*)ui->kit_image,
+                           pix);
+
+                 }
+             }
+          else
+                           gtk_image_clear ((GtkImage*)ui->kit_image);
+
+         /*
+ pixbuf = GdkPixbuf.Pixbuf.new_from_file_at_scale(f.name, width=220, height=220,
+                                                 preserve_aspect_ratio=False)
+self.edit_tour_meetingpoint_image.set_from_pixbuf(pixbuf)
+
+
+GdkPixbuf *
+gdk_pixbuf_new_from_file_at_size (const char *filename,
+                                  int width,
+                                  int height,
+                                  GError **error);
+
+*/
 
           ui->current_kit_index = ui->kitReq;
           gtk_combo_box_set_active(ui->kit_combo, ui->current_kit_index); //SETS CURRENT KIT
