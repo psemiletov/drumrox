@@ -331,7 +331,12 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
          }
      }
 
+
+
   gtk_widget_queue_resize (GTK_WIDGET(ui->sample_table));
+  //gtk_widget_set_usize(GTK_WIDGET(ui->drumrox_widget), 640, 480);
+
+
 //  gtk_widget_set_size_request (ui->drumrox_widget, 320,-1);
 
   /*
