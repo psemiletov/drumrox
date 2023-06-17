@@ -295,12 +295,8 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
       gtk_box_pack_start(GTK_BOX(pan_vbox), pan_slider, slide_expand, slide_expand, 0);
       gtk_box_pack_start(GTK_BOX(pan_vbox), pan_label, false, false,0);
 
-      gtk_box_pack_start(GTK_BOX(hbox), gain_vbox, true, true, 0);
-      gtk_box_pack_start(GTK_BOX(hbox), pan_vbox, true, true, 0);
-
-      gtk_box_pack_start(GTK_BOX(vbox), hbox, true, true, 0);
-
-      button_box = gtk_hbox_new (false, 2);
+      gtk_box_pack_start(GTK_BOX(hbox), gain_vbox, false, false, 0);
+      gtk_box_pack_start(GTK_BOX(hbox), pan_vbox, false, false, 0);
 
       led_event_box = gtk_event_box_new();
       g_object_set_qdata(G_OBJECT(led_event_box), ui->trigger_quark, GINT_TO_POINTER(si));
@@ -312,13 +308,23 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
       gtk_container_add(GTK_CONTAINER(led_event_box),led);
 
-      gtk_box_pack_start(GTK_BOX(button_box),led_event_box,false,false,0);
-      gtk_box_pack_start(GTK_BOX(button_box),gtk_label_new(""),true,true,0);
+
+      gtk_box_pack_start(GTK_BOX(hbox), led_event_box, true, false, 0);
+
+      gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
 
 
-      gtk_box_pack_start(GTK_BOX(hbox),button_box,false,false,0);
+
+//      gtk_box_pack_start(GTK_BOX(button_box),led_event_box,false,false,0);
+   //   gtk_box_pack_start(GTK_BOX(button_box),gtk_label_new(""),true,true,0);
+
+
+      //gtk_box_pack_start(GTK_BOX(hbox),button_box,false,false,0);
       g_object_set(vbox,"border-width", 3, NULL);
+
+
       gtk_container_add(GTK_CONTAINER(frame),vbox);
+
 
       gtk_table_attach_defaults (ui->sample_table, frame, col, col + 1, row, row + 1);
 
@@ -537,7 +543,7 @@ static gboolean kit_callback (gpointer data)
               if (file_exists (kitimg))
                  {
                 GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(),
-                                  162,
+                                  192,
                                   -1,
                                   NULL);
 
