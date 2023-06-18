@@ -521,91 +521,6 @@ void CHydrogenKit::print_stats()
   cout << "void CHydrogenKit::print-stats() -- end" << endl;
 }
 
-/*
-CHydrogenKits::CHydrogenKits()
-{
-}
-
-
-CHydrogenKits::~CHydrogenKits()
-{
-}
-
-
-std::string CHydrogenKits::get_kit_name (const std::string full_path)
-{
-  std::string s = string_file_load (full_path);
-
-  size_t start_pos = s.find ("<name>");
-
-  if (start_pos == std::string::npos)
-     return std::string();
-
-   start_pos += 6;
-
-  size_t end_pos = s.find ("</name>", start_pos);
-  if (end_pos == std::string::npos)
-     return std::string();
-
-  return s.substr (start_pos, end_pos - start_pos);
-}
-
-
-
-void CHydrogenKits::scan()
-{
-  std::vector <std::string> v_kits_locations;
-
-  v_kits_locations.push_back ("/usr/share/hydrogen/data/drumkits");
-  v_kits_locations.push_back ("/usr/local/share/hydrogen/data/drumkits");
-  v_kits_locations.push_back ("/usr/share/drmr/drumkits");
-  v_kits_locations.push_back ("/usr/share/drumrox/drumkits");
-
-  v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits");
-  v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits");
-//  v_kits_locations.push_back (get_home_dir() + "/.drumrox/drumkits");
-  v_kits_locations.push_back (get_home_dir() + "/drumrox");
-
-  std::vector <std::string> v_kits_dirs;
-
-  for (std::string i :v_kits_locations)
-      {
-       std::vector <std::string> v_kits_dirs_t = files_get_list (i);
-       v_kits_dirs.insert(v_kits_dirs.end(), v_kits_dirs_t.begin(), v_kits_dirs_t.end());
-      }
-
-
-  std::sort (v_kits_dirs.begin(), v_kits_dirs.end());
-  v_kits_dirs.erase (std::unique( v_kits_dirs.begin(), v_kits_dirs.end() ), v_kits_dirs.end() );
-
-
-  for (std::string kd :v_kits_dirs)
-      {
-       //cout << kd << endl;
-       //cout << get_kit_name (kd + "/drumkit.xml") << endl;
-
-       std::string kit_name = get_kit_name (kd + "/drumkit.xml");
-
-       if (! kit_name.empty())
-          {
-           m_kits.insert (pair<string,string> (kit_name, kd));
-           v_kits_names.push_back (kit_name);
-          }
-      }
-}
-
-
-void CHydrogenKits::print()
-{
- for (auto it = m_kits.begin(); it != m_kits.end(); ++it )
-     {
-      cout << it->first; // key
-      string& value = it->second;
-      cout << ":" << value << endl;
-     }
-}
-
-*/
 
 CHydrogenKitsScanner::CHydrogenKitsScanner()
 {
@@ -620,6 +535,7 @@ CHydrogenKitsScanner::~CHydrogenKitsScanner()
       }
 }
 
+
 void CHydrogenKitsScanner::scan()
 {
   std::vector <std::string> v_kits_locations;
@@ -628,10 +544,8 @@ void CHydrogenKitsScanner::scan()
   v_kits_locations.push_back ("/usr/local/share/hydrogen/data/drumkits");
   v_kits_locations.push_back ("/usr/share/drmr/drumkits");
   v_kits_locations.push_back ("/usr/share/drumrox-kits");
-
   v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits");
   v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits");
-//  v_kits_locations.push_back (get_home_dir() + "/.drumrox/drumkits");
   v_kits_locations.push_back (get_home_dir() + "/drumrox-kits");
 
   std::vector <std::string> v_kits_dirs;
@@ -679,20 +593,17 @@ void CHydrogenKitsScanner::scan()
 
       }
 
-    std::sort (v_scanned_kits.begin(), v_scanned_kits.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
+  std::sort (v_scanned_kits.begin(), v_scanned_kits.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
 
-    for (auto i : v_scanned_kits)
-       {
-        v_kits_names.push_back (i->kit_name);
-
-       }
-
+  for (auto i : v_scanned_kits)
+      {
+       v_kits_names.push_back (i->kit_name);
+      }
 
 //    std::sort ( v_kits_names.begin(),  v_kits_names.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
 
    //std::sort (v_kits_names.begin(), v_kits_names.end());
    //v_kits_names.erase (std::unique( v_kits_names.begin(), v_kits_names.end() ), v_kits_names.end() );
-
 }
 
 
