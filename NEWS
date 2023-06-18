@@ -1,32 +1,21 @@
-Drumrox 2.1.0 + 3 drumkits (Lel PSR, Lel DR8, LinnDrum)
+Drumrox 2.2.0 (mute groups, UI redesign, etc)
 
 Hello!
-Besides many fixes and code refactoring, there are some interesting new features.
 
-1. First of all, I've made a Drumrox site (https://psemiletov.github.io/drumrox/) which is more clear as the github's project page.
+The highlights of the current release are:
 
-2. Also, here is a repository for Drumrox kits (https://github.com/psemiletov/drumrox-kits). Yes, Drumrox 2.1 introduces, in addition to Hydrogen format support, the new drumkit format. Hydrogen is a larger program than Drumrox, so it needs more complex format with wide set of features. Instead of that, Drumrox provides simple format in the form of directory, which contains the samples and drumkit.txt file. The last one looks like that:
+* The same functionality as in "mute group" for hihats. The opened hihat mutes by the closed one, automatically, without any preliminary setup. I hope that it works with any drumkit, known and unknown.
 
-Kick=kick.wav
-Snare=snare.wav
-Crash=crash.wav
+* The GTK2 window was redesigned internally (at the containers level) and at the palette side.
 
-So we can quickly create and use new kits.
+* GUI now shows not only picture from Drumrox kit, but also from Hydgogen too, if image is provided.
 
-3. Currently at the Drumrox kits repo are 3 kits, let me introduce them! Lel PSR - the legendary Soviet drum machine, used at early albums of famous USSR rock bands such as Kino, Strannye Igry, Aquarium. Lel DR8 - the continuation of Lel PSR. LinnDrum - drum machine manufactured by Linn Electronics between 1982 and 1985.
-LinnDrum was used by Peter Gabriel, Stevie Wonder, Gary Numan, Michael Jackson, Devo, John Carpenter, Prince, Madonna, Elton John, Queen (at Radio Ga Ga).
+* To make Drumrox's own format kits more clear in the sense of the legal status, Drumrox kits now separated to two repositories.
+One with the clearly Public Domain samples (or licensed in a free way), it is https://github.com/psemiletov/drumrox-kits
+And the second one is on Telegram channel - https://t.me/drumrox_kits
 
-4. Search paths for drumkits are:
+* With Drumrox 2.2.0, some new kits are released at those repos. It is Rokton UDS (the famous Soviet drum machine and kit), Sequential Circuits DrumTraks kit, and Acetone Rhythm Ace kit.
 
-/usr/share/hydrogen/data/drumkits
-/usr/local/share/hydrogen/data/drumkits
-/usr/share/drmr/drumkits
-/usr/share/drumrox-kits
-$HOME/.hydrogen/data/drumkits
-$HOME/.drmr/drumkits
-$HOME/.drumrox/drumkits
-$HOME/drumrox-kits
+* Under the hood, boring: refactoring, fixes, optimizations.
 
-5. Drumrox kit can have the picture (named "image.png") of drum machine/kit, that appears at plugin window.
-
-6. Future plans - porting GUI part from GTK2 to another kit (Nuklear? FLTK?), fixes, rewritting some code that I hardly understand, etc. More new kits!
+* The Drumrox group at Telegram also created - https://t.me/drumrox
