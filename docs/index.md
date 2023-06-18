@@ -45,12 +45,12 @@ $HOME/.drumrox/drumkits
 $HOME/drumrox-kits
 ```
 
-5. Drumrox kit can have the picture (named "image.png") of drum machine/kit, that appears at plugin window.
+5. Drumrox kit can have the picture (named "image.png" or "image.jpg") of the drum machine/kit, that appears at the plugin window.
 
 6. Future plans - porting GUI part from GTK2 to another kit (Nuklear? FLTK?), fixes, rewritting some code that I hardly understand, etc. More new kits!
 
 
-![image](https://user-images.githubusercontent.com/8168336/244692820-9aa0c6a3-27cd-451c-9c9f-6149c374bd63.png)
+![image](https://user-images.githubusercontent.com/8168336/246684340-0b81c208-a9e5-4c75-b843-8840223d13ac.png)
 
 ## Features
 
@@ -61,6 +61,10 @@ $HOME/drumrox-kits
 * Drumrox drumkits support
 
 * Up to 32 instruments with layers
+
+* Automatic open hihat mute on hihat close
+
+* Drumkit image at plugin window
 
 
 ## Some history
