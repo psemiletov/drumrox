@@ -8,9 +8,11 @@ this code is the public domain
 #include <sstream>
 
 #include <algorithm>
+#include <string>
+#include <chrono>
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string>
 #include <math.h>
 
 
@@ -78,7 +80,7 @@ float* CDrumLayer::load_whole_sample_resampled (const char *fname, int sess_samp
   data.data_in = buffer;
   data.data_out = new_buffer;
 
-  int error = src_simple (&data, /*SRC_SINC_BEST_QUALITY*/SRC_SINC_MEDIUM_QUALITY, channels);
+  int error = src_simple (&data, SRC_SINC_BEST_QUALITY/*SRC_SINC_MEDIUM_QUALITY*/, channels);
   if (error)
      {
       delete buffer;
@@ -388,6 +390,9 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 {
 //  cout << "void CHydrogenKit::load: " << fname << endl;
 
+  auto start = chrono::high_resolution_clock::now();
+
+
   samplerate = sample_rate;
 
   string filename = resolve_symlink (fname);
@@ -457,6 +462,17 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    CHydrogenXMLWalker walker (this);
 
    doc.traverse (walker);
+
+
+
+  auto stop = chrono::high_resolution_clock::now();
+
+  auto duration_msecs = chrono::duration_cast<chrono::milliseconds>(stop - start);
+
+  std::cout << "loaded at: " << duration_msecs.count() << " msecs" << std::endl;
+
+  //seconds_counter_ev = duration_s.count();
+
 }
 
 
@@ -604,6 +620,8 @@ void CHydrogenKitsScanner::scan()
 
    //std::sort (v_kits_names.begin(), v_kits_names.end());
    //v_kits_names.erase (std::unique( v_kits_names.begin(), v_kits_names.end() ), v_kits_names.end() );
+
+
 }
 
 

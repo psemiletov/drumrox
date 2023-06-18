@@ -730,7 +730,7 @@ static LV2_State_Status save_state (LV2_Handle instance,
                                     uint32_t flags,
                                     const LV2_Feature* const *features)
 {
-    std::cout << "LV2_State_Status save_state" << std::endl;
+  std::cout << "LV2_State_Status save_state" << std::endl;
 
 
   CDrumrox *drumrox = (CDrumrox*) instance;
