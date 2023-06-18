@@ -1,6 +1,8 @@
 # Drumrox: LV2 drum machine
 
-Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen drumkits. The main goal of Drumrox is to keep it compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and the repository with [Drumrox kits](https://github.com/psemiletov/drumrox-kits)
+Drumrox is an easy way to write drum tracks as MIDI at your DAW, using Hydrogen and Drumrox kits.
+
+Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and the repository with [Drumrox kits](https://github.com/psemiletov/drumrox-kits)
 
 
 [Drumrox github](https://github.com/psemiletov/drumrox) *
