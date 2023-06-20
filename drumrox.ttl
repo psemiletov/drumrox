@@ -24,7 +24,7 @@
     a lv2:InputPort , atom:AtomPort;
     atom:bufferType atom:Sequence ;
     atom:supports <http://lv2plug.in/ns/ext/midi#MidiEvent> ,
-                  <http://lv2plug.in/ns/ext/atom#Resource> ;
+                  <http://lv2plug.in/ns/ext/atom#Object> ;
     lv2:index 0;
     lv2:symbol "control";
     lv2:name "Control";
@@ -32,7 +32,7 @@
   [
     a lv2:OutputPort , atom:AtomPort ;
     atom:bufferType atom:Sequence ;
-    atom:supports <http://lv2plug.in/ns/ext/atom#Resource> ;
+    atom:supports <http://lv2plug.in/ns/ext/atom#Object> ;
     lv2:index 68 ;
     lv2:symbol "core_events" ;
     lv2:name "Core Events"

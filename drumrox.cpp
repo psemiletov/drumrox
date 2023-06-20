@@ -49,6 +49,13 @@ CDrumrox::CDrumrox()
   ignore_velocity = false;
   ignore_note_off = true;
   panlaw = 0;
+
+  for (size_t i = 0; i < 32; i++)
+     {
+      channels[i] = NULL;
+     }
+
+
 }
 
 
@@ -209,6 +216,8 @@ static LV2_Handle instantiate (const LV2_Descriptor* descriptor,
 }
 
 
+#ifndef DRUMROX_MULT
+
 static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 {
 //  std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -1" << std::endl;
@@ -260,6 +269,171 @@ static void connect_port (LV2_Handle instance, uint32_t port, void* data)
 
    //std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -2" << std::endl;
 }
+
+#else
+
+
+static void connect_port (LV2_Handle instance, uint32_t port, void* data)
+{
+//  std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -1" << std::endl;
+
+  CDrumrox* drumrox = (CDrumrox*)instance;
+  DrumroxPortIndex port_index = (DrumroxPortIndex)port;
+
+  switch (port_index)
+         {
+          case DRUMROX_CONTROL:
+                               drumrox->control_port = (LV2_Atom_Sequence*)data;
+                               break;
+
+          case DRUMROX_CORE_EVENT:
+                                  drumrox->core_event_port = (LV2_Atom_Sequence*)data;
+                                  break;
+
+          case DRUMROX_CH01:
+                            drumrox->channels[00] = (float*)data;
+                            break;
+
+          case DRUMROX_CH02:
+                            drumrox->channels[01] = (float*)data;
+                            break;
+
+          case DRUMROX_CH03:
+                            drumrox->channels[02] = (float*)data;
+                            break;
+
+          case DRUMROX_CH04:
+                            drumrox->channels[03] = (float*)data;
+                            break;
+
+          case DRUMROX_CH05:
+                            drumrox->channels[04] = (float*)data;
+                            break;
+
+
+          case DRUMROX_CH06:
+                            drumrox->channels[05] = (float*)data;
+                            break;
+
+          case DRUMROX_CH07:
+                            drumrox->channels[06] = (float*)data;
+                            break;
+
+          case DRUMROX_CH08:
+                            drumrox->channels[07] = (float*)data;
+                            break;
+
+          case DRUMROX_CH09:
+                            drumrox->channels[08] = (float*)data;
+                            break;
+
+          case DRUMROX_CH10:
+                            drumrox->channels[09] = (float*)data;
+                            break;
+
+          case DRUMROX_CH11:
+                            drumrox->channels[10] = (float*)data;
+                            break;
+          case DRUMROX_CH12:
+                            drumrox->channels[11] = (float*)data;
+                            break;
+          case DRUMROX_CH13:
+                            drumrox->channels[12] = (float*)data;
+                            break;
+          case DRUMROX_CH14:
+                            drumrox->channels[13] = (float*)data;
+                            break;
+          case DRUMROX_CH15:
+                            drumrox->channels[14] = (float*)data;
+                            break;
+          case DRUMROX_CH16:
+                            drumrox->channels[15] = (float*)data;
+                            break;
+          case DRUMROX_CH17:
+                            drumrox->channels[16] = (float*)data;
+                            break;
+
+
+          case DRUMROX_CH18:
+                            drumrox->channels[17] = (float*)data;
+                            break;
+
+          case DRUMROX_CH19:
+                            drumrox->channels[18] = (float*)data;
+                            break;
+          case DRUMROX_CH20:
+                            drumrox->channels[19] = (float*)data;
+                            break;
+          case DRUMROX_CH21:
+                            drumrox->channels[20] = (float*)data;
+                            break;
+          case DRUMROX_CH22:
+                            drumrox->channels[21] = (float*)data;
+                            break;
+          case DRUMROX_CH23:
+                            drumrox->channels[22] = (float*)data;
+                            break;
+          case DRUMROX_CH24:
+                            drumrox->channels[23] = (float*)data;
+                            break;
+          case DRUMROX_CH25:
+                            drumrox->channels[24] = (float*)data;
+                            break;
+
+          case DRUMROX_CH26:
+                            drumrox->channels[25] = (float*)data;
+                            break;
+          case DRUMROX_CH27:
+                            drumrox->channels[26] = (float*)data;
+                            break;
+          case DRUMROX_CH28:
+                            drumrox->channels[27] = (float*)data;
+                            break;
+          case DRUMROX_CH29:
+                            drumrox->channels[28] = (float*)data;
+                            break;
+
+
+          case DRUMROX_CH30:
+                            drumrox->channels[29] = (float*)data;
+                            break;
+          case DRUMROX_CH31:
+                            drumrox->channels[30] = (float*)data;
+                            break;
+          case DRUMROX_CH32:
+                            drumrox->channels[31] = (float*)data;
+                            break;
+
+
+          case DRUMROX_BASENOTE:
+                                if (data)
+                                   drumrox->baseNote = (float*)data;
+          default:
+                  break;
+         }
+
+
+
+  //link LV controls gains
+  if (port_index >= DRUMROX_GAIN_01 && port_index <= DRUMROX_GAIN_32)
+     {
+      size_t gain_offset = port_index - DRUMROX_GAIN_01;
+      drumrox->gains[gain_offset] = (float*)data;
+     }
+
+
+  //link LV controls pans
+  if (port_index >= DRUMROX_PAN_01 && port_index <= DRUMROX_PAN_32)
+     {
+      size_t pan_offset = port_index - DRUMROX_PAN_01;
+      drumrox->pans[pan_offset] = (float*)data;
+     }
+
+   //std::cout << "void connect_port (LV2_Handle instance, uint32_t port, void* data)  -2" << std::endl;
+}
+
+
+#endif
 
 
 /*
