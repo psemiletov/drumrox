@@ -1,0 +1,282 @@
+@prefix lv2:  <http://lv2plug.in/ns/lv2core#>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix doap: <http://usefulinc.com/ns/doap#>.
+@prefix rdf:  <http://www.w3.org/1999/02/22-rdf-syntax-ns#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix ui:   <http://lv2plug.in/ns/extensions/ui#>.
+@prefix atom: <http://lv2plug.in/ns/ext/atom#> .
+@prefix urid: <http://lv2plug.in/ns/ext/urid#> .
+
+<https://github.com/psemiletov/drumrox-multi>
+  a lv2:InstrumentPlugin, lv2:Plugin;
+  lv2:binary <drumrox-multi.so>;
+  doap:name "Drumrox-multi";
+  doap:maintainer [
+	foaf:name "Drumrox project" ;
+	foaf:homepage <https://github.com/psemiletov/drumrox> ;
+	foaf:mbox <peter.semiletov@gmail.com>
+  ] ;
+  doap:license <http://usefulinc.com/doap/licenses/gpl> ;
+  lv2:requiredFeature urid:map ;
+  ui:ui <https://github.com/psemiletov/drumrox-multi#ui> ;
+  lv2:extensionData <http://lv2plug.in/ns/ext/state#interface> ;
+  lv2:port [
+    a lv2:InputPort , atom:AtomPort;
+    atom:bufferType atom:Sequence ;
+    atom:supports <http://lv2plug.in/ns/ext/midi#MidiEvent> ,
+                  <http://lv2plug.in/ns/ext/atom#Object> ;
+    lv2:index 0;
+    lv2:symbol "control";
+    lv2:name "Control";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 1;
+    lv2:symbol "ch01";
+    lv2:name "Channel 01";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 2;
+    lv2:symbol "ch02";
+    lv2:name "Channel 02";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 3;
+    lv2:symbol "ch03";
+    lv2:name "Channel 03";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 4;
+    lv2:symbol "ch04";
+    lv2:name "Channel 04";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 5;
+    lv2:symbol "ch05";
+    lv2:name "Channel 05";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 6;
+    lv2:symbol "ch06";
+    lv2:name "Channel 06";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 7;
+    lv2:symbol "ch07";
+    lv2:name "Channel 07";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 8;
+    lv2:symbol "ch0";
+    lv2:name "Channel 08";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 9;
+    lv2:symbol "ch09";
+    lv2:name "Channel 09";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 10;
+    lv2:symbol "ch10";
+    lv2:name "Channel 10";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 11;
+    lv2:symbol "ch11";
+    lv2:name "Channel 11";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 12;
+    lv2:symbol "ch12";
+    lv2:name "Channel 12";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 13;
+    lv2:symbol "ch13";
+    lv2:name "Channel 13";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 14;
+    lv2:symbol "ch14";
+    lv2:name "Channel 14";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 15;
+    lv2:symbol "ch15";
+    lv2:name "Channel 15";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 16;
+    lv2:symbol "ch16";
+    lv2:name "Channel 16";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 17;
+    lv2:symbol "ch17";
+    lv2:name "Channel 17";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 18;
+    lv2:symbol "ch18";
+    lv2:name "Channel 18";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 19;
+    lv2:symbol "ch19";
+    lv2:name "Channel 19";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 20;
+    lv2:symbol "ch20";
+    lv2:name "Channel 20";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 21;
+    lv2:symbol "ch21";
+    lv2:name "Channel 21";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 22;
+    lv2:symbol "ch22";
+    lv2:name "Channel 22";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 23;
+    lv2:symbol "ch23";
+    lv2:name "Channel 23";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 24;
+    lv2:symbol "ch24";
+    lv2:name "Channel 24";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 25;
+    lv2:symbol "ch25";
+    lv2:name "Channel 25";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 26;
+    lv2:symbol "ch26";
+    lv2:name "Channel 26";
+  ],
+
+  [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 27;
+    lv2:symbol "ch27";
+    lv2:name "Channel 27";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 28;
+    lv2:symbol "ch28";
+    lv2:name "Channel 28";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 29;
+    lv2:symbol "ch29";
+    lv2:name "Channel 29";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 30;
+    lv2:symbol "ch30";
+    lv2:name "Channel 30";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 31;
+    lv2:symbol "ch31";
+    lv2:name "Channel 31";
+  ],
+
+    [
+    a lv2:AudioPort, lv2:OutputPort;
+    lv2:index 32;
+    lv2:symbol "ch32";
+    lv2:name "Channel 32";
+  ],
+
+
+  [
+    a lv2:ControlPort, lv2:InputPort;
+    lv2:index 33;
+    lv2:symbol "base_note";
+    lv2:name "Midi Base Note";
+    lv2:minimum 21;
+    lv2:maximum 107;
+    lv2:default 36;
+    lv2:portProperty lv2:integer;
+  ],
+
+
+    [
+    a lv2:OutputPort , atom:AtomPort ;
+    atom:bufferType atom:Sequence ;
+    atom:supports <http://lv2plug.in/ns/ext/atom#Object> ;
+    lv2:index 34 ;
+    lv2:symbol "core_events" ;
+    lv2:name "Core Events"
+  ].
+
+
+<https://github.com/psemiletov/drumrox-multi#ui>
+  a ui:GtkUI ;
+  ui:binary <drumrox_ui-multi.so> .

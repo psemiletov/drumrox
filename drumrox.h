@@ -32,13 +32,23 @@
 #include "kits.h"
 
 
+#ifndef DRUMROX_MULTI
+
 #define DRUMROX_URI "https://github.com/psemiletov/drumrox"
+
+#else
+
+#define DRUMROX_URI "https://github.com/psemiletov/drumrox-multi"
+
+#endif
+
+
 #define GAIN_MIN -60.0f
 #define GAIN_MAX 6.0f
 
 #define REQ_BUF_SIZE 10
 
-#ifndef DRUMROX_MULT
+#ifndef DRUMROX_MULTI
 
 typedef enum {
   DRUMROX_CONTROL = 0,
@@ -150,70 +160,6 @@ typedef enum {
   DRUMROX_CH31,
   DRUMROX_CH32,
   DRUMROX_BASENOTE,
-  DRUMROX_GAIN_01,
-  DRUMROX_GAIN_02,
-  DRUMROX_GAIN_03,
-  DRUMROX_GAIN_04,
-  DRUMROX_GAIN_05,
-  DRUMROX_GAIN_06,
-  DRUMROX_GAIN_07,
-  DRUMROX_GAIN_08,
-  DRUMROX_GAIN_09,
-  DRUMROX_GAIN_10,
-  DRUMROX_GAIN_11,
-  DRUMROX_GAIN_12,
-  DRUMROX_GAIN_13,
-  DRUMROX_GAIN_14,
-  DRUMROX_GAIN_15,
-  DRUMROX_GAIN_16,
-  DRUMROX_GAIN_17,
-  DRUMROX_GAIN_18,
-  DRUMROX_GAIN_19,
-  DRUMROX_GAIN_20,
-  DRUMROX_GAIN_21,
-  DRUMROX_GAIN_22,
-  DRUMROX_GAIN_23,
-  DRUMROX_GAIN_24,
-  DRUMROX_GAIN_25,
-  DRUMROX_GAIN_26,
-  DRUMROX_GAIN_27,
-  DRUMROX_GAIN_28,
-  DRUMROX_GAIN_29,
-  DRUMROX_GAIN_30,
-  DRUMROX_GAIN_31,
-  DRUMROX_GAIN_32,
-  DRUMROX_PAN_01,
-  DRUMROX_PAN_02,
-  DRUMROX_PAN_03,
-  DRUMROX_PAN_04,
-  DRUMROX_PAN_05,
-  DRUMROX_PAN_06,
-  DRUMROX_PAN_07,
-  DRUMROX_PAN_08,
-  DRUMROX_PAN_09,
-  DRUMROX_PAN_10,
-  DRUMROX_PAN_11,
-  DRUMROX_PAN_12,
-  DRUMROX_PAN_13,
-  DRUMROX_PAN_14,
-  DRUMROX_PAN_15,
-  DRUMROX_PAN_16,
-  DRUMROX_PAN_17,
-  DRUMROX_PAN_18,
-  DRUMROX_PAN_19,
-  DRUMROX_PAN_20,
-  DRUMROX_PAN_21,
-  DRUMROX_PAN_22,
-  DRUMROX_PAN_23,
-  DRUMROX_PAN_24,
-  DRUMROX_PAN_25,
-  DRUMROX_PAN_26,
-  DRUMROX_PAN_27,
-  DRUMROX_PAN_28,
-  DRUMROX_PAN_29,
-  DRUMROX_PAN_30,
-  DRUMROX_PAN_31,
-  DRUMROX_PAN_32,
   DRUMROX_CORE_EVENT,
   DRUMROX_NUM_PORTS
 } DrumroxPortIndex;
@@ -227,9 +173,7 @@ typedef struct
   LV2_URID ui_msg;
   LV2_URID kit_path;
   LV2_URID atom_eventTransfer;
-//  LV2_URID atom_resource;
   LV2_URID atom_object;
-
   LV2_URID string_urid;
   LV2_URID bool_urid;
   LV2_URID int_urid;
@@ -238,7 +182,12 @@ typedef struct
   LV2_URID sample_trigger;
   LV2_URID velocity_toggle;
   LV2_URID note_off_toggle;
+
+#ifndef DRUMROX_MULTI
+
   LV2_URID panlaw;
+
+#endif
 
 } SDrumroxUris;
 
@@ -248,11 +197,16 @@ class CDrumrox
 public:
 
   // Ports, pointers to LV's channels
+#ifndef DRUMROX_MULTI
+
   float* left;
   float* right;
 
+#else
+
   float* channels[32];
 
+#endif
 
   LV2_Atom_Sequence *control_port;
   LV2_Atom_Sequence *core_event_port;
@@ -262,11 +216,17 @@ public:
   // params
   bool ignore_velocity;
   bool ignore_note_off;
+
+#ifndef DRUMROX_MULTI
+
   int panlaw;
 
   //32 gains and pans
+
   float* gains[32];
   float* pans[32];
+
+#endif
 
 
   float* baseNote;
@@ -308,7 +268,11 @@ static inline void map_drumrox_uris (LV2_URID_Map *map, SDrumroxUris *uris)
   uris->sample_trigger = map->map(map->handle, DRUMROX_URI "#sampletrigger");
   uris->velocity_toggle = map->map(map->handle, DRUMROX_URI "#velocitytoggle");
   uris->note_off_toggle = map->map(map->handle, DRUMROX_URI "#noteofftoggle");
+
+#ifndef DRUMROX_MULTI
   uris->panlaw = map->map(map->handle, DRUMROX_URI "#panlaw");
+#endif
+
   uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
   //uris->atom_resource = map->map(map->handle, LV2_ATOM__Resource);
   uris->atom_object = map->map(map->handle, LV2_ATOM__Object);

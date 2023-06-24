@@ -38,8 +38,16 @@
 
 //#include <gdk/gdkx.h>
 
+#ifndef DRUMROX_MULTI
 
 #define DRUMROX_UI_URI "https://github.com/psemiletov/drumrox#ui"
+
+#else
+
+#define DRUMROX_UI_URI "https://github.com/psemiletov/drumrox-multi#ui"
+
+#endif
+
 #define NO_KIT_STRING "[No Current Kit]"
 
 class CDrumroxGTKGUI
@@ -64,15 +72,22 @@ public:
   GtkLabel *base_label;
   GtkListStore *kit_store;
 
+ #ifndef DRUMROX_MULTI
+
   GtkWidget** gain_sliders;
   GtkWidget** pan_sliders;
   //GtkWidget** frames;
 
   float *gain_vals;
   float *pan_vals;
+  GtkWidget *panlaw_combo_box;
+
+#endif
 
   GtkWidget** notify_leds;
-  GtkWidget *panlaw_combo_box, *velocity_checkbox, *note_off_checkbox;
+
+  GtkWidget *velocity_checkbox;
+  GtkWidget *note_off_checkbox;
 
   gchar *bundle_path;
 
@@ -84,13 +99,14 @@ public:
   int samples_count;
   int baseNote;
 
-  GQuark gain_quark, pan_quark, trigger_quark;
+#ifndef DRUMROX_MULTI
+  GQuark gain_quark, pan_quark;
+#endif
+
+  GQuark trigger_quark;
 
   int current_kit_index; //current kit index
   int kitReq;
-  //s_kits* kits;
-
-//  CHydrogenKits kits;
 
   CHydrogenKitsScanner kits;
 
@@ -99,6 +115,8 @@ public:
 
 static GdkPixbuf *led_on_pixbuf = NULL, *led_off_pixbuf = NULL;
 
+
+#ifndef DRUMROX_MULTI
 
 static gboolean gain_callback (GtkRange* range, GtkScrollType type, gdouble value, gpointer data)
 {
@@ -121,6 +139,7 @@ static gboolean pan_callback (GtkRange* range, GtkScrollType type, gdouble value
   return FALSE;
 }
 
+#endif
 
 static void send_ui_msg (CDrumroxGTKGUI* ui, void (*add_data)(CDrumroxGTKGUI* ui, gpointer data), gpointer data)
 {
@@ -181,6 +200,8 @@ static gboolean ignore_note_off_toggled (GtkToggleButton *button, gpointer data)
   return FALSE;
 }
 
+
+#ifndef DRUMROX_MULTI
 
 static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index, GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
 {
@@ -354,6 +375,89 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
   */
 }
 
+#else
+
+
+static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index, GtkWidget** notify_leds)
+{
+  std::cout << "fill_sample_table\n";
+
+  if (samples_count == 0)
+     return;
+
+  int row = 0;
+  int col = 0;
+
+  gchar buf[64];
+
+  int rows = (samples_count / ui->cols);
+
+ // int rows = (samples / 6);
+
+  if (samples_count % ui->cols != 0)
+      rows++;
+
+  gtk_table_resize (ui->sample_table, rows, ui->cols);
+
+  for (int si = 0; si < samples_count; si++)
+      {
+       GtkWidget *frame, *vbox, *hbox;
+       GtkWidget *button_box, *led_event_box, *led;
+       gboolean slide_expand;
+
+       const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
+
+       snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
+
+       frame = gtk_frame_new (buf);
+
+
+       gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
+       gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
+
+       vbox = gtk_vbox_new (false, 3);
+       hbox = gtk_hbox_new (false, 0);
+
+      led_event_box = gtk_event_box_new();
+      g_object_set_qdata(G_OBJECT(led_event_box), ui->trigger_quark, GINT_TO_POINTER(si));
+      g_signal_connect(G_OBJECT(led_event_box),"button-release-event", G_CALLBACK(trigger_led_clicked),ui);
+
+      led = gtk_image_new_from_pixbuf (led_off_pixbuf);
+      if (notify_leds)
+         notify_leds[si] = led;
+
+      gtk_container_add(GTK_CONTAINER(led_event_box),led);
+
+
+      gtk_box_pack_start(GTK_BOX(hbox), led_event_box, true, false, 0);
+
+      gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
+
+      g_object_set(vbox,"border-width", 3, NULL);
+
+
+      gtk_container_add(GTK_CONTAINER(frame),vbox);
+
+
+      gtk_table_attach_defaults (ui->sample_table, frame, col, col + 1, row, row + 1);
+
+      col++;
+
+      if (col >= ui->cols)
+         {
+          row++;
+          col = 0;
+         }
+     }
+
+
+  gtk_widget_queue_resize (GTK_WIDGET(ui->sample_table));
+}
+
+
+#endif
+
+
 
 static gboolean unset_bg (gpointer data)
 {
@@ -443,12 +547,15 @@ static void fill_kit_combo (GtkComboBox* combo, std::vector <std::string> v_kits
   for (size_t i = 0; i < v_kits_names.size(); i++)
       {
        gtk_list_store_append (store, &iter);
-       gtk_list_store_set(store, &iter, 0, v_kits_names[i].c_str(), -1);
+       gtk_list_store_set (store, &iter, 0, v_kits_names[i].c_str(), -1);
       }
 }
 
 
 static gboolean idle = FALSE;
+
+
+#ifndef DRUMROX_MULTI
 
 static gboolean kit_callback (gpointer data)
 {
@@ -586,6 +693,101 @@ gdk_pixbuf_new_from_file_at_size (const char *filename,
   return FALSE; // don't keep calling
 }
 
+#else
+
+
+static gboolean kit_callback (gpointer data)
+{
+  std::cout << "gboolean kit_callback  \n";
+
+  CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
+
+  if (ui->forceUpdate || (ui->kitReq != ui->current_kit_index))
+     {
+      ui->forceUpdate = false;
+
+      int samples_count; //samples count in the kit (kitReq index)
+
+      samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
+
+      GtkWidget** notify_leds;
+
+      if (ui->sample_table)
+         {
+          notify_leds = ui->notify_leds;
+
+          ui->samples_count = 0;
+          ui->notify_leds = NULL;
+
+          if (notify_leds)
+             free (notify_leds);
+
+
+          gtk_widget_destroy(GTK_WIDGET(ui->sample_table));
+          ui->sample_table = NULL;
+         }
+
+      if (samples_count > 0)
+         {
+          ui->sample_table = GTK_TABLE (gtk_table_new (1, 1, true));
+
+          gtk_table_set_col_spacings (ui->sample_table, 5);
+          gtk_table_set_row_spacings (ui->sample_table, 5);
+
+          notify_leds = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
+
+          fill_sample_table (ui, samples_count, ui->kitReq, notify_leds);
+
+          gtk_box_pack_start(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), true,true,5);
+          gtk_box_reorder_child(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), 1);
+          gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
+
+          ui->samples_count = samples_count;
+          ui->notify_leds = notify_leds;
+
+
+          gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
+
+          std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->image_fname;
+          if (! kitimg.empty())
+             {
+              if (file_exists (kitimg))
+                 {
+                  GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(),
+                                  192,
+                                  -1,
+                                  NULL);
+
+                gtk_image_set_from_pixbuf ((GtkImage*)ui->kit_image,
+                           pix);
+
+                 }
+             }
+          else
+               gtk_image_clear ((GtkImage*)ui->kit_image);
+
+          ui->current_kit_index = ui->kitReq;
+          gtk_combo_box_set_active(ui->kit_combo, ui->current_kit_index); //SETS CURRENT KIT
+          gtk_widget_show(GTK_WIDGET(ui->kit_combo));
+          gtk_widget_hide(ui->no_kit_label);
+         }
+     else
+         {
+          gtk_widget_show (ui->no_kit_label);
+          gtk_label_set_text (ui->current_kit_label, NO_KIT_STRING);
+          gtk_widget_hide (GTK_WIDGET(ui->kit_combo));
+         }
+    }
+
+  idle = FALSE;
+  return FALSE; // don't keep calling
+}
+
+
+#endif
+
+
+
 
 /*
  *
@@ -636,6 +838,8 @@ static void kit_combobox_changed (GtkComboBox* box, gpointer data)
 }
 
 
+#ifndef DRUMROX_MULTI
+
 static void panlaw_data (CDrumroxGTKGUI *ui, gpointer data)
 {
   lv2_atom_forge_property_head (&ui->forge, ui->uris.panlaw, 0);
@@ -654,6 +858,7 @@ static void panlaw_combobox_changed (GtkComboBox* box, gpointer data)
       send_ui_msg (ui, &panlaw_data, GINT_TO_POINTER(i));
      }
 }
+
 
 static GtkWidget *create_panlaw_combo (void)
 {
@@ -689,6 +894,7 @@ static GtkWidget *create_panlaw_combo (void)
   return combo;
 }
 
+#endif
 
 static gulong expose_id;
 
@@ -747,6 +953,7 @@ static void load_led_pixbufs (CDrumroxGTKGUI* ui)
 
 #define PADVAL 5
 
+#ifndef DRUMROX_MULTI
 
 static void build_drumrox_ui (CDrumroxGTKGUI* ui)
 {
@@ -755,7 +962,11 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   GtkWidget *drumrox_ui_widget;
   GtkWidget *opts_hbox1, *opts_hbox2,
     *kit_combo_box, *kit_label, *no_kit_label,
-    *base_label, *base_spin, *panlaw_label;
+    *base_label, *base_spin;
+
+
+  GtkWidget *panlaw_label;
+
   GtkCellRenderer *cell_rend;
   GtkAdjustment *base_adj;
   
@@ -845,6 +1056,105 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
   gtk_widget_hide(no_kit_label);
 }
 
+#else
+
+
+static void build_drumrox_ui (CDrumroxGTKGUI* ui)
+{
+  //std::cout << "void build_drumrox_ui \n";
+
+  GtkWidget *drumrox_ui_widget;
+  GtkWidget *opts_hbox1, *opts_hbox2,
+    *kit_combo_box, *kit_label, *no_kit_label,
+    *base_label, *base_spin;
+  GtkCellRenderer *cell_rend;
+  GtkAdjustment *base_adj;
+
+  PangoAttrList	*attr_lst;
+  PangoAttribute *attr;
+
+
+  drumrox_ui_widget = gtk_vbox_new (false, 0);
+  expose_id = g_signal_connect (drumrox_ui_widget, "expose-event", G_CALLBACK (expose_callback), ui);
+  g_object_set (drumrox_ui_widget, "border-width", 2, NULL);
+
+
+  ui->kit_store = gtk_list_store_new (1, G_TYPE_STRING);
+
+  ui->current_kit_label = GTK_LABEL (gtk_label_new(NO_KIT_STRING));
+  attr = pango_attr_weight_new (PANGO_WEIGHT_HEAVY);
+  attr_lst = pango_attr_list_new();
+  pango_attr_list_insert (attr_lst, attr);
+  gtk_label_set_attributes (ui->current_kit_label, attr_lst);
+  pango_attr_list_unref(attr_lst);
+
+  ui->kit_image = gtk_image_new();
+
+
+  opts_hbox1 = gtk_hbox_new (false,0);
+  opts_hbox2 = gtk_hbox_new (false,0);
+  kit_combo_box = gtk_combo_box_new_with_model (GTK_TREE_MODEL(ui->kit_store));
+  kit_label = gtk_label_new ("Kit:");
+
+  no_kit_label = gtk_label_new ("<b>No/Invalid Kit Selected</b>");
+  gtk_label_set_use_markup (GTK_LABEL (no_kit_label), true);
+
+  cell_rend = gtk_cell_renderer_text_new();
+  gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(kit_combo_box), cell_rend, true);
+  gtk_cell_layout_set_attributes(GTK_CELL_LAYOUT(kit_combo_box), cell_rend,"text",0,NULL);
+
+  base_label = gtk_label_new ("Midi Base Note <b>(C 2)</b>:");
+  gtk_label_set_use_markup(GTK_LABEL(base_label),true);
+  base_adj = GTK_ADJUSTMENT (gtk_adjustment_new (36.0, // val
+                                                 21.0,107.0, // min/max
+                                                 1.0, // step
+                                                 5.0,0.0)); // page adj/size
+
+  base_spin = gtk_spin_button_new (base_adj, 1.0, 0);
+
+
+  ui->velocity_checkbox = gtk_check_button_new_with_label("Ignore Velocity");
+  ui->note_off_checkbox = gtk_check_button_new_with_label("Ignore Note Off");
+
+  gtk_box_pack_start (GTK_BOX(opts_hbox1), kit_label, false, false, PADVAL);
+
+  gtk_box_pack_start (GTK_BOX(opts_hbox1),no_kit_label, true,true,0);
+  gtk_box_pack_start (GTK_BOX(opts_hbox1),kit_combo_box, true,true,0);
+  gtk_box_pack_start (GTK_BOX(opts_hbox1),base_label, false,false,PADVAL);
+  gtk_box_pack_start (GTK_BOX(opts_hbox1),base_spin, true,true,0);
+
+  gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->velocity_checkbox, true,true,PADVAL);
+  gtk_box_pack_start(GTK_BOX(opts_hbox2),ui->note_off_checkbox, true,true,PADVAL);
+
+  gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),GTK_WIDGET(ui->current_kit_label), false,false,5);
+  gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),GTK_WIDGET(ui->kit_image), false,false,5);
+
+
+  gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),gtk_hseparator_new(), false,false,5);
+  gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),opts_hbox1,false,false,5);
+  gtk_box_pack_start(GTK_BOX(drumrox_ui_widget),opts_hbox2,false,false,5);
+
+
+  ui->drumrox_widget = drumrox_ui_widget;
+  ui->sample_table = NULL;
+  ui->kit_combo = GTK_COMBO_BOX(kit_combo_box);
+  ui->base_label = GTK_LABEL(base_label);
+  ui->base_spin = GTK_SPIN_BUTTON(base_spin);
+  ui->no_kit_label = no_kit_label;
+
+  g_signal_connect(G_OBJECT(kit_combo_box),"changed",G_CALLBACK(kit_combobox_changed),ui);
+  g_signal_connect(G_OBJECT(base_spin),"value-changed",G_CALLBACK(base_changed),ui);
+  g_signal_connect(G_OBJECT(ui->velocity_checkbox),"toggled",G_CALLBACK(ignore_velocity_toggled),ui);
+  g_signal_connect(G_OBJECT(ui->note_off_checkbox),"toggled",G_CALLBACK(ignore_note_off_toggled),ui);
+
+  gtk_widget_show_all(drumrox_ui_widget);
+  gtk_widget_hide(no_kit_label);
+}
+
+
+
+#endif
+
 
 static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
                                  const char* plugin_uri,
@@ -898,13 +1208,21 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   ui->kits.scan();
 
+#ifndef DRUMROX_MULTI
   ui->gain_quark = g_quark_from_string ("drumrox_gain_quark");
   ui->pan_quark = g_quark_from_string ("drumrox_pan_quark");
+#endif
+
   ui->trigger_quark = g_quark_from_string ("drumrox_trigger_quark");
+
+  ui->notify_leds = NULL;
+
+#ifndef DRUMROX_MULTI
 
   ui->gain_sliders = NULL;
   ui->pan_sliders = NULL;
-  ui->notify_leds = NULL;
+
+
   //ui->frames = NULL;
 
   // store previous gain/pan vals to re-apply to sliders when we
@@ -917,12 +1235,15 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
   memset (ui->pan_vals, 0, 32 * sizeof(float));
 
 
+  ui->panlaw = PANLAW_LINEAR6;
+
+#endif
+
   ui->cols = 6;
 
   ui->forceUpdate = false;
   fill_kit_combo (ui->kit_combo, ui->kits.v_kits_names);
 
-  ui->panlaw = PANLAW_LINEAR6;
 
   //Window w = gdk_x11_drawable_get_xid(gtk_widget_get_window(ui->drumrox_widget));
   //*widget = reinterpret_cast<LV2UI_Widget>(w);
@@ -947,11 +1268,17 @@ static void cleanup (LV2UI_Handle handle)
   if (ui->notify_leds)
       free(ui->notify_leds);
 
+#ifndef DRUMROX_MULTI
+
   if (ui->gain_sliders)
       free(ui->gain_sliders);
 
-  if (ui->pan_sliders) free(ui->pan_sliders);
-     g_free(ui->bundle_path);
+  if (ui->pan_sliders)
+     free(ui->pan_sliders);
+
+#endif
+
+  g_free(ui->bundle_path);
 
   if (led_on_pixbuf)
      g_object_unref(led_on_pixbuf);
@@ -965,6 +1292,7 @@ static void cleanup (LV2UI_Handle handle)
   delete ui;
 }
 
+#ifndef DRUMROX_MULTI
 
 struct slider_callback_data
 {
@@ -985,6 +1313,9 @@ static gboolean slider_callback (gpointer data)
   return FALSE; // don't keep calling
 }
 
+#endif
+
+#ifndef DRUMROX_MULTI
 
 static void port_event (LV2UI_Handle handle,
                         uint32_t     port_index,
@@ -1124,6 +1455,116 @@ static void port_event (LV2UI_Handle handle,
                   }
 }
 
+
+
+#else
+
+static void port_event (LV2UI_Handle handle,
+                        uint32_t     port_index,
+                        uint32_t     buffer_size,
+                        uint32_t     format,
+                        const void*  buffer)
+{
+  //std::cout << "GUI void port_event\n";
+
+  DrumroxPortIndex index = (DrumroxPortIndex)port_index;
+  CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)handle;
+
+  if (index == DRUMROX_CORE_EVENT)
+     {
+      if (format == ui->uris.atom_eventTransfer)
+         {
+          LV2_Atom* atom = (LV2_Atom*)buffer;
+
+          if (atom->type == ui->uris.atom_object)
+             {
+              LV2_Atom_Object* obj = (LV2_Atom_Object*)atom;
+
+              if (obj->body.otype == ui->uris.get_state || obj->body.otype == ui->uris.ui_msg)
+                 {
+                   // both state and ui_msg are the same at the moment
+                  const LV2_Atom* path = NULL;
+
+                  lv2_atom_object_get (obj, ui->uris.kit_path, &path, 0);
+
+                  if (path)
+                     {
+                      char *kitpath = (char*)LV2_ATOM_BODY(path);
+
+                      int kit_index;
+
+                     //REWRITE!
+                      for (kit_index = 0; kit_index < ui->kits.v_scanned_kits.size(); kit_index++)
+                          if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), /*realp*/kitpath))
+                               break;
+
+                      if (kit_index < ui->kits.v_scanned_kits.size())
+                         {
+                          ui->kitReq = kit_index;
+                          g_idle_add (kit_callback, ui);
+                         }
+                      else
+                          fprintf(stderr,"Couldn't find kit %s\n",/*realp*/kitpath);
+
+                     }
+
+                  if (obj->body.otype == ui->uris.get_state)
+                     { // read out extra state info
+                      const LV2_Atom* ignvel = NULL;
+                      const LV2_Atom* ignno = NULL;
+                      const LV2_Atom* panlaw = NULL;
+
+                      lv2_atom_object_get (obj, ui->uris.velocity_toggle, &ignvel, ui->uris.note_off_toggle, &ignno, 0);
+
+                      if (ignvel)
+                          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->velocity_checkbox), ((const LV2_Atom_Bool*)ignvel)->body);
+
+                      if (ignno)
+                          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ui->note_off_checkbox), ((const LV2_Atom_Bool*)ignno)->body);
+
+                     }
+                 }
+             else
+                 if (obj->body.otype == ui->uris.midi_info)
+                    {
+                     const LV2_Atom *midi_atom = NULL;
+                     lv2_atom_object_get (obj, ui->uris.midi_event, &midi_atom, 0);
+
+                     if (! midi_atom)
+                        {
+                         fprintf(stderr,"Midi info with no midi data\n");
+                         return;
+                        }
+
+                     const uint8_t *data = (const uint8_t*)midi_atom;
+                     uint8_t nn = data[1] - ui->baseNote;
+                     sample_triggered (ui, nn);
+                    }
+                 else
+                     fprintf(stderr, "Unknown object type passed to ui.\n");
+            }
+            else
+                fprintf(stderr, "Non object message passed to ui.\n");
+           }
+          else
+              fprintf(stderr, "Unknown format.\n");
+         }
+      else
+          if (index == DRUMROX_BASENOTE)
+             {
+              int base_note = (int)(*((float*)buffer));
+              if (base_note >= 21 && base_note <= 107)
+                 {
+                  setBaseLabel((int)base_note);
+                  gtk_spin_button_set_value (ui->base_spin, base_note);
+                  gtk_label_set_markup (ui->base_label, baseLabelBuf);
+                  ui->baseNote = base_note;
+                 }
+             }
+}
+
+
+#endif
 
 static const void* extension_data (const char* uri)
 {
