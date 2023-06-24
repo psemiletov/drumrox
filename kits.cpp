@@ -156,6 +156,34 @@ CDrumSample::~CDrumSample()
 
 #define GAIN_MIN -60.0f
 
+size_t CDrumSample::map_velo_to_layer_number (float velo)
+{
+  if (v_layers.size() == 1)
+     return 0; //return zero pos layer if we have just one layer
+
+  size_t result = 0;
+
+  //float mapped_gain = (1 - (gain / GAIN_MIN));
+
+  //if (mapped_gain > 1.0f)
+    //  mapped_gain = 1.0f;
+
+  //search for layer within its min..max gain
+  for (size_t i = 0; i < v_layers.size(); i++)
+      {
+       if (v_layers[i]->min <= velo &&
+          (v_layers[i]->max > velo ||
+          (v_layers[i]->max == 1 && velo == 1)))
+          {
+           result = i;
+           break;
+          }
+       }
+
+  return result;
+}
+
+/*
 size_t CDrumSample::map_gain_to_layer_number (float gain)
 {
   if (v_layers.size() == 1)
@@ -182,7 +210,7 @@ size_t CDrumSample::map_gain_to_layer_number (float gain)
 
   return result;
 }
-
+*/
 
 void CDrumSample::add_layer()
 {

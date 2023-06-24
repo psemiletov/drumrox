@@ -514,9 +514,10 @@ static inline void untrigger_sample (CDrumrox *drumrox,
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number];
-      float gain = *drumrox->gains[note_number];
+      //float gain = *drumrox->gains[note_number];
 
-      s->current_layer = s->map_gain_to_layer_number (gain);
+      //s->current_layer = s->map_gain_to_layer_number (gain);
+      s->current_layer = s->map_velo_to_layer_number (s->velocity);
 
       s->active = 0;
       s->v_layers[s->current_layer]->dataoffset = offset;
@@ -540,10 +541,21 @@ static inline void trigger_sample (CDrumrox *drumrox,
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number]; //point to the sample
-
+/*
       float gain = *drumrox->gains[note_number];
 
       s->current_layer = s->map_gain_to_layer_number (gain);
+
+      std::cout << "gain: " << gain << " layer: " << s->current_layer << std::endl;
+*/
+      if (drumrox->ignore_velocity)
+         s->velocity = 1.0f;
+      else
+         s->velocity = ((float)data[2]) / VELOCITY_MAX;
+
+      s->current_layer = s->map_velo_to_layer_number (s->velocity);
+      std::cout << "velo: " << s->velocity << " layer: " << s->current_layer << std::endl;
+
 
       if (data)
          {
@@ -556,10 +568,6 @@ static inline void trigger_sample (CDrumrox *drumrox,
 
       //s->velocity = drumrox->ignore_velocity ? 1.0f : ((float)data[2]) / VELOCITY_MAX;
 
-      if (drumrox->ignore_velocity)
-         s->velocity = 1.0f;
-      else
-         s->velocity = ((float)data[2]) / VELOCITY_MAX;
 
       s->v_layers[s->current_layer]->dataoffset = offset;
 
@@ -590,13 +598,22 @@ static inline void untrigger_sample (CDrumrox *drumrox,
                                      uint32_t offset)
 {
   pthread_mutex_lock (&drumrox->load_mutex);
-
+/*
   if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number];
       float gain = s->velocity;
-
       s->current_layer = s->map_gain_to_layer_number (gain);
+
+      s->active = 0;
+      s->v_layers[s->current_layer]->dataoffset = offset;
+     }
+*/
+
+  if (note_number >= 0 && note_number < drumrox->kit->v_samples.size())
+     {
+      CDrumSample *s = drumrox->kit->v_samples[note_number];
+      s->current_layer = s->map_velo_to_layer_number (s->velocity);
 
       s->active = 0;
       s->v_layers[s->current_layer]->dataoffset = offset;
@@ -621,10 +638,18 @@ static inline void trigger_sample (CDrumrox *drumrox,
      {
       CDrumSample *s = drumrox->kit->v_samples[note_number]; //point to the sample
 
-//      float gain = *drumrox->gains[note_number];
-      float gain = s->velocity;
 
-      s->current_layer = s->map_gain_to_layer_number (gain);
+      if (drumrox->ignore_velocity)
+         s->velocity = 1.0f;
+      else
+         s->velocity = ((float)data[2]) / VELOCITY_MAX;
+
+
+//      float gain = *drumrox->gains[note_number];
+
+      //s->current_layer = s->map_gain_to_layer_number (gain);
+       s->current_layer = s->map_velo_to_layer_number (s->velocity);
+
 
       if (data)
          {
@@ -636,12 +661,6 @@ static inline void trigger_sample (CDrumrox *drumrox,
       s->v_layers[s->current_layer]->offset = 0;
 
       //s->velocity = drumrox->ignore_velocity ? 1.0f : ((float)data[2]) / VELOCITY_MAX;
-
-      if (drumrox->ignore_velocity)
-         s->velocity = 1.0f;
-      else
-         s->velocity = ((float)data[2]) / VELOCITY_MAX;
-
       s->v_layers[s->current_layer]->dataoffset = offset;
 
 

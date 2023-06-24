@@ -72,7 +72,8 @@ public:
   CDrumSample (int sample_rate);
   ~CDrumSample();
 
-  size_t map_gain_to_layer_number (float gain);
+  //size_t map_gain_to_layer_number (float gain);
+  size_t map_velo_to_layer_number (float velo);
 
   void add_layer();
 
