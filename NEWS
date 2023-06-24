@@ -1,21 +1,9 @@
-Drumrox 2.2.0 (mute groups, UI redesign, etc)
+Drumrox 3.0.0 (multi-out, multi-layers)
 
 Hello!
 
-The highlights of the current release are:
+* After the conversation with Harvey at drumrox telegram community (t.me/drumrox) I've decided to make the multi-channel output version, so here we are - Drumrox-multi. How to use it, please read the brand new Drumrox Manual (https://psemiletov.github.io/drumrox/manual.html).
 
-* The same functionality as in "mute group" for hihats. The opened hihat mutes by the closed one, automatically, without any preliminary setup. I hope that it works with any drumkit, known and unknown.
+* This release introduces a proper (I hope) multi-layered samples support, you can try it, for example, with AVL-BlackPearl or AVL-RedZeppelin.
 
-* The GTK2 window was redesigned internally (at the containers level) and at the palette side.
-
-* GUI now shows not only picture from Drumrox kit, but also from Hydgogen too, if image is provided.
-
-* To make Drumrox's own format kits more clear in the sense of the legal status, Drumrox kits now separated to two repositories.
-One with the clearly Public Domain samples (or licensed in a free way), it is https://github.com/psemiletov/drumrox-kits
-And the second one is on Telegram channel - https://t.me/drumrox_kits
-
-* With Drumrox 2.2.0, some new kits are released at those repos. It is Rokton UDS (the famous Soviet drum machine and kit), Sequential Circuits DrumTraks kit, and Acetone Rhythm Ace kit.
-
-* Under the hood, boring: refactoring, fixes, optimizations.
-
-* The Drumrox group at Telegram also created - https://t.me/drumrox
+* 3.0.0 can be unstable, so I'll be glad to hear the feedback.

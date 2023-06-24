@@ -693,8 +693,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
   CDrumrox* drumrox = (CDrumrox*)instance;
 
-  if (! drumrox)
-     std::cout << "! drumrox\n";
+ // if (! drumrox)
+   //  std::cout << "! drumrox\n";
 
   //baseNote = (int)floorf(*(drumrox->baseNote));
   int baseNote = (int)*(drumrox->baseNote);
@@ -869,8 +869,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
 
    pthread_mutex_lock (&drumrox->load_mutex);
 
-   if (! drumrox->kit)
-       std::cout << "! drumrox->kit\n";
+   //if (! drumrox->kit)
+     //  std::cout << "! drumrox->kit\n";
 
    if (drumrox->kit)
    for (size_t i = 0; i < drumrox->kit->v_samples.size(); i++)
