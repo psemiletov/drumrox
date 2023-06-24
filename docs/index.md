@@ -2,15 +2,16 @@
 
 Drumrox is an easy way to write drum tracks as MIDI at your DAW, using Hydrogen and Drumrox kits.
 
-Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and the repository with [Drumrox kits](https://github.com/psemiletov/drumrox-kits)
+Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format.
 
 
-[Drumrox github](https://github.com/psemiletov/drumrox) *
+[User's manual](manual.md)
+
+**Downloads**: [Drumrox github](https://github.com/psemiletov/drumrox) *
 [OpenSUSE](https://build.opensuse.org/package/show/multimedia:proaudio/drumrox) *
 [AUR](https://aur.archlinux.org/packages/drumrox)
 
-
-[Drumrox group at Telegram](https://t.me/drumrox) [More Drumrox kits at Telegram](https://t.me/drumrox_kits)
+**Links**: [Drumrox group at Telegram](https://t.me/drumrox) * [Drumrox kits](https://github.com/psemiletov/drumrox-kits) * [More Drumrox kits at Telegram] (https://t.me/drumrox_kits)
 
 ## News
 
@@ -50,11 +51,11 @@ $HOME/drumrox-kits
 6. Future plans - porting GUI part from GTK2 to another kit (Nuklear? FLTK?), fixes, rewritting some code that I hardly understand, etc. More new kits!
 
 
-![image](https://user-images.githubusercontent.com/8168336/246684340-0b81c208-a9e5-4c75-b843-8840223d13ac.png)
-
 ## Features
 
-* LV2 plugin format (currenty GTK2 only, works with Ardour)
+* LV2 plugin format (currently GTK2 only, works with Ardour)
+
+* Stereo (with built-in mixer) and 32-channels versions
 
 * Hydrogen drumkits support
 
@@ -65,6 +66,9 @@ $HOME/drumrox-kits
 * Automatic open hihat mute on hihat close
 
 * Drumkit image at plugin window
+
+
+![image](https://user-images.githubusercontent.com/8168336/246684340-0b81c208-a9e5-4c75-b843-8840223d13ac.png)
 
 
 ## Some history
