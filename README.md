@@ -50,7 +50,6 @@ Drumrox additions:
 - Partial conversion from C to C++ to further development
 
 
-
 Compilation and Install
 -----------------------
 Drumrox is built with [CMake](http://www.cmake.org). Or you can install Drumrox from AUR (``yay -S drumrox``)
@@ -61,36 +60,31 @@ To build from the source simply do (from this dir):
     cd b
     cmake ..    (or "cmake -DUSE_NKNOB=OFF .." if you want old style sliders)
 
-Then do:
+Then do, as root or with sudo:
 
     make
     make install
 
-to install.  There are some customizable variables for cmake.  To see them do "cmake -L".  The important ones are:
+There are some customizable variables for cmake.  To see them do "cmake -L".  The important ones are:
 
 USE_NKNOB - Use custom knob widget for controls instead of the default gtk sliders.  This defaults to ON.  Try turning it off if you are experiencing problems, or just prefer the sliders.
 
 LV2_INSTALL_DIR - The directory to install the Drumrox plugin to. To install to your home directory, use "~/.lv2" and clear the CMAKE_INSTALL_PREFIX. This defaults to "lib/lv2" (this is relative to CMAKE_INSTALL_PREFIX, which is usually /usr/local)
 
-You can also use "ccmake .." or "cmake-gui .." for a more interactive configuration process.
 
-A legacy Makefile is included, that will possibly work for you if you don't want to use cmake.  To use it just do (from this dir):
-
-    make -f Makefile.legacy
-    make -f Makefile.legacy install
-
-You'll need the following libraries to build and install DrMr:
+You need the following libraries to build Drumrox from the source:
 
 - [libsndfile](http://www.mega-nerd.com/libsndfile/)
 - [libsamplerate](http://www.mega-nerd.com/SRC/index.html)
 - [lv2](http://lv2plug.in/)
 - [gtk+2](http://www.gtk.org)
 
-Drumrox scans the following directories for hydrogen drum kits:
+Drumrox scans the following directories for Hydrogen and Drumrox drum kits:
 
-- /usr/share/hydrogen/data/drumkits/
-- /usr/local/share/hydrogen/data/drumkits/
-- /usr/share/drmr/drumkits/
-- ~/.hydrogen/data/drumkits/
-- ~/.drmr/drumkits/
-- ~/.drumrox/drumkits/
+```/usr/share/hydrogen/data/drumkits
+/usr/local/share/hydrogen/data/drumkits
+/usr/share/drmr/drumkits
+~/.hydrogen/data/drumkits
+~/.drmr/drumkits
+/usr/share/drumrox-kits
+~/drumrox-kits```
