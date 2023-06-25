@@ -84,7 +84,8 @@ Drumrox scans the following directories for Hydrogen and Drumrox drum kits:
 ```/usr/share/hydrogen/data/drumkits
 /usr/local/share/hydrogen/data/drumkits
 /usr/share/drmr/drumkits
-~/.hydrogen/data/drumkits
-~/.drmr/drumkits
+$HOME/.hydrogen/data/drumkits
+$HOME/.drmr/drumkits
 /usr/share/drumrox-kits
-~/drumrox-kits```
+$HOME/.drumrox/drumkits
+$HOME/drumrox-kits```

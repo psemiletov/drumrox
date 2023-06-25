@@ -11,7 +11,7 @@ Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkit
 [OpenSUSE](https://build.opensuse.org/package/show/multimedia:proaudio/drumrox) *
 [AUR](https://aur.archlinux.org/packages/drumrox)
 
-**Links**: [Drumrox group at Telegram](https://t.me/drumrox) * [Drumrox kits](https://github.com/psemiletov/drumrox-kits) * [More Drumrox kits at Telegram] (https://t.me/drumrox_kits)
+**Links**: [Drumrox group at Telegram](https://t.me/drumrox) * [Drumrox kits](https://github.com/psemiletov/drumrox-kits) * [More Drumrox kits at Telegram](https://t.me/drumrox_kits)
 
 ## News
 
@@ -20,9 +20,9 @@ Drumrox 2.1.0 + 3 drumkits (Lel PSR, Lel DR8, LinnDrum)
 Hello!
 Besides many fixes and code refactoring, there are some interesting new features.
 
-1. First of all, I've made a [Drumrox site] (https://psemiletov.github.io/drumrox/) which is more clear as the github's project page.
+1. First of all, I've made a [Drumrox site](https://psemiletov.github.io/drumrox/) which is more clear as the github's project page.
 
-2. Also, here is a repository for [Drumrox kits] (https://github.com/psemiletov/drumrox-kits). Yes, Drumrox 2.1 introduces, in addition to Hydrogen format support, the new drumkit format. Hydrogen is a larger program than Drumrox, so it needs more complex format with wide set of features. Instead of that, Drumrox provides simple format in the form of directory, which contains the samples and drumkit.txt file. The last one looks like that:
+2. Also, here is a repository for [Drumrox kits](https://github.com/psemiletov/drumrox-kits). Yes, Drumrox 2.1 introduces, in addition to Hydrogen format support, the new drumkit format. Hydrogen is a larger program than Drumrox, so it needs more complex format with wide set of features. Instead of that, Drumrox provides simple format in the form of directory, which contains the samples and drumkit.txt file. The last one looks like that:
 
 ```Kick=kick.wav
 Snare=snare.wav
