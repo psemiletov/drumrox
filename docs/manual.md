@@ -47,7 +47,8 @@ How to use it with Ardour?
 
 ![image](https://user-images.githubusercontent.com/8168336/248489497-e8748cad-c457-49b6-a2f9-62559b8f1434.png)
 
-
 5. All new tracks/channels are in the group now. To make them properly being muted, soloed, etc, do the right click at the group header, and select **Remove group**:
 
 ![image](https://user-images.githubusercontent.com/8168336/248851730-6f7bab35-ec86-45eb-af5c-3d19b5fed5c2.png)
+
+6. Now, remove unneeded tracks (for example, the kit has only 8 instruments, but you have 32 tracks from Drumrox!)
