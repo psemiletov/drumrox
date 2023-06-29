@@ -1,9 +1,11 @@
-Drumrox 3.0.0 (multi-out, multi-layers)
+Drumrox 3.1.0 (multi-layers for Drumrox format)
 
 Hello!
 
-* After the conversation with Harvey at drumrox telegram community (t.me/drumrox) I've decided to make the multi-channel output version, so here we are - Drumrox-multi. How to use it, please read the brand new Drumrox Manual (https://psemiletov.github.io/drumrox/manual.html).
+After the implementation of multi-layered samples support for Hydrogen kits, I made the similar thing for Drumrox own kit format. As the example you can try a new kit TamilMulti at https://github.com/psemiletov/drumrox-kits. There also a simple "Tamil" kit without multi-layered samples. I'm big fan of Tamil movies, as well as Hindi :)
 
-* This release introduces a proper (I hope) multi-layered samples support, you can try it, for example, with AVL-BlackPearl or AVL-RedZeppelin.
+And speaking about multi-layered samples at Drumrox kits, the syntax at file format as usual simple. For the multi-layered samples, just separate their file names with comma, using the order from "quiet" sample to the "loudest" one (multi-layered samples are the set of samples those differs with the timbre, not the volume):
 
-* 3.0.0 can be unstable, so I'll be glad to hear the feedback.
+kick=kick01.wav,kick02.wav,kick03.wav,kick04.wav
+snare=share01.wav,share02.wav,share03.wav
+hihat opened=hihat01.wav,hihat02.wav

@@ -543,7 +543,7 @@ static inline void trigger_sample (CDrumrox *drumrox,
 
        s->current_layer = s->map_velo_to_layer_number (s->velocity);
 
-//      std::cout << "velo: " << s->velocity << " layer: " << s->current_layer << std::endl;
+  //    std::cout << "velo: " << s->velocity << " layer: " << s->current_layer << std::endl;
 
 
       if (data)
