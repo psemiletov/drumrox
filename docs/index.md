@@ -15,41 +15,17 @@ Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkit
 
 ## News
 
-Drumrox 2.1.0 + 3 drumkits (Lel PSR, Lel DR8, LinnDrum)
+Drumrox 3.1.0 (multi-layers for Drumrox format)
 
 Hello!
-Besides many fixes and code refactoring, there are some interesting new features.
 
-1. First of all, I've made a [Drumrox site](https://psemiletov.github.io/drumrox/) which is more clear as the github's project page.
+After the implementation of multi-layered samples support for Hydrogen kits, I made the similar thing for Drumrox own kit format. As the example you can try a new kit TamilMulti at [Drumrox kits](https://github.com/psemiletov/drumrox-kits). There also a simple "Tamil" kit without multi-layered samples. I'm big fan of Tamil movies, as well as Hindi :)
 
-2. Also, here is a repository for [Drumrox kits](https://github.com/psemiletov/drumrox-kits). Yes, Drumrox 2.1 introduces, in addition to Hydrogen format support, the new drumkit format. Hydrogen is a larger program than Drumrox, so it needs more complex format with wide set of features. Instead of that, Drumrox provides simple format in the form of directory, which contains the samples and drumkit.txt file. The last one looks like that:
+And speaking about multi-layered samples at Drumrox kits, the syntax at file format as usual simple. For the multi-layered samples, just separate their file names with comma, using the order from "quiet" sample to the "loudest" one (multi-layered samples are the set of samples those differs with the timbre, not the volume):
 
-```Kick=kick.wav
-Snare=snare.wav
-Crash=crash.wav
-```
-
-So we can quickly create and use new kits.
-
-3. Currently at the Drumrox kits repo are 3 kits, let me introduce them! Lel PSR - the legendary Soviet drum machine, used at early albums of famous USSR rock bands such as Kino, Strannye Igry, Aquarium. Lel DR8 - the continuation of Lel PSR. LinnDrum - drum machine manufactured by Linn Electronics between 1982 and 1985.
-LinnDrum was used by Peter Gabriel, Stevie Wonder, Gary Numan, Michael Jackson, Devo, John Carpenter, Prince, Madonna, Elton John, Queen (at Radio Ga Ga).
-
-4. Search paths for drumkits are:
-
-```/usr/share/hydrogen/data/drumkits
-/usr/local/share/hydrogen/data/drumkits
-/usr/share/drmr/drumkits
-/usr/share/drumrox-kits
-$HOME/.hydrogen/data/drumkits
-$HOME/.drmr/drumkits
-$HOME/.drumrox/drumkits
-$HOME/drumrox-kits
-```
-
-5. Drumrox kit can have the picture (named "image.png" or "image.jpg") of the drum machine/kit, that appears at the plugin window.
-
-6. Future plans - porting GUI part from GTK2 to another kit (Nuklear? FLTK?), fixes, rewritting some code that I hardly understand, etc. More new kits!
-
+```kick=kick01.wav,kick02.wav,kick03.wav,kick04.wav
+snare=share01.wav,share02.wav,share03.wav
+hihat opened=hihat01.wav,hihat02.wav```
 
 ## Features
 
