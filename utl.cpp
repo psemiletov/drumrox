@@ -163,3 +163,35 @@ std::string string_to_lower (const std::string &s)
 
   return result;
 }
+
+
+vector <string> split_string_to_vector (const string& s, const string& delimeter, const bool keep_empty)
+{
+  vector <string> result;
+
+  if (delimeter.empty())
+     {
+      result.push_back (s);
+      return result;
+     }
+
+  string::const_iterator substart = s.begin(), subend;
+
+  while (true)
+        {
+         subend = search (substart, s.end(), delimeter.begin(), delimeter.end());
+
+         string temp (substart, subend);
+
+         if (keep_empty || ! temp.empty())
+             result.push_back (temp);
+
+         if (subend == s.end())
+             break;
+
+         substart = subend + delimeter.size();
+        }
+
+  return result;
+}
+

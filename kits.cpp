@@ -163,11 +163,6 @@ size_t CDrumSample::map_velo_to_layer_number (float velo)
 
   size_t result = 0;
 
-  //float mapped_gain = (1 - (gain / GAIN_MIN));
-
-  //if (mapped_gain > 1.0f)
-    //  mapped_gain = 1.0f;
-
   //search for layer within its min..max gain
   for (size_t i = 0; i < v_layers.size(); i++)
       {
@@ -183,34 +178,6 @@ size_t CDrumSample::map_velo_to_layer_number (float velo)
   return result;
 }
 
-/*
-size_t CDrumSample::map_gain_to_layer_number (float gain)
-{
-  if (v_layers.size() == 1)
-     return 0; //return zero pos layer if we have just one layer
-
-  size_t result = 0;
-
-  float mapped_gain = (1 - (gain / GAIN_MIN));
-
-  if (mapped_gain > 1.0f)
-      mapped_gain = 1.0f;
-
-  //search for layer within its min..max gain
-  for (size_t i = 0; i < v_layers.size(); i++)
-      {
-       if (v_layers[i]->min <= mapped_gain &&
-          (v_layers[i]->max > mapped_gain ||
-          (v_layers[i]->max == 1 && mapped_gain == 1)))
-          {
-           result = i;
-           break;
-          }
-       }
-
-  return result;
-}
-*/
 
 void CDrumSample::add_layer()
 {
@@ -371,10 +338,63 @@ void CHydrogenKit::load_txt (const std::string data)
 
          string sample_name = line.substr (0, pos);
          string fname = line.substr (pos + 1, line.size() - pos);
-         string filename = kit_dir + "/" + fname;
 
-         add_sample();
-         v_samples.back()->name = sample_name;
+
+         size_t check_for_list = fname.find (",");
+
+         if (check_for_list != string::npos)
+            {
+             vector <string> v_fnames = split_string_to_vector (fname, ",", false);
+
+             add_sample();
+             v_samples.back()->name = sample_name;
+
+             for (auto f: v_fnames)
+                 {
+                  string filename = kit_dir + "/" + f;
+                  v_samples.back()->add_layer();
+
+                  if (file_exists (filename) && ! scan_mode)
+                      v_samples.back()->v_layers.back()->load (filename.c_str());
+
+
+                 }
+
+             float part_size = (float) 1 / v_samples.back()->v_layers.size();
+             CDrumLayer *l;
+              //evaluate min and max gains by the file position in the vector
+             for (size_t i = 0; i < v_samples.back()->v_layers.size(); i++)
+                 {
+                  l = v_samples.back()->v_layers[i];
+
+                  float segment_start = part_size * i;
+                  float segment_end = part_size * (i + 1) - 0.001;
+
+                  std::cout << "segment_start: " << segment_start << std::endl;
+                  std::cout << "segment_end: " << segment_end << std::endl;
+
+                  l->min = segment_start;
+                  l->max = segment_end;
+
+                 }
+
+              l->max = 1.0f;
+
+              std::cout << "l->max: " << l->max << std::endl;
+
+
+            }
+         else
+             {
+              string filename = kit_dir + "/" + fname;
+              add_sample();
+              v_samples.back()->name = sample_name;
+
+              v_samples.back()->add_layer(); //add default layer
+
+              if (file_exists (filename) && ! scan_mode)
+                  v_samples.back()->v_layers.back()->load (filename.c_str());
+             }
 
 
          for (auto signature: v_hat_open_signatures)
@@ -397,11 +417,6 @@ void CHydrogenKit::load_txt (const std::string data)
              }
 
 
-         v_samples.back()->add_layer(); //add default layer
-
-
-         if (file_exists (filename) && ! scan_mode)
-            v_samples.back()->v_layers.back()->load (filename.c_str());
         }
 
      std::string kitimg = kit_dir + "/image.jpg";
