@@ -213,7 +213,9 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
   int row = 0;
   int col = 0;
 
-  gchar buf[64];
+  //gchar buf[64];
+  gchar buf[128];
+
 
   int rows = (samples_count / ui->cols);
 
@@ -236,7 +238,9 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
        const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
 
-       snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
+       std::cout << "*sample_name::::::::: " << sample_name << std::endl;
+
+       snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
 
        frame = gtk_frame_new (buf);
 
@@ -829,9 +833,9 @@ static void kit_combobox_changed (GtkComboBox* box, gpointer data)
       uint8_t msg_buf[1024];
       lv2_atom_forge_set_buffer(&ui->forge, msg_buf, 1024);
 
-      LV2_Atom *msg = build_path_message (ui, ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename.c_str());
+      LV2_Atom *msg = build_path_message (ui, ui->kits.v_scanned_kits[new_kit_index]->kit_filename.c_str());
 
-       std::cout << "ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename: " << ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename << std::endl;
+       std::cout << "ui->kits.v_scanned_kits[new_kit_index]->kit_xml_filename: " << ui->kits.v_scanned_kits[new_kit_index]->kit_filename << std::endl;
 
       ui->write (ui->controller, DRUMROX_CONTROL, lv2_atom_total_size(msg), ui->uris.atom_eventTransfer, msg);
      }
@@ -1353,7 +1357,7 @@ static void port_event (LV2UI_Handle handle,
 
                      //REWRITE!
                       for (kit_index = 0; kit_index < ui->kits.v_scanned_kits.size(); kit_index++)
-                          if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), /*realp*/kitpath))
+                          if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_filename.c_str(), /*realp*/kitpath))
                                break;
 
                       if (kit_index < ui->kits.v_scanned_kits.size())
@@ -1495,7 +1499,7 @@ static void port_event (LV2UI_Handle handle,
 
                      //REWRITE!
                       for (kit_index = 0; kit_index < ui->kits.v_scanned_kits.size(); kit_index++)
-                          if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_xml_filename.c_str(), /*realp*/kitpath))
+                          if (! strcmp (ui->kits.v_scanned_kits[kit_index]->kit_filename.c_str(), /*realp*/kitpath))
                                break;
 
                       if (kit_index < ui->kits.v_scanned_kits.size())

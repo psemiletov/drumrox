@@ -90,7 +90,7 @@ public:
   bool scan_mode; //if false, we do not load kit' samples
 
   std::string kit_name; //parsed from XML
-  std::string kit_xml_filename; //full path to the kit xml file
+  std::string kit_filename; //full path to the kit xml, txt or sfz file
   std::string kit_dir; //full path to the kit
 
   std::string image_fname;
@@ -106,6 +106,7 @@ public:
   void add_sample();
   void load (const char *fname, int sample_rate);
   void load_txt (std::string fname);
+  void load_sfz (std::string fname);
 
   CHydrogenKit();
   ~CHydrogenKit();

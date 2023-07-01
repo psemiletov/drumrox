@@ -1,8 +1,7 @@
-* use initial layer gain from drumkit.xml (see Millo_MultiLayered3)
+* strange click in multi-layered samples when fast triggering
 
 * add "humanize" via pitch shifting/light dist/etc
 * add selectable drummaps //as in Cubase, but n1=n2 format
 
-* move presets to plugins's window drop down list
 
 

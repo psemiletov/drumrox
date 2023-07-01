@@ -90,6 +90,31 @@ std::vector <std::string> files_get_list (const std::string &path)
 }
 
 
+std::vector <std::string> files_get_list (const std::string &path, const std::string &ext) //ext with dot: ".txt"
+{
+  DIR *directory;
+  struct dirent *dir_entry;
+
+  vector <string> result;
+
+  directory = opendir(path.c_str());
+  if (! directory)
+      return result;
+
+   while (dir_entry = readdir (directory))
+         {
+          // std::cout << dir_entry->d_name << std::endl;
+          string t = dir_entry->d_name;
+          if (t.rfind (ext) != string::npos)
+            result.push_back (path + "/" + t);
+         }
+
+   closedir (directory);
+   return result;
+}
+
+
+
 std::string get_home_dir()
 {
   std::string result;

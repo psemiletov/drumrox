@@ -356,8 +356,6 @@ void CHydrogenKit::load_txt (const std::string data)
 
                   if (file_exists (filename) && ! scan_mode)
                       v_samples.back()->v_layers.back()->load (filename.c_str());
-
-
                  }
 
              float part_size = (float) 1 / v_samples.back()->v_layers.size();
@@ -429,6 +427,155 @@ void CHydrogenKit::load_txt (const std::string data)
 }
 
 
+
+void CHydrogenKit::load_sfz (const std::string data)
+{
+  cout << "void CHydrogenKit::load_sfz (const std::string data)\n";
+
+  if (data.empty())
+      return;
+
+  bool multi_layered = false;
+
+  size_t pos = data.find ("<group>");
+  if (pos != string::npos)
+     multi_layered = true;
+
+
+  size_t i = kit_dir.rfind ("/");
+  kit_name = kit_dir.substr (i + 1);
+
+  stringstream st (data);
+  string line;
+
+  while (getline (st, line))
+        {
+         if (line.empty())
+            continue;
+
+         if (line.find("//") != string::npos)
+            continue;
+
+           string fname;
+
+          //WHERE TO GUESS SAMPLE NAME?
+
+          cout << "parse line: " << line << endl;
+
+
+         if (line.find ("<group>") != string::npos)
+             add_sample();
+
+
+         if (line.find("<region>") != string::npos  && ! multi_layered)
+            {
+             add_sample();
+             v_samples.back()->add_layer();
+            }
+
+
+         if (line.find("<region>") != string::npos && multi_layered)
+             v_samples.back()->add_layer();
+
+         cout << "0000 " << endl;
+
+
+         if (line.find("<region>") != string::npos)
+
+//         if (line.find("<region>") != string::npos && ! scan_mode)
+            {
+             //parse filename for a layer
+             cout << "parse filename for a layer\n";
+
+             pos = line.find ("sample=");
+             if (pos != string::npos)
+                {
+                 //cout << "pos: " << pos << endl;
+
+                 string just_name = line.substr (pos + 7);
+                 fname = kit_dir + "/" + just_name;
+
+                 //cout << "fname:" << fname << endl;
+
+                 if (file_exists (fname))
+                   {
+                    if (! scan_mode)
+                       v_samples.back()->v_layers.back()->load (fname.c_str());
+
+                    v_samples.back()->name = just_name;
+
+                   }
+
+                }
+            }
+
+         //          cout << "4444\n";
+
+
+      if (! scan_mode && multi_layered && v_samples.back()->v_layers.size() != 0)
+         {
+          float part_size = (float) 1 / v_samples.back()->v_layers.size();
+          CDrumLayer *l;
+              //evaluate min and max gains by the file position in the vector
+          for (size_t i = 0; i < v_samples.back()->v_layers.size(); i++)
+              {
+                l = v_samples.back()->v_layers[i];
+
+                float segment_start = part_size * i;
+                float segment_end = part_size * (i + 1) - 0.001;
+
+                std::cout << "segment_start: " << segment_start << std::endl;
+                std::cout << "segment_end: " << segment_end << std::endl;
+
+                l->min = segment_start;
+                l->max = segment_end;
+
+               }
+
+            l->max = 1.0f;
+
+            std::cout << "l->max: " << l->max << std::endl;
+         }
+
+       cout << "5555\n";
+
+       if (! scan_mode)
+       {
+       for (auto signature: v_hat_open_signatures)
+             {
+              if (findStringIC (v_samples.back()->name, signature) || findStringIC (fname, signature))
+                 {
+                  v_samples.back()->hihat_open = true;
+                  break;
+                 }
+             }
+
+
+         for (auto signature: v_hat_close_signatures)
+             {
+              if (findStringIC (v_samples.back()->name, signature) || findStringIC (fname, signature))
+                 {
+                  v_samples.back()->hihat_close = true;
+                  break;
+                 }
+             }
+       }
+
+
+        }
+
+
+
+/*     std::string kitimg = kit_dir + "/image.jpg";
+
+     if (! file_exists (kitimg))
+          kitimg = kit_dir + "/image.png";
+
+     if (file_exists (kitimg))
+        image_fname = kitimg;*/
+}
+
+
 void CHydrogenKit::load (const char *fname, int sample_rate)
 {
 //  cout << "void CHydrogenKit::load: " << fname << endl;
@@ -442,19 +589,24 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
 //  cout << "resolved filename :" << filename << endl;
 
-  kit_xml_filename = filename;
-  kit_dir = get_file_path (kit_xml_filename);
+  kit_filename = filename;
+  kit_dir = get_file_path (kit_filename);
 
   std::string source = string_file_load (filename);
   if (source.empty())
      return;
 
-  if (ends_with (kit_xml_filename, ".txt"))
+  if (ends_with (kit_filename, ".txt"))
      {
       load_txt (source);
       return;
      }
 
+  if (ends_with (kit_filename, ".sfz"))
+     {
+      load_sfz (source);
+      return;
+     }
 
   //else Hydrogen format
 
@@ -606,6 +758,7 @@ void CHydrogenKitsScanner::scan()
   v_kits_locations.push_back (get_home_dir() + "/.hydrogen/data/drumkits");
   v_kits_locations.push_back (get_home_dir() + "/.drmr/drumkits");
   v_kits_locations.push_back (get_home_dir() + "/drumrox-kits");
+  v_kits_locations.push_back (get_home_dir() + "/sfz-kits");
 
   std::vector <std::string> v_kits_dirs;
 
@@ -623,32 +776,50 @@ void CHydrogenKitsScanner::scan()
        //cout << kd << endl;
        //cout << get_kit_name (kd + "/drumkit.xml") << endl;
 
+       bool kit_exists = false;
+
        std::string fname = kd + "/drumkit.xml";
 
        if (file_exists (fname))
+          kit_exists = true;
+       else
+           {
+            fname = kd + "/drumkit.txt";
+            if (file_exists (fname))
+               kit_exists = true;
+
+          //  cout << fname << endl;
+           }
+
+
+       if (kd.find ("/sfz-kits") != string::npos)
           {
-           //Hydrogen kit
+           //search sfz file
+           std::cout << "search sfz file at: " << kd << std::endl;
+
+
+           std::vector <std::string> v = files_get_list (kd, ".sfz");
+           if (v.size() != 0)
+              fname = v[0];
+
+           std::cout << "fname: " << fname << std::endl;
+
+
+            if (file_exists (fname))
+               kit_exists = true;
+          }
+
+
+       if (kit_exists)
+          {
            CHydrogenKit *kit = new CHydrogenKit;
            kit->scan_mode = true;
            kit->load (fname.c_str(), 44100);
            v_scanned_kits.push_back (kit);
 //           v_kits_names.push_back (kit->kit_name);
-
           // m_kits.insert (pair<string,string> (kit->kit_name, fname));
           }
 
-       fname = kd + "/drumkit.txt";
-       if (file_exists (fname))
-          {
-           //Hydrogen kit
-           CHydrogenKit *kit = new CHydrogenKit;
-           kit->scan_mode = true;
-           kit->load (fname.c_str(), 44100);
-           v_scanned_kits.push_back (kit);
-  //         v_kits_names.push_back (kit->kit_name);
-
-        //   m_kits.insert (pair<string,string> (kit->kit_name, fname));
-          }
 
       }
 
@@ -673,6 +844,8 @@ void CHydrogenKitsScanner::print()
   for (size_t i = 0; i < v_scanned_kits.size(); i++)
      {
       std::cout << i << ": ";
-      v_scanned_kits[i]->print_stats();
+      //v_scanned_kits[i]->print_stats();
+       std::cout << v_scanned_kits[i]->kit_name << std::endl;
+
      }
 }

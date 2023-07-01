@@ -1152,7 +1152,7 @@ static LV2_State_Status save_state (LV2_Handle instance,
 
   if (drumrox->current_path != NULL)  //drmr->current_path is absolute path
      {
-      const char* path = drumrox->kit->kit_xml_filename.c_str();
+      const char* path = drumrox->kit->kit_filename.c_str();
 
       stat = store (handle,
                     drumrox->uris.kit_path,
