@@ -138,8 +138,7 @@ CDrumSample::CDrumSample (int sample_rate)
   session_samplerate = sample_rate;
   current_layer = 0;
   velocity = 0.0;
-
-  hihat = false;
+//  hihat = false;
   hihat_open = false;
   hihat_close = false;
 }
@@ -616,7 +615,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
   pugi::xml_document doc;
 
-
  // cout << "loading kit: " << fname << endl;
   //cout << "source: " << source << endl;
 
@@ -627,16 +625,11 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
        layers_supported = false;
 
 
-  //cout << "layers_supported: " << layers_supported  << endl;
-
   //delete empty instruments
   //because we don't want parse them
 
   size_t idx_filename = source.rfind ("</filename>");
   size_t idx_instrument = source.find ("<instrument>", idx_filename);
-
-//  cout << "idx_filename: " << idx_filename  << endl;
-//  cout << "idx_instrument: " << idx_instrument  << endl;
 
   if (idx_instrument != std::string::npos)
   if (idx_instrument > idx_filename)
@@ -663,15 +656,12 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    doc.traverse (walker);
 
 
-
   auto stop = chrono::high_resolution_clock::now();
-
   auto duration_msecs = chrono::duration_cast<chrono::milliseconds>(stop - start);
 
   std::cout << "loaded at: " << duration_msecs.count() << " msecs" << std::endl;
 
   //seconds_counter_ev = duration_s.count();
-
 }
 
 
@@ -687,7 +677,6 @@ CHydrogenKit::CHydrogenKit()
   v_hat_close_signatures.push_back ("close");
   v_hat_close_signatures.push_back ("choke");
   v_hat_close_signatures.push_back ("hat_c");
-
 }
 
 
@@ -791,23 +780,19 @@ void CHydrogenKitsScanner::scan()
             fname = kd + "/drumkit.txt";
             if (file_exists (fname))
                kit_exists = true;
-
-          //  cout << fname << endl;
            }
 
 
        if (kd.find ("/sfz-kits") != string::npos)
           {
            //search sfz file
-           std::cout << "search sfz file at: " << kd << std::endl;
-
+           //std::cout << "search sfz file at: " << kd << std::endl;
 
            std::vector <std::string> v = files_get_list (kd, ".sfz");
            if (v.size() != 0)
               fname = v[0];
 
-           std::cout << "fname: " << fname << std::endl;
-
+//           std::cout << "fname: " << fname << std::endl;
 
             if (file_exists (fname))
                kit_exists = true;
@@ -824,10 +809,9 @@ void CHydrogenKitsScanner::scan()
           // m_kits.insert (pair<string,string> (kit->kit_name, fname));
           }
 
-
       }
 
-  std::sort (v_scanned_kits.begin(), v_scanned_kits.end(),  [](CHydrogenKit* a, CHydrogenKit* b){return a->kit_name < b->kit_name;});
+  std::sort (v_scanned_kits.begin(), v_scanned_kits.end(), [](CHydrogenKit* a, CHydrogenKit* b) {return a->kit_name < b->kit_name;});
 
   for (auto i : v_scanned_kits)
       {
@@ -838,8 +822,6 @@ void CHydrogenKitsScanner::scan()
 
    //std::sort (v_kits_names.begin(), v_kits_names.end());
    //v_kits_names.erase (std::unique( v_kits_names.begin(), v_kits_names.end() ), v_kits_names.end() );
-
-
 }
 
 
@@ -848,8 +830,7 @@ void CHydrogenKitsScanner::print()
   for (size_t i = 0; i < v_scanned_kits.size(); i++)
      {
       std::cout << i << ": ";
-      //v_scanned_kits[i]->print_stats();
-       std::cout << v_scanned_kits[i]->kit_name << std::endl;
-
+      v_scanned_kits[i]->print_stats();
+      std::cout << v_scanned_kits[i]->kit_name << std::endl;
      }
 }

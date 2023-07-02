@@ -22,7 +22,7 @@ public:
 
   int session_samplerate; //uplink (session) samplerate
 
-  //for mapped gain
+  //for layer velo range
   float min;
   float max;
 
@@ -62,7 +62,7 @@ public:
   char active;
   float velocity;
 
-  bool hihat;
+  //bool hihat;
   bool hihat_open;
   bool hihat_close;
 
