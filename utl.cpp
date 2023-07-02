@@ -220,3 +220,20 @@ vector <string> split_string_to_vector (const string& s, const string& delimeter
   return result;
 }
 
+
+
+string string_replace_all (const string &s, const string &from, const string &to)
+{
+  string result = s;
+  size_t i = 0;
+  do
+    {
+     i = result.find (from);
+     if (i != string::npos)
+         result.replace (i, from.length(), to);
+    }
+  while (i != string::npos);
+
+  return result;
+}
+

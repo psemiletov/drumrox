@@ -57,7 +57,6 @@ public:
   std::string name;
   int id;
   int current_layer;
- // float volume;
   int midiOutNote;
   int session_samplerate; //session srate, taken from the upper object
   char active;

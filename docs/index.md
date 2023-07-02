@@ -33,9 +33,7 @@ hihat opened=hihat01.wav,hihat02.wav```
 
 * Stereo (with built-in mixer) and 32-channels versions
 
-* Hydrogen drumkits support
-
-* Drumrox drumkits support
+* Supported kit formats: Hydrogen, Drumrox, SFZ
 
 * Up to 32 instruments with layers
 

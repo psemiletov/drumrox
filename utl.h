@@ -19,6 +19,7 @@ std::string string_to_lower (const std::string &s);
 bool findStringIC(const std::string & strHaystack, const std::string & strNeedle);
 
 std::vector <std::string> split_string_to_vector (const std::string& s, const std::string& delimeter, const bool keep_empty);
+std::string string_replace_all (const std::string &s, const std::string &from, const std::string &to);
 
 
 #endif

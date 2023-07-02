@@ -40,6 +40,7 @@ float* CDrumLayer::load_whole_sample (const char *fname)
   if (info.channels == 0 || info.frames == 0)
      return NULL;
 
+
   float *buffer = new float [info.channels * info.frames];
   sf_count_t zzz = sf_readf_float (file, buffer, info.frames);
   sf_close (file);
@@ -339,6 +340,8 @@ void CHydrogenKit::load_txt (const std::string data)
          string sample_name = line.substr (0, pos);
          string fname = line.substr (pos + 1, line.size() - pos);
 
+         if (fname.empty())
+            continue;
 
          size_t check_for_list = fname.find (",");
 
@@ -360,7 +363,7 @@ void CHydrogenKit::load_txt (const std::string data)
 
              float part_size = (float) 1 / v_samples.back()->v_layers.size();
              CDrumLayer *l;
-              //evaluate min and max gains by the file position in the vector
+              //evaluate min and max velocities by the file position in the vector
              for (size_t i = 0; i < v_samples.back()->v_layers.size(); i++)
                  {
                   l = v_samples.back()->v_layers[i];
@@ -368,24 +371,24 @@ void CHydrogenKit::load_txt (const std::string data)
                   float segment_start = part_size * i;
                   float segment_end = part_size * (i + 1) - 0.001;
 
-                  std::cout << "segment_start: " << segment_start << std::endl;
-                  std::cout << "segment_end: " << segment_end << std::endl;
+                  //std::cout << "segment_start: " << segment_start << std::endl;
+                  //std::cout << "segment_end: " << segment_end << std::endl;
 
                   l->min = segment_start;
                   l->max = segment_end;
-
                  }
 
               l->max = 1.0f;
 
-              std::cout << "l->max: " << l->max << std::endl;
-
+//              std::cout << "l->max: " << l->max << std::endl;
 
             }
          else
              {
               string filename = kit_dir + "/" + fname;
+
               add_sample();
+
               v_samples.back()->name = sample_name;
 
               v_samples.back()->add_layer(); //add default layer
@@ -427,17 +430,51 @@ void CHydrogenKit::load_txt (const std::string data)
 }
 
 
+std::string guess_sample_name (const std::string &raw)
+{
+  std::string result;
+
+  std::string t = raw;
+
+  //remove .ext
+
+  t.pop_back();
+  t.pop_back();
+  t.pop_back();
+  t.pop_back();
+
+  for (size_t i = 0; i < t.size(); i++)
+      if (isalpha(t[i]))
+         result += t[i];
+
+  return result;
+}
+
+
+// trim from right
+inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
+{
+    s.erase(s.find_last_not_of(t) + 1);
+    return s;
+}
+
 
 void CHydrogenKit::load_sfz (const std::string data)
 {
-  cout << "void CHydrogenKit::load_sfz (const std::string data)\n";
+//  cout << "void CHydrogenKit::load_sfz (const std::string data)\n";
 
   if (data.empty())
       return;
 
+  //change crlf in data to lf
+
+  std::string temp_data = string_replace_all (data, "\r\n", "\n");
+  temp_data = string_replace_all (data, "\\", "/");
+
+
   bool multi_layered = false;
 
-  size_t pos = data.find ("<group>");
+  size_t pos = temp_data.find ("<group>");
   if (pos != string::npos)
      multi_layered = true;
 
@@ -445,7 +482,7 @@ void CHydrogenKit::load_sfz (const std::string data)
   size_t i = kit_dir.rfind ("/");
   kit_name = kit_dir.substr (i + 1);
 
-  stringstream st (data);
+  stringstream st (temp_data);
   string line;
 
   while (getline (st, line))
@@ -456,123 +493,90 @@ void CHydrogenKit::load_sfz (const std::string data)
          if (line.find("//") != string::npos)
             continue;
 
-           string fname;
+         string fname;
 
-          //WHERE TO GUESS SAMPLE NAME?
-
-          cout << "parse line: " << line << endl;
-
+//          cout << "parse line: " << line << endl;
 
          if (line.find ("<group>") != string::npos)
              add_sample();
 
 
          if (line.find("<region>") != string::npos  && ! multi_layered)
-            {
              add_sample();
-             v_samples.back()->add_layer();
-            }
 
+         //parse filename for a layer
 
-         if (line.find("<region>") != string::npos && multi_layered)
-             v_samples.back()->add_layer();
+          pos = line.find ("sample=");
 
-         cout << "0000 " << endl;
-
-
-         if (line.find("<region>") != string::npos)
-
-//         if (line.find("<region>") != string::npos && ! scan_mode)
+         if (pos != string::npos)
             {
-             //parse filename for a layer
-             cout << "parse filename for a layer\n";
+             string just_name = line.substr (pos + 7);
+             just_name = rtrim (just_name); //remove trailing spaces if any
 
-             pos = line.find ("sample=");
-             if (pos != string::npos)
+             fname = kit_dir + "/" + just_name;
+
+               //cout << "fname:" << fname << endl;
+             v_samples.back()->add_layer();
+
+             if (file_exists (fname))
                 {
-                 //cout << "pos: " << pos << endl;
+                 if (! scan_mode)
+                     v_samples.back()->v_layers.back()->load (fname.c_str());
 
-                 string just_name = line.substr (pos + 7);
-                 fname = kit_dir + "/" + just_name;
-
-                 //cout << "fname:" << fname << endl;
-
-                 if (file_exists (fname))
-                   {
-                    if (! scan_mode)
-                       v_samples.back()->v_layers.back()->load (fname.c_str());
-
-                    v_samples.back()->name = just_name;
-
-                   }
-
-                }
+                  v_samples.back()->name = guess_sample_name (just_name);
+                 }
             }
 
-         //          cout << "4444\n";
 
-
-      if (! scan_mode && multi_layered && v_samples.back()->v_layers.size() != 0)
-         {
-          float part_size = (float) 1 / v_samples.back()->v_layers.size();
-          CDrumLayer *l;
-              //evaluate min and max gains by the file position in the vector
-          for (size_t i = 0; i < v_samples.back()->v_layers.size(); i++)
-              {
-                l = v_samples.back()->v_layers[i];
-
-                float segment_start = part_size * i;
-                float segment_end = part_size * (i + 1) - 0.001;
-
-                std::cout << "segment_start: " << segment_start << std::endl;
-                std::cout << "segment_end: " << segment_end << std::endl;
-
-                l->min = segment_start;
-                l->max = segment_end;
-
-               }
-
-            l->max = 1.0f;
-
-            std::cout << "l->max: " << l->max << std::endl;
-         }
-
-       cout << "5555\n";
-
-       if (! scan_mode)
-       {
-       for (auto signature: v_hat_open_signatures)
-             {
-              if (findStringIC (v_samples.back()->name, signature) || findStringIC (fname, signature))
+         if (! scan_mode && multi_layered && v_samples.back()->v_layers.size() != 0)
+            {
+             float part_size = (float) 1 / v_samples.back()->v_layers.size();
+             CDrumLayer *l;
+              //evaluate min and max velocities by the file position in the vector
+             for (size_t i = 0; i < v_samples.back()->v_layers.size(); i++)
                  {
-                  v_samples.back()->hihat_open = true;
-                  break;
-                 }
-             }
+                  l = v_samples.back()->v_layers[i];
 
+                  float segment_start = part_size * i;
+                  float segment_end = part_size * (i + 1) - 0.001;
 
-         for (auto signature: v_hat_close_signatures)
-             {
-              if (findStringIC (v_samples.back()->name, signature) || findStringIC (fname, signature))
+                  //std::cout << "segment_start: " << segment_start << std::endl;
+                  //std::cout << "segment_end: " << segment_end << std::endl;
+
+                  l->min = segment_start;
+                  l->max = segment_end;
+                  }
+
+             l->max = 1.0f;
+//            std::cout << "l->max: " << l->max << std::endl;
+            }
+
+  //     cout << "5555\n";
+
+         if (! scan_mode && v_samples.size() > 0)
+            {
+             for (auto signature: v_hat_open_signatures)
                  {
-                  v_samples.back()->hihat_close = true;
-                  break;
-                 }
-             }
-       }
+                  //cout << v_samples.back()->name << endl;
+
+                  if (findStringIC (v_samples.back()->name, signature))
+                     {
+                      v_samples.back()->hihat_open = true;
+                      break;
+                     }
+                  }
 
 
+            for (auto signature: v_hat_close_signatures)
+                {
+                 if (findStringIC (v_samples.back()->name, signature))
+                    {
+                     v_samples.back()->hihat_close = true;
+                     break;
+                    }
+                }
+           }
         }
-
-
-
-/*     std::string kitimg = kit_dir + "/image.jpg";
-
-     if (! file_exists (kitimg))
-          kitimg = kit_dir + "/image.png";
-
-     if (file_exists (kitimg))
-        image_fname = kitimg;*/
 }
 
 

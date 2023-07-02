@@ -19,10 +19,14 @@ To start play with drums, select the drumkit from the drop-down list. There are 
 /usr/share/drumrox-kits
 $HOME/.hydrogen/data/drumkits
 $HOME/.drmr/drumkits
+$HOME/sfz-kits
 $HOME/drumrox-kits
+
 ```
 
-As you see, Drumrox searches at Hydrogen's directories, legacy DrMr's paths, and its own ```$HOME/drumrox-kits```.
+As you see, Drumrox searches at Hydrogen's directories, legacy DrMr's paths, and its own ```$HOME/drumrox-kits```. Drumrox kits must be placed to ```$HOME/drumrox-kits```, and SFZ kits to ```$HOME/sfz-kits```
+
+All scanned kits will be available at Drumrox from the drop-down menu.
 
 You can change the kit during playing. It can cost a bit of time, so wait until the new kit is loaded. Drumrox resamples instruments when load, if the session's sample rate differs from the kit's sample rate.
 
