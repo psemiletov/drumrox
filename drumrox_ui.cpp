@@ -60,6 +60,9 @@ public:
   LV2_URID_Map *map;
   SDrumroxUris uris;
 
+  GdkColor color;
+
+
   GtkWidget *drumrox_widget;
   GtkLabel *current_kit_label;
 
@@ -72,10 +75,14 @@ public:
   GtkLabel *base_label;
   GtkListStore *kit_store;
 
+  GtkWidget* buttons[32];
+
+
  #ifndef DRUMROX_MULTI
 
   GtkWidget** gain_sliders;
   GtkWidget** pan_sliders;
+
   //GtkWidget** frames;
 
   float *gain_vals;
@@ -84,7 +91,7 @@ public:
 
 #endif
 
-  GtkWidget** notify_leds;
+ // GtkWidget** notify_leds;
 
   GtkWidget *velocity_checkbox;
   GtkWidget *note_off_checkbox;
@@ -113,7 +120,7 @@ public:
 };
 
 
-static GdkPixbuf *led_on_pixbuf = NULL, *led_off_pixbuf = NULL;
+//static GdkPixbuf *led_on_pixbuf = NULL, *led_off_pixbuf = NULL;
 
 
 #ifndef DRUMROX_MULTI
@@ -176,11 +183,20 @@ static void ignore_note_off_data (CDrumroxGTKGUI* ui, gpointer data)
   lv2_atom_forge_bool(&ui->forge, gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(data)));
 }
 
-
+/*
 static gboolean trigger_led_clicked (GtkWidget *widget, GdkEvent  *event, gpointer data)
 {
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
   send_ui_msg (ui, &led_data, g_object_get_qdata(G_OBJECT(widget),ui->trigger_quark));
+  return FALSE;
+}
+*/
+
+
+static gboolean trigger_button_clicked (GtkWidget *widget, GdkEvent  *event, gpointer data)
+{
+  CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
+  send_ui_msg (ui, &led_data, g_object_get_qdata(G_OBJECT(widget), ui->trigger_quark));
   return FALSE;
 }
 
@@ -203,9 +219,9 @@ static gboolean ignore_note_off_toggled (GtkToggleButton *button, gpointer data)
 
 #ifndef DRUMROX_MULTI
 
-static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index, GtkWidget** notify_leds, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
+static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index, GtkWidget** gain_sliders, GtkWidget** pan_sliders)
 {
-  std::cout << "fill_sample_table\n";
+  //std::cout << "fill_sample_table\n";
 
   if (samples_count == 0)
      return;
@@ -228,28 +244,37 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
   for (int si = 0; si < samples_count; si++)
       {
-       GtkWidget *frame, *vbox, *hbox, *gain_vbox, *pan_vbox;
-       GtkWidget *button_box, *led_event_box, *led;
+       GtkWidget *vbox, *hbox, *gain_vbox, *pan_vbox, *frame;
+       GtkWidget *button_box;
        GtkWidget* gain_slider;
        GtkWidget* pan_slider;
        GtkWidget* gain_label;
        GtkWidget* pan_label;
        gboolean slide_expand;
 
+       GtkWidget* button;
+
        const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
 
-       std::cout << "*sample_name::::::::: " << sample_name << std::endl;
+     //  std::cout << "*sample_name::::::::: " << sample_name << std::endl;
 
        snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
 
-       frame = gtk_frame_new (buf);
+       button = gtk_button_new_with_label (sample_name);
+       ui->buttons[si] = button;
+
+      g_signal_connect(G_OBJECT(ui->buttons[si]),"button-press-event", G_CALLBACK(trigger_button_clicked),ui);
+      g_object_set_qdata(G_OBJECT(ui->buttons[si]), ui->trigger_quark, GINT_TO_POINTER(si));
+
+
+       frame = gtk_frame_new (NULL);
 
        //if (ui->frames)
          //  ui->frames[si] = frame;
 
 
-       gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
-       gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
+       //gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
+       //gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
        vbox = gtk_vbox_new (false, 3);
        hbox = gtk_hbox_new (false, 0);
@@ -300,6 +325,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        gtk_widget_set_has_tooltip(pan_slider,TRUE);
 #endif
 
+
       if (pan_sliders)
           pan_sliders[si] = pan_slider;
 
@@ -323,18 +349,14 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
       gtk_box_pack_start(GTK_BOX(hbox), gain_vbox, false, false, 0);
       gtk_box_pack_start(GTK_BOX(hbox), pan_vbox, false, false, 0);
 
-      led_event_box = gtk_event_box_new();
-      g_object_set_qdata(G_OBJECT(led_event_box), ui->trigger_quark, GINT_TO_POINTER(si));
-      g_signal_connect(G_OBJECT(led_event_box),"button-release-event", G_CALLBACK(trigger_led_clicked),ui);
 
-      led = gtk_image_new_from_pixbuf (led_off_pixbuf);
-      if (notify_leds)
-         notify_leds[si] = led;
-
-      gtk_container_add(GTK_CONTAINER(led_event_box),led);
+       gtk_box_pack_start(GTK_BOX(vbox), button, true, false, 0);
 
 
-      gtk_box_pack_start(GTK_BOX(hbox), led_event_box, true, false, 0);
+      //gtk_container_add(GTK_CONTAINER(led_event_box),led);
+
+
+      //gtk_box_pack_start(GTK_BOX(hbox), led_event_box, true, false, 0);
 
       gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
 
@@ -382,7 +404,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 #else
 
 
-static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index, GtkWidget** notify_leds)
+static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_index)
 {
   std::cout << "fill_sample_table\n";
 
@@ -406,14 +428,27 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
   for (int si = 0; si < samples_count; si++)
       {
        GtkWidget *frame, *vbox, *hbox;
-       GtkWidget *button_box, *led_event_box, *led;
+       GtkWidget *button_box, *led_event_box;
        gboolean slide_expand;
+
+       GtkWidget* button;
 
        const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
 
-       snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
+     //  std::cout << "*sample_name::::::::: " << sample_name << std::endl;
 
-       frame = gtk_frame_new (buf);
+       //snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
+
+       button = gtk_button_new_with_label (sample_name);
+       ui->buttons[si] = button;
+
+      g_signal_connect(G_OBJECT(ui->buttons[si]),"button-press-event", G_CALLBACK(trigger_button_clicked),ui);
+      g_object_set_qdata(G_OBJECT(ui->buttons[si]), ui->trigger_quark, GINT_TO_POINTER(si));
+
+
+       //snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
+
+       frame = gtk_frame_new (NULL);
 
 
        gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
@@ -422,7 +457,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        vbox = gtk_vbox_new (false, 3);
        hbox = gtk_hbox_new (false, 0);
 
-      led_event_box = gtk_event_box_new();
+/*      led_event_box = gtk_event_box_new();
       g_object_set_qdata(G_OBJECT(led_event_box), ui->trigger_quark, GINT_TO_POINTER(si));
       g_signal_connect(G_OBJECT(led_event_box),"button-release-event", G_CALLBACK(trigger_led_clicked),ui);
 
@@ -434,6 +469,10 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
 
       gtk_box_pack_start(GTK_BOX(hbox), led_event_box, true, false, 0);
+*/
+
+       gtk_box_pack_start(GTK_BOX(vbox), button, true, false, 0);
+
 
       gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
 
@@ -465,8 +504,17 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
 static gboolean unset_bg (gpointer data)
 {
-  if (GTK_IS_IMAGE (data))
-      gtk_image_set_from_pixbuf (GTK_IMAGE(data), led_off_pixbuf);
+  //if (GTK_IS_IMAGE (data))
+    //  gtk_image_set_from_pixbuf (GTK_IMAGE(data), led_off_pixbuf);
+
+      GtkWidget *w = (GtkWidget *)data;
+
+   //GdkColor color;
+       //gdk_color_parse("grey", &color);
+
+       gtk_widget_modify_bg (w,
+                      GTK_STATE_NORMAL,
+                      NULL);
 
   return FALSE;
 }
@@ -484,24 +532,32 @@ static gboolean unset_bg2 (gpointer data)
                       NULL);
 
 
+
   return FALSE;
 }
 
 
 static void sample_triggered (CDrumroxGTKGUI *ui, int si)
 {
-  if (ui->notify_leds && si < ui->samples_count)
-     {/*
-       GdkColor color;
+  //if (ui->notify_leds && si < ui->samples_count)
+    if (si < ui->samples_count)
+
+     {
+  /*     GdkColor color;
        gdk_color_parse("red", &color);
 
-       gtk_widget_modify_bg (ui->frames[si],
+       gtk_widget_modify_bg (ui->buttons[si],
                       GTK_STATE_NORMAL,
                       &color);
 */
-      gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
-      g_timeout_add(200,unset_bg, ui->notify_leds[si]);
- //     g_timeout_add(200,unset_bg2, ui->frames[si]);
+         gtk_widget_modify_bg (ui->buttons[si],
+                      GTK_STATE_NORMAL,
+                      &ui->color);
+
+      //gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
+      //g_timeout_add(200,unset_bg, ui->notify_leds[si]);
+      g_timeout_add(200,unset_bg, ui->buttons[si]);
+
 
 
      }
@@ -575,20 +631,20 @@ static gboolean kit_callback (gpointer data)
 
       samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
 
-      GtkWidget** notify_leds;
+      //GtkWidget** notify_leds;
       GtkWidget** gain_sliders;
       GtkWidget** pan_sliders;
       //GtkWidget** frames;
 
       if (ui->sample_table)
          {
-          notify_leds = ui->notify_leds;
+       //   notify_leds = ui->notify_leds;
           gain_sliders = ui->gain_sliders;
           pan_sliders = ui->pan_sliders;
           //frames = ui->frames;
 
           ui->samples_count = 0;
-          ui->notify_leds = NULL;
+          //ui->notify_leds = NULL;
           ui->gain_sliders = NULL;
           ui->pan_sliders = NULL;
           //ui->frames = NULL;
@@ -596,8 +652,8 @@ static gboolean kit_callback (gpointer data)
          //if (frames)
            // free (frames);
 
-          if (notify_leds)
-             free (notify_leds);
+          //if (notify_leds)
+             //free (notify_leds);
 
           if (gain_sliders)
              free (gain_sliders);
@@ -617,19 +673,19 @@ static gboolean kit_callback (gpointer data)
           gtk_table_set_col_spacings (ui->sample_table, 5);
           gtk_table_set_row_spacings (ui->sample_table, 5);
 
-          notify_leds = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
+         // notify_leds = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
           gain_sliders = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
           pan_sliders = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
           //frames = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
 
-          fill_sample_table (ui, samples_count, ui->kitReq, notify_leds, gain_sliders, pan_sliders);
+          fill_sample_table (ui, samples_count, ui->kitReq, gain_sliders, pan_sliders);
 
           gtk_box_pack_start(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), true,true,5);
           gtk_box_reorder_child(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), 1);
           gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
 
           ui->samples_count = samples_count;
-          ui->notify_leds = notify_leds;
+         // ui->notify_leds = notify_leds;
           ui->gain_sliders = gain_sliders;
           ui->pan_sliders = pan_sliders;
           //ui->frames = frames;
@@ -714,17 +770,17 @@ static gboolean kit_callback (gpointer data)
 
       samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
 
-      GtkWidget** notify_leds;
+      //GtkWidget** notify_leds;
 
       if (ui->sample_table)
          {
-          notify_leds = ui->notify_leds;
+          //notify_leds = ui->notify_leds;
 
           ui->samples_count = 0;
-          ui->notify_leds = NULL;
+          //ui->notify_leds = NULL;
 
-          if (notify_leds)
-             free (notify_leds);
+        //  if (notify_leds)
+          //   free (notify_leds);
 
 
           gtk_widget_destroy(GTK_WIDGET(ui->sample_table));
@@ -738,16 +794,16 @@ static gboolean kit_callback (gpointer data)
           gtk_table_set_col_spacings (ui->sample_table, 5);
           gtk_table_set_row_spacings (ui->sample_table, 5);
 
-          notify_leds = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
+          //notify_leds = (GtkWidget**) malloc (samples_count * sizeof (GtkWidget*));
 
-          fill_sample_table (ui, samples_count, ui->kitReq, notify_leds);
+          fill_sample_table (ui, samples_count, ui->kitReq);
 
           gtk_box_pack_start(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), true,true,5);
           gtk_box_reorder_child(GTK_BOX(ui->drumrox_widget),GTK_WIDGET(ui->sample_table), 1);
           gtk_widget_show_all(GTK_WIDGET(ui->sample_table));
 
           ui->samples_count = samples_count;
-          ui->notify_leds = notify_leds;
+          //ui->notify_leds = notify_leds;
 
 
           gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
@@ -918,7 +974,7 @@ static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpoin
   return FALSE;
 }
 
-
+/*
 static void load_led_pixbufs (CDrumroxGTKGUI* ui)
 {
   GError *error = NULL;
@@ -953,7 +1009,7 @@ static void load_led_pixbufs (CDrumroxGTKGUI* ui)
   else
       fprintf( stderr, "Could not build path to load led_off pixbuf\n");
 }
-
+*/
 
 #define PADVAL 5
 
@@ -1175,6 +1231,10 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   CDrumroxGTKGUI *ui = new CDrumroxGTKGUI;
 
+
+       gdk_color_parse("red", &ui->color);
+
+
   ui->write = write_function;
   ui->controller = controller;
   ui->drumrox_widget = NULL;
@@ -1202,7 +1262,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   ui->bundle_path = g_strdup (bundle_path);
 
-  load_led_pixbufs(ui);
+//  load_led_pixbufs(ui);
 
   lv2_atom_forge_init (&ui->forge, ui->map);
 
@@ -1219,7 +1279,7 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
 
   ui->trigger_quark = g_quark_from_string ("drumrox_trigger_quark");
 
-  ui->notify_leds = NULL;
+  //ui->notify_leds = NULL;
 
 #ifndef DRUMROX_MULTI
 
@@ -1269,8 +1329,8 @@ static void cleanup (LV2UI_Handle handle)
   if (GTK_IS_WIDGET(ui->drumrox_widget))
       gtk_widget_destroy(ui->drumrox_widget);
 
-  if (ui->notify_leds)
-      free(ui->notify_leds);
+ // if (ui->notify_leds)
+   //   free(ui->notify_leds);
 
 #ifndef DRUMROX_MULTI
 
@@ -1283,13 +1343,13 @@ static void cleanup (LV2UI_Handle handle)
 #endif
 
   g_free(ui->bundle_path);
-
+/*
   if (led_on_pixbuf)
      g_object_unref(led_on_pixbuf);
 
   if (led_off_pixbuf)
      g_object_unref(led_off_pixbuf);
-
+*/
   //free_kits(ui->kits);
   //free(ui);
 
