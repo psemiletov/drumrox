@@ -230,7 +230,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
   int col = 0;
 
   //gchar buf[64];
-  gchar buf[128];
+  //gchar buf[128];
 
 
   int rows = (samples_count / ui->cols);
@@ -258,7 +258,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
      //  std::cout << "*sample_name::::::::: " << sample_name << std::endl;
 
-       snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
+      // snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
 
        button = gtk_button_new_with_label (sample_name);
        ui->buttons[si] = button;
@@ -277,7 +277,11 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        //gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
        vbox = gtk_vbox_new (false, 3);
-       hbox = gtk_hbox_new (false, 0);
+       hbox = gtk_hbox_new (false, 3);
+
+       gtk_box_set_homogeneous (GTK_BOX (hbox), true);
+       gtk_box_set_homogeneous (GTK_BOX (vbox), true);
+
 
 #ifdef NO_NKNOB
 //       gain_slider = gtk_vscale_new_with_range(GAIN_MIN,6.0,1);
@@ -428,7 +432,7 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
   for (int si = 0; si < samples_count; si++)
       {
        GtkWidget *frame, *vbox, *hbox;
-       GtkWidget *button_box, *led_event_box;
+       GtkWidget *button_box;
        gboolean slide_expand;
 
        GtkWidget* button;
@@ -519,22 +523,6 @@ static gboolean unset_bg (gpointer data)
   return FALSE;
 }
 
-
-static gboolean unset_bg2 (gpointer data)
-{
-   GtkWidget *w = (GtkWidget *)data;
-
-   //GdkColor color;
-       //gdk_color_parse("grey", &color);
-
-       gtk_widget_modify_bg (w,
-                      GTK_STATE_NORMAL,
-                      NULL);
-
-
-
-  return FALSE;
-}
 
 
 static void sample_triggered (CDrumroxGTKGUI *ui, int si)
@@ -648,6 +636,9 @@ static gboolean kit_callback (gpointer data)
           ui->gain_sliders = NULL;
           ui->pan_sliders = NULL;
           //ui->frames = NULL;
+
+          for (size_t i = 0; i < 32; i++)
+              ui->buttons[i] = NULL;
 
          //if (frames)
            // free (frames);
@@ -765,6 +756,10 @@ static gboolean kit_callback (gpointer data)
   if (ui->forceUpdate || (ui->kitReq != ui->current_kit_index))
      {
       ui->forceUpdate = false;
+
+      for (size_t i = 0; i < 32; i++)
+          ui->buttons[i] = NULL;
+
 
       int samples_count; //samples count in the kit (kitReq index)
 
@@ -1024,6 +1019,10 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
     *kit_combo_box, *kit_label, *no_kit_label,
     *base_label, *base_spin;
 
+  for (size_t i = 0; i < 32; i++)
+              ui->buttons[i] = NULL;
+
+
 
   GtkWidget *panlaw_label;
 
@@ -1132,6 +1131,9 @@ static void build_drumrox_ui (CDrumroxGTKGUI* ui)
 
   PangoAttrList	*attr_lst;
   PangoAttribute *attr;
+
+  for (size_t i = 0; i < 32; i++)
+        ui->buttons[i] = NULL;
 
 
   drumrox_ui_widget = gtk_vbox_new (false, 0);
@@ -1242,6 +1244,10 @@ static LV2UI_Handle instantiate (const LV2UI_Descriptor *descriptor,
   ui->current_kit_index = -1;
   ui->samples_count = 0;
   *widget = NULL;
+
+  for (size_t i = 0; i < 32; i++)
+              ui->buttons[i] = NULL;
+
 
   while (*features)
         {
