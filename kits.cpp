@@ -261,6 +261,10 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      {
       drumkit_info_passed = true;
 
+      if (kit->v_samples.size() == 32) //WE DON'T LOAD MORE THAN 32 SAMPLES
+        return false;
+
+
       kit->add_sample();
 
       if (! kit->layers_supported) //non-layered
