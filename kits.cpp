@@ -332,6 +332,10 @@ void CHydrogenKit::load_txt (const std::string data)
          if (line.empty())
             continue;
 
+         if (v_samples.size() == 32) //WE DON'T LOAD MORE THAN 32 SAMPLES
+            break;
+
+
          size_t pos = line.find ("=");
 
          if (pos == string::npos)
@@ -446,6 +450,17 @@ std::string guess_sample_name (const std::string &raw)
   t.pop_back();
   t.pop_back();
 
+  //remove part before slash
+
+
+   size_t pos = t.find ("/");
+
+   if (pos != string::npos)
+       t = t.substr (pos + 1);
+
+
+  //remove all non-letters
+
   for (size_t i = 0; i < t.size(); i++)
       if (isalpha(t[i]))
          result += t[i];
@@ -515,6 +530,7 @@ void CHydrogenKit::load_sfz (const std::string data)
             {
              string just_name = line.substr (pos + 7);
              just_name = rtrim (just_name); //remove trailing spaces if any
+
 
              fname = kit_dir + "/" + just_name;
 
