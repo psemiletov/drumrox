@@ -137,7 +137,7 @@ install(TARGETS drumrox-multi drumrox_ui-multi
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${LV2_INSTALL_DIR}/drumrox-multi.lv2
 )
 
-install (FILES ttl-multi/manifest.ttl ttl-multi/drumrox-multi.ttl knob.png led_on.png led_off.png
+install (FILES ttl-multi/manifest.ttl ttl-multi/drumrox-multi.ttl knob.png
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${LV2_INSTALL_DIR}/drumrox-multi.lv2
 )
 
@@ -149,7 +149,7 @@ install(TARGETS drumrox drumrox_ui
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${LV2_INSTALL_DIR}/drumrox.lv2
 )
 
-install (FILES ttl/manifest.ttl ttl/drumrox.ttl knob.png led_on.png led_off.png
+install (FILES ttl/manifest.ttl ttl/drumrox.ttl knob.png
   DESTINATION ${CMAKE_INSTALL_PREFIX}/${LV2_INSTALL_DIR}/drumrox.lv2
 )
 
