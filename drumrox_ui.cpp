@@ -240,13 +240,25 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
        GtkWidget* button;
 
-       const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
+       //const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
 
      //  std::cout << "*sample_name::::::::: " << sample_name << std::endl;
       // snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
 
+       /*
        button = gtk_button_new_with_label (sample_name);
        ui->buttons[si] = button;
+*/
+
+        GtkWidget  *label = gtk_label_new ("");
+        std::string caption = "<b>" + ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name + "</b>";
+        gtk_label_set_markup (GTK_LABEL (label), caption.c_str());
+
+        button = gtk_button_new();
+        gtk_container_add (GTK_CONTAINER (button), label);
+
+        ui->buttons[si] = button;
+
 
        g_signal_connect(G_OBJECT(ui->buttons[si]),"button-press-event", G_CALLBACK(trigger_button_clicked),ui);
        g_object_set_qdata(G_OBJECT(ui->buttons[si]), ui->trigger_quark, GINT_TO_POINTER(si));
@@ -415,16 +427,28 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        GtkWidget *button_box;
        gboolean slide_expand;
 
-       GtkWidget* button;
+//       GtkWidget* button;
 
-       const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
+       //const char *sample_name = ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name.c_str();
 
      //  std::cout << "*sample_name::::::::: " << sample_name << std::endl;
 
        //snprintf (buf, 128, "<b>%s</b> (%i)", sample_name, si);
 
-       button = gtk_button_new_with_label (sample_name);
-       ui->buttons[si] = button;
+       //button = gtk_button_new_with_label (sample_name);
+       //ui->buttons[si] = button;
+
+
+
+        GtkWidget  *label = gtk_label_new ("");
+        std::string caption = "<b>" + ui->kits.v_scanned_kits[kit_index]->v_samples[si]->name + "</b>";
+        gtk_label_set_markup (GTK_LABEL (label), caption.c_str());
+
+        GtkWidget* button = gtk_button_new();
+        gtk_container_add (GTK_CONTAINER (button), label);
+
+        ui->buttons[si] = button;
+
 
       g_signal_connect(G_OBJECT(ui->buttons[si]),"button-press-event", G_CALLBACK(trigger_button_clicked),ui);
       g_object_set_qdata(G_OBJECT(ui->buttons[si]), ui->trigger_quark, GINT_TO_POINTER(si));
@@ -435,19 +459,14 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
        frame = gtk_frame_new (NULL);
 
 
-       //gtk_label_set_use_markup (GTK_LABEL(gtk_frame_get_label_widget(GTK_FRAME(frame))),true);
        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
-//       vbox = gtk_vbox_new (false, 3);
- //      hbox = gtk_hbox_new (false, 0);
 
        vbox = gtk_vbox_new (false, 3);
        hbox = gtk_hbox_new (true, 3);
 
 
-
        gtk_box_pack_start(GTK_BOX(vbox), button, true, false, 0);
-
 
        gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
 
