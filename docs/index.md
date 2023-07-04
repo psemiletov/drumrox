@@ -2,7 +2,7 @@
 
 Drumrox is an easy way to write drum tracks as MIDI at your DAW, using Hydrogen and Drumrox kits. Currently Drumrox works **normally with Ardour and Mixbus only**!
 
-Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format.
+Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and supports SFZ.
 
 
 [User's manual](manual.md)
