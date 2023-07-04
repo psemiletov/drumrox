@@ -24,13 +24,13 @@ $HOME/drumrox-kits
 
 ```
 
-As you see, Drumrox searches at Hydrogen's directories, legacy DrMr's paths, and its own ```$HOME/drumrox-kits```. Drumrox kits must be placed to ```$HOME/drumrox-kits```, and SFZ kits to ```$HOME/sfz-kits```
+As you see, Drumrox searches at Hydrogen's directories, legacy DrMr's paths, and its own ```$HOME/drumrox-kits```. Drumrox kits must be placed to ```$HOME/drumrox-kits```, and SFZ kits to ```$HOME/sfz-kits```.
 
 All scanned kits will be available at Drumrox from the drop-down menu.
 
 You can change the kit during playing. It can cost a bit of time, so wait until the new kit is loaded. Drumrox resamples instruments when load, if the session's sample rate differs from the kit's sample rate.
 
-By clicking on small lights near the drum samples you can hear them without any MIDI input.
+By clicking on buttons with drum sample names you can hear them without any MIDI input.
 
 On saving the session, Drumrox saves the full path of the current drumkit, so if you move the drumkit to another directory, Drumkit can't find it later.
 
@@ -40,6 +40,13 @@ On saving the session, Drumrox saves the full path of the current drumkit, so if
 This version of Drumrox provides 32 output mono channels, one per sample of the drumkit. In this mode, Drumrox's internal mixer is disabled, you need to set gains and panings via track strips at DAW.
 
 How to use it with Ardour?
+
+Watch this video guide:
+
+[English language version](https://www.youtube.com/watch?v=NqzB98iONMA)
+[Видео на русском](https://www.youtube.com/watch?v=k_ImLh4pSvI&t=8s)
+
+Or read this:
 
 1. Create MIDI track with Drumrox-muiti as the instrument.
 

@@ -15,25 +15,33 @@ Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkit
 
 ## News
 
-Drumrox 3.1.0 (multi-layers for Drumrox format)
+Drumrox 3.2.0 (SFZ support + GUI redesign)
 
 Hello!
 
-After the implementation of multi-layered samples support for Hydrogen kits, I made the similar thing for Drumrox own kit format. As the example you can try a new kit TamilMulti at [Drumrox kits](https://github.com/psemiletov/drumrox-kits). There also a simple "Tamil" kit without multi-layered samples. I'm big fan of Tamil movies, as well as Hindi :)
+* This release adds SFZ support.
 
-And speaking about multi-layered samples at Drumrox kits, the syntax at file format as usual simple. For the multi-layered samples, just separate their file names with comma, using the order from "quiet" sample to the "loudest" one (multi-layered samples are the set of samples those differs with the timbre, not the volume):
+Actually I was eagered to play AVL Blonde Bop kit (avaliable as SFZ at http://www.bandshed.net/avldrumkits/) with Drumrox, so now it works! Needly to say, that it is not the best way to deal with AVL kits, and Avldrums.lv2 gives more features for them, because of built-in MIDNAM and more precise "exclusive groups" (hihats, crash cymbal, ride cymbal). Drumrox supports just hihats group for the auto-mute, and does it in the different way.
 
-```kick=kick01.wav,kick02.wav,kick03.wav,kick04.wav
-snare=share01.wav,share02.wav,share03.wav
-hihat opened=hihat01.wav,hihat02.wav```
+Drumrox searches SFZ's at $HOME/sfz-kits.
+
+Besides AVL SFZ, you can try other SFZ drumkits, for example from musical-artifacts.com.
+
+Thus, currently Drumrox supports Hydrogen kits, Drumrox kits, and SFZ.
+
+* Another new thing is the redesigned GUI. Yes, it is still GTK2-based. I removed the clickable leds, frame captions, but added buttons instead. The buttons with sample names. You can click them to hear, you can watch how they are triggered from DAW, so buttons are just as good old leds, but bigger and with the labels. The plugin window now became wider, and fits to 1280p with big drum kits.
+
+Stay tuned!
+
+Peter Semiletov, Kiev, 04 july 2023
 
 ## Features
 
-* LV2 plugin format (currently GTK2 only, works with Ardour)
+* LV2 plugin format (currently with GTK2 GUI, works with Ardour and Mixbus only)
 
 * Stereo (with built-in mixer) and 32-channels versions
 
-* Supported kit formats: Hydrogen, Drumrox, SFZ
+* Supported sample kit formats: Hydrogen, Drumrox, SFZ
 
 * Up to 32 instruments with layers
 
@@ -42,11 +50,10 @@ hihat opened=hihat01.wav,hihat02.wav```
 * Drumkit image at plugin window
 
 
-![image](https://user-images.githubusercontent.com/8168336/246684340-0b81c208-a9e5-4c75-b843-8840223d13ac.png)
+![image](https://user-images.githubusercontent.com/8168336/250968814-1b15341c-f59e-413b-8276-807a05089021.png)
 
 
 ## Some history
 
 Drumrox is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one can save/load the preset by index, so when you install new kits or delete some, indexes are messing up. falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but at the some point of time it becomes incompatible with new Hydrogen kits, and I've edited them manually to fix (removing some section in XML). Fresh install of Hydrogen converts my edited kits to the modern kit format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that, I understand that I want to clean up the code, etc, etc. That how Drumrox continues DrMr...
-
 

@@ -1,11 +1,19 @@
-Drumrox 3.1.0 (multi-layers for Drumrox format)
+Drumrox 3.2.0 (SFZ support + GUI redesign)
 
 Hello!
 
-After the implementation of multi-layered samples support for Hydrogen kits, I made the similar thing for Drumrox own kit format. As the example you can try a new kit TamilMulti at https://github.com/psemiletov/drumrox-kits. There also a simple "Tamil" kit without multi-layered samples. I'm big fan of Tamil movies, as well as Hindi :)
+* This release adds SFZ support.
 
-And speaking about multi-layered samples at Drumrox kits, the syntax at file format as usual simple. For the multi-layered samples, just separate their file names with comma, using the order from "quiet" sample to the "loudest" one (multi-layered samples are the set of samples those differs with the timbre, not the volume):
+Actually I was eagered to play AVL Blonde Bop kit (avaliable as SFZ at http://www.bandshed.net/avldrumkits/) with Drumrox, so now it works! Needly to say, that it is not the best way to deal with AVL kits, and Avldrums.lv2 gives more features for them, because of built-in MIDNAM and more precise "exclusive groups" (hihats, crash cymbal, ride cymbal). Drumrox supports just hihats group for the auto-mute, and does it in the different way.
 
-kick=kick01.wav,kick02.wav,kick03.wav,kick04.wav
-snare=share01.wav,share02.wav,share03.wav
-hihat opened=hihat01.wav,hihat02.wav
+Drumrox searches SFZ's at $HOME/sfz-kits.
+
+Besides AVL SFZ, you can try other SFZ drumkits, for example from musical-artifacts.com.
+
+Thus, currently Drumrox supports Hydrogen kits, Drumrox kits, and SFZ.
+
+* Another new thing is the redesigned GUI. Yes, it is still GTK2-based. I removed the clickable leds, frame captions, but added buttons instead. The buttons with sample names. You can click them to hear, you can watch how they are triggered from DAW, so buttons are just as good old leds, but bigger and with the labels. The plugin window now became wider, and fits to 1280p with big drum kits.
+
+Stay tuned!
+
+Peter Semiletov, Kiev, 04 july 2023
