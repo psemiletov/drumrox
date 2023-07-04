@@ -274,7 +274,6 @@ static inline void map_drumrox_uris (LV2_URID_Map *map, SDrumroxUris *uris)
 #endif
 
   uris->atom_eventTransfer = map->map(map->handle, LV2_ATOM__eventTransfer);
-  //uris->atom_resource = map->map(map->handle, LV2_ATOM__Resource);
   uris->atom_object = map->map(map->handle, LV2_ATOM__Object);
 }
 

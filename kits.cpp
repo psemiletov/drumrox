@@ -26,7 +26,7 @@ this code is the public domain
 
 using namespace std;
 
-
+#define MAX_SAMPLES 32
 
 float* CDrumLayer::load_whole_sample (const char *fname)
 {
@@ -261,7 +261,7 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
      {
       drumkit_info_passed = true;
 
-      if (kit->v_samples.size() == 32) //WE DON'T LOAD MORE THAN 32 SAMPLES
+      if (kit->v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
         return false;
 
 
@@ -332,7 +332,7 @@ void CHydrogenKit::load_txt (const std::string data)
          if (line.empty())
             continue;
 
-         if (v_samples.size() == 32) //WE DON'T LOAD MORE THAN 32 SAMPLES
+         if (v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
             break;
 
 
@@ -511,6 +511,10 @@ void CHydrogenKit::load_sfz (const std::string data)
          if (line.find("//") != string::npos)
             continue;
 
+        if (v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
+            return;
+
+
          string fname;
 
 //          cout << "parse line: " << line << endl;
@@ -531,10 +535,8 @@ void CHydrogenKit::load_sfz (const std::string data)
              string just_name = line.substr (pos + 7);
              just_name = rtrim (just_name); //remove trailing spaces if any
 
-
              fname = kit_dir + "/" + just_name;
 
-               //cout << "fname:" << fname << endl;
              v_samples.back()->add_layer();
 
              if (file_exists (fname))
@@ -559,32 +561,23 @@ void CHydrogenKit::load_sfz (const std::string data)
                   float segment_start = part_size * i;
                   float segment_end = part_size * (i + 1) - 0.001;
 
-                  //std::cout << "segment_start: " << segment_start << std::endl;
-                  //std::cout << "segment_end: " << segment_end << std::endl;
-
                   l->min = segment_start;
                   l->max = segment_end;
                   }
 
              l->max = 1.0f;
-//            std::cout << "l->max: " << l->max << std::endl;
             }
-
-  //     cout << "5555\n";
 
          if (! scan_mode && v_samples.size() > 0)
             {
              for (auto signature: v_hat_open_signatures)
                  {
-                  //cout << v_samples.back()->name << endl;
-
                   if (findStringIC (v_samples.back()->name, signature))
                      {
                       v_samples.back()->hihat_open = true;
                       break;
                      }
                   }
-
 
             for (auto signature: v_hat_close_signatures)
                 {
@@ -609,8 +602,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
   samplerate = sample_rate;
 
   string filename = resolve_symlink (fname);
-
-//  cout << "resolved filename :" << filename << endl;
 
   kit_filename = filename;
   kit_dir = get_file_path (kit_filename);
@@ -806,13 +797,9 @@ void CHydrogenKitsScanner::scan()
        if (kd.find ("/sfz-kits") != string::npos)
           {
            //search sfz file
-           //std::cout << "search sfz file at: " << kd << std::endl;
-
            std::vector <std::string> v = files_get_list (kd, ".sfz");
            if (v.size() != 0)
               fname = v[0];
-
-//           std::cout << "fname: " << fname << std::endl;
 
             if (file_exists (fname))
                kit_exists = true;
