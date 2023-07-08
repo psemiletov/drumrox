@@ -1,3 +1,5 @@
+* make proper exclusive/mute groups  (and auto if not defined at the kit file)
+
 * strange click in multi-layered samples when fast triggering
 
 * add "humanize" via pitch shifting/light dist/etc

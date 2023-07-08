@@ -114,7 +114,6 @@ std::vector <std::string> files_get_list (const std::string &path, const std::st
 }
 
 
-
 std::string get_home_dir()
 {
   std::string result;

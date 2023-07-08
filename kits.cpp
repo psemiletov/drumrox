@@ -84,7 +84,8 @@ float* CDrumLayer::load_whole_sample_resampled (const char *fname, int sess_samp
   int error = src_simple (&data, SRC_SINC_BEST_QUALITY/*SRC_SINC_MEDIUM_QUALITY*/, channels);
   if (error)
      {
-      delete buffer;
+      delete [] buffer;
+      delete [] new_buffer;
       return 0;
      }
 
