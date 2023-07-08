@@ -490,17 +490,8 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
 static gboolean unset_bg (gpointer data)
 {
-  //if (GTK_IS_IMAGE (data))
-    //  gtk_image_set_from_pixbuf (GTK_IMAGE(data), led_off_pixbuf);
-
-      GtkWidget *w = (GtkWidget *)data;
-
-   //GdkColor color;
-       //gdk_color_parse("grey", &color);
-
-       gtk_widget_modify_bg (w,
-                      GTK_STATE_NORMAL,
-                      NULL);
+   GtkWidget *w = (GtkWidget *)data;
+   gtk_widget_modify_bg (w, GTK_STATE_NORMAL, NULL);
 
   return FALSE;
 }
@@ -509,28 +500,11 @@ static gboolean unset_bg (gpointer data)
 
 static void sample_triggered (CDrumroxGTKGUI *ui, int si)
 {
-  //if (ui->notify_leds && si < ui->samples_count)
-    if (si < ui->samples_count)
-
-     {
-  /*     GdkColor color;
-       gdk_color_parse("red", &color);
-
-       gtk_widget_modify_bg (ui->buttons[si],
-                      GTK_STATE_NORMAL,
-                      &color);
-*/
-         gtk_widget_modify_bg (ui->buttons[si],
-                      GTK_STATE_NORMAL,
-                      &ui->color);
-
-      //gtk_image_set_from_pixbuf(GTK_IMAGE(ui->notify_leds[si]),led_on_pixbuf);
-      //g_timeout_add(200,unset_bg, ui->notify_leds[si]);
-      g_timeout_add(200,unset_bg, ui->buttons[si]);
-
-
-
-     }
+   if (si < ui->samples_count)
+      {
+       gtk_widget_modify_bg (ui->buttons[si], GTK_STATE_NORMAL, &ui->color);
+       g_timeout_add(200,unset_bg, ui->buttons[si]);
+      }
 }
 
 
@@ -601,32 +575,20 @@ static gboolean kit_callback (gpointer data)
 
       samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
 
-      //GtkWidget** notify_leds;
       GtkWidget** gain_sliders;
       GtkWidget** pan_sliders;
-      //GtkWidget** frames;
 
       if (ui->sample_table)
          {
-       //   notify_leds = ui->notify_leds;
           gain_sliders = ui->gain_sliders;
           pan_sliders = ui->pan_sliders;
-          //frames = ui->frames;
 
           ui->samples_count = 0;
-          //ui->notify_leds = NULL;
           ui->gain_sliders = NULL;
           ui->pan_sliders = NULL;
-          //ui->frames = NULL;
 
           for (size_t i = 0; i < 32; i++)
               ui->buttons[i] = NULL;
-
-         //if (frames)
-           // free (frames);
-
-          //if (notify_leds)
-             //free (notify_leds);
 
           if (gain_sliders)
              free (gain_sliders);
@@ -663,18 +625,17 @@ static gboolean kit_callback (gpointer data)
           gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
 
           std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->image_fname;
+
           if (! kitimg.empty())
              {
               if (file_exists (kitimg))
                  {
-                  GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(), 192,
-                                                                     -1,NULL);
-
+                  GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(), 192, -1, NULL);
                   gtk_image_set_from_pixbuf ((GtkImage*)ui->kit_image, pix);
                  }
              }
           else
-               gtk_image_clear ((GtkImage*)ui->kit_image);
+              gtk_image_clear ((GtkImage*)ui->kit_image);
 
 
           ui->current_kit_index = ui->kitReq;
@@ -710,7 +671,6 @@ static gboolean kit_callback (gpointer data)
       for (size_t i = 0; i < 32; i++)
           ui->buttons[i] = NULL;
 
-
       int samples_count; //samples count in the kit (kitReq index)
 
       samples_count = ui->kits.v_scanned_kits[ui->kitReq]->v_samples.size();
@@ -718,9 +678,9 @@ static gboolean kit_callback (gpointer data)
 
       if (ui->sample_table)
          {
-           ui->samples_count = 0;
+          ui->samples_count = 0;
 
-          gtk_widget_destroy(GTK_WIDGET(ui->sample_table));
+          gtk_widget_destroy (GTK_WIDGET(ui->sample_table));
           ui->sample_table = NULL;
          }
 
@@ -742,13 +702,12 @@ static gboolean kit_callback (gpointer data)
           gtk_label_set_text (ui->current_kit_label, ui->kits.v_scanned_kits[ui->kitReq]->kit_name.c_str());
 
           std::string kitimg = ui->kits.v_scanned_kits[ui->kitReq]->image_fname;
+
           if (! kitimg.empty())
              {
               if (file_exists (kitimg))
                  {
-                  GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(), 192,
-                                                                     -1, NULL);
-
+                  GdkPixbuf *pix = gdk_pixbuf_new_from_file_at_size (kitimg.c_str(), 192, -1, NULL);
                   gtk_image_set_from_pixbuf ((GtkImage*)ui->kit_image, pix);
                  }
              }
@@ -771,7 +730,6 @@ static gboolean kit_callback (gpointer data)
   idle = FALSE;
   return FALSE; // don't keep calling
 }
-
 
 #endif
 
@@ -882,12 +840,12 @@ static GtkWidget *create_panlaw_combo (void)
 
 #endif
 
+
 static gulong expose_id;
 
 static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
   std::cout << "gboolean expose_callback  \n";
-
 
   CDrumroxGTKGUI* ui = (CDrumroxGTKGUI*)data;
   uint8_t msg_buf[1024];
@@ -900,42 +858,6 @@ static gboolean expose_callback (GtkWidget *widget, GdkEventExpose *event, gpoin
   return FALSE;
 }
 
-/*
-static void load_led_pixbufs (CDrumroxGTKGUI* ui)
-{
-  GError *error = NULL;
-  gchar *pixbuf_path;
-
-  pixbuf_path = g_build_path (G_DIR_SEPARATOR_S, ui->bundle_path, "led_on.png", NULL);
-
-  if (pixbuf_path)
-     {
-      led_on_pixbuf = gdk_pixbuf_new_from_file (pixbuf_path,&error);
-
-      if (! led_on_pixbuf)
-         fprintf (stderr, "Could not load led_on pixbuf: %s\n", error->message);
-
-      g_free(pixbuf_path);
-     }
-  else
-      fprintf (stderr, "Could not build path to load led_on pixbuf\n");
-
-
-  pixbuf_path = g_build_path (G_DIR_SEPARATOR_S, ui->bundle_path, "led_off.png", NULL);
-
-  if (pixbuf_path)
-     {
-      led_off_pixbuf = gdk_pixbuf_new_from_file (pixbuf_path, &error);
-
-      if (! led_off_pixbuf)
-         fprintf (stderr,"Could not load led_off pixbuf: %s\n", error->message);
-
-      g_free(pixbuf_path);
-     }
-  else
-      fprintf( stderr, "Could not build path to load led_off pixbuf\n");
-}
-*/
 
 #define PADVAL 5
 
