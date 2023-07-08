@@ -449,48 +449,40 @@ static void fill_sample_table (CDrumroxGTKGUI* ui, int samples_count, int kit_in
 
         ui->buttons[si] = button;
 
-
-      g_signal_connect(G_OBJECT(ui->buttons[si]),"button-press-event", G_CALLBACK(trigger_button_clicked),ui);
-      g_object_set_qdata(G_OBJECT(ui->buttons[si]), ui->trigger_quark, GINT_TO_POINTER(si));
-
+        g_signal_connect(G_OBJECT(ui->buttons[si]),"button-press-event", G_CALLBACK(trigger_button_clicked),ui);
+        g_object_set_qdata(G_OBJECT(ui->buttons[si]), ui->trigger_quark, GINT_TO_POINTER(si));
 
        //snprintf (buf, 64, "<b>%s</b> (%i)", sample_name, si);
 
-       frame = gtk_frame_new (NULL);
+        frame = gtk_frame_new (NULL);
+        gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
 
 
-       gtk_frame_set_shadow_type(GTK_FRAME(frame),GTK_SHADOW_OUT);
+        vbox = gtk_vbox_new (false, 3);
+        hbox = gtk_hbox_new (true, 3);
 
 
-       vbox = gtk_vbox_new (false, 3);
-       hbox = gtk_hbox_new (true, 3);
+        gtk_box_pack_start(GTK_BOX(vbox), button, true, false, 0);
+        gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
 
+        g_object_set(vbox,"border-width", 1, NULL);
 
-       gtk_box_pack_start(GTK_BOX(vbox), button, true, false, 0);
+        gtk_container_add (GTK_CONTAINER(frame),vbox);
 
-       gtk_box_pack_start(GTK_BOX(vbox), hbox, true, false, 0);
+        gtk_table_attach_defaults (ui->sample_table, frame, col, col + 1, row, row + 1);
 
-       g_object_set(vbox,"border-width", 1, NULL);
+        col++;
 
-
-       gtk_container_add(GTK_CONTAINER(frame),vbox);
-
-
-       gtk_table_attach_defaults (ui->sample_table, frame, col, col + 1, row, row + 1);
-
-       col++;
-
-      if (col >= ui->cols)
-         {
-          row++;
-          col = 0;
-         }
-     }
+        if (col >= ui->cols)
+           {
+            row++;
+            col = 0;
+           }
+       }
 
 
   gtk_widget_queue_resize (GTK_WIDGET(ui->sample_table));
 }
-
 
 #endif
 
