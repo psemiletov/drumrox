@@ -40,7 +40,6 @@ float* CDrumLayer::load_whole_sample (const char *fname)
   if (info.channels == 0 || info.frames == 0)
      return NULL;
 
-
   float *buffer = new float [info.channels * info.frames];
   sf_count_t zzz = sf_readf_float (file, buffer, info.frames);
   sf_close (file);
@@ -56,15 +55,15 @@ float* CDrumLayer::load_whole_sample (const char *fname)
 
 float* CDrumLayer::load_whole_sample_resampled (const char *fname, int sess_samplerate)
 {
-   float *buffer = load_whole_sample (fname);
-   if (! buffer)
-      {
-       cout << "load error: " << fname << endl;
-       return 0;
-      }
+  float *buffer = load_whole_sample (fname);
+  if (! buffer)
+     {
+      cout << "load error: " << fname << endl;
+      return 0;
+     }
 
-   if (samplerate == sess_samplerate)
-       return buffer;
+  if (samplerate == sess_samplerate)
+      return buffer;
 
   float ratio = (float) 1.0f * sess_samplerate / samplerate;
 
@@ -122,7 +121,6 @@ void CDrumLayer::print()
   cout << "file_name: " << file_name << endl;
   cout << "min: " << min << endl;
   cout << "max: " << max << endl;
-
   cout << "sample layer -- end"  << endl;
 }
 
@@ -139,7 +137,6 @@ CDrumSample::CDrumSample (int sample_rate)
   session_samplerate = sample_rate;
   current_layer = 0;
   velocity = 0.0;
-//  hihat = false;
   hihat_open = false;
   hihat_close = false;
 }
@@ -215,7 +212,6 @@ void CDrumSample::print_stats()
 CHydrogenXMLWalker::CHydrogenXMLWalker (CHydrogenKit *hkit)
 {
   kit = hkit;
-
   drumkit_info_passed = false;
   drumkitComponent_passed = false;
 }
@@ -265,7 +261,6 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
       if (kit->v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
         return false;
 
-
       kit->add_sample();
 
       if (! kit->layers_supported) //non-layered
@@ -304,7 +299,6 @@ bool CHydrogenXMLWalker::for_each (pugi::xml_node &node)
               }
           }
 
-
       if (! kit->scan_mode && kit->v_samples.size() != 0)
           if (kit->v_samples.back()->v_layers.size() != 0)
                 kit->v_samples.back()->v_layers.back()->load (path.c_str());
@@ -335,7 +329,6 @@ void CHydrogenKit::load_txt (const std::string data)
 
          if (v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
             break;
-
 
          size_t pos = line.find ("=");
 
@@ -386,10 +379,7 @@ void CHydrogenKit::load_txt (const std::string data)
                   l->max = segment_end;
                  }
 
-              l->max = 1.0f;
-
-//              std::cout << "l->max: " << l->max << std::endl;
-
+             l->max = 1.0f;
             }
          else
              {
@@ -415,7 +405,6 @@ void CHydrogenKit::load_txt (const std::string data)
                  }
              }
 
-
          for (auto signature: v_hat_close_signatures)
              {
               if (findStringIC (sample_name, signature) || findStringIC (fname, signature))
@@ -424,17 +413,15 @@ void CHydrogenKit::load_txt (const std::string data)
                   break;
                  }
              }
-
-
         }
 
-     std::string kitimg = kit_dir + "/image.jpg";
+  std::string kitimg = kit_dir + "/image.jpg";
 
-     if (! file_exists (kitimg))
-          kitimg = kit_dir + "/image.png";
+  if (! file_exists (kitimg))
+      kitimg = kit_dir + "/image.png";
 
-     if (file_exists (kitimg))
-        image_fname = kitimg;
+  if (file_exists (kitimg))
+      image_fname = kitimg;
 }
 
 
@@ -453,12 +440,10 @@ std::string guess_sample_name (const std::string &raw)
 
   //remove part before slash
 
-
    size_t pos = t.find ("/");
 
    if (pos != string::npos)
        t = t.substr (pos + 1);
-
 
   //remove all non-letters
 
@@ -473,8 +458,8 @@ std::string guess_sample_name (const std::string &raw)
 // trim from right
 inline std::string& rtrim(std::string& s, const char* t = " \t\n\r\f\v")
 {
-    s.erase(s.find_last_not_of(t) + 1);
-    return s;
+  s.erase(s.find_last_not_of(t) + 1);
+  return s;
 }
 
 
@@ -490,13 +475,11 @@ void CHydrogenKit::load_sfz (const std::string data)
   std::string temp_data = string_replace_all (data, "\r\n", "\n");
   temp_data = string_replace_all (data, "\\", "/");
 
-
   bool multi_layered = false;
 
   size_t pos = temp_data.find ("<group>");
   if (pos != string::npos)
      multi_layered = true;
-
 
   size_t i = kit_dir.rfind ("/");
   kit_name = kit_dir.substr (i + 1);
@@ -506,30 +489,27 @@ void CHydrogenKit::load_sfz (const std::string data)
 
   while (getline (st, line))
         {
+         if (v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
+             return;
+
          if (line.empty())
-            continue;
+             continue;
 
-         if (line.find("//") != string::npos)
-            continue;
-
-        if (v_samples.size() == MAX_SAMPLES) //WE DON'T LOAD MORE THAN 32 SAMPLES
-            return;
-
+         if (line.find ("//") != string::npos)
+             continue;
 
          string fname;
 
 //          cout << "parse line: " << line << endl;
-
          if (line.find ("<group>") != string::npos)
              add_sample();
-
 
          if (line.find("<region>") != string::npos  && ! multi_layered)
              add_sample();
 
          //parse filename for a layer
 
-          pos = line.find ("sample=");
+         pos = line.find ("sample=");
 
          if (pos != string::npos)
             {
@@ -545,8 +525,8 @@ void CHydrogenKit::load_sfz (const std::string data)
                  if (! scan_mode)
                      v_samples.back()->v_layers.back()->load (fname.c_str());
 
-                  v_samples.back()->name = guess_sample_name (just_name);
-                 }
+                 v_samples.back()->name = guess_sample_name (just_name);
+                }
             }
 
 
@@ -559,12 +539,9 @@ void CHydrogenKit::load_sfz (const std::string data)
                  {
                   l = v_samples.back()->v_layers[i];
 
-                  float segment_start = part_size * i;
-                  float segment_end = part_size * (i + 1) - 0.001;
-
-                  l->min = segment_start;
-                  l->max = segment_end;
-                  }
+                  l->min = part_size * i;;
+                  l->max = part_size * (i + 1) - 0.001;;
+                 }
 
              l->max = 1.0f;
             }
@@ -609,7 +586,7 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
   std::string source = string_file_load (filename);
   if (source.empty())
-     return;
+      return;
 
   if (ends_with (kit_filename, ".txt"))
      {
@@ -636,7 +613,6 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
    else
        layers_supported = false;
 
-
   //delete empty instruments
   //because we don't want parse them
 
@@ -645,7 +621,7 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
 
   if (idx_instrument != std::string::npos)
   if (idx_instrument > idx_filename)
-     //oops, we wave empty instruments!
+     //oops, we have empty instruments!
      {
       //первый пустой инструмент у нас уже есть, он находится по
       //idx_instrument
@@ -663,10 +639,9 @@ void CHydrogenKit::load (const char *fname, int sample_rate)
   if (! result)
      return;
 
-   CHydrogenXMLWalker walker (this);
+  CHydrogenXMLWalker walker (this);
 
-   doc.traverse (walker);
-
+  doc.traverse (walker);
 
   auto stop = chrono::high_resolution_clock::now();
   auto duration_msecs = chrono::duration_cast<chrono::milliseconds>(stop - start);
@@ -802,7 +777,7 @@ void CHydrogenKitsScanner::scan()
            if (v.size() != 0)
               fname = v[0];
 
-            if (file_exists (fname))
+           if (file_exists (fname))
                kit_exists = true;
           }
 
