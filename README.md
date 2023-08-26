@@ -2,13 +2,13 @@ Drumrox
 =======
 
 [OpenSUSE](https://build.opensuse.org/package/show/multimedia:proaudio/drumrox) *
-[AUR](https://aur.archlinux.org/packages/drumrox) * [Drumrox kits repo](https://github.com/psemiletov/drumlabooh-kits)
+[AUR](https://aur.archlinux.org/packages/drumrox) * [Drumrox kits repo](https://github.com/psemiletov/drum_sklad)
 
 =======
 
 Drumrox is an easy way to write drum tracks as MIDI at your DAW, using Hydrogen and Drumrox kits.
 
-Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and the repository with [Drumrox kits](https://github.com/psemiletov/drumlabooh-kits)
+Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and the repository with [Drumrox kits](https://github.com/psemiletov/drum_sklad)
 
 
 Some history: Drumrox is based on Nicklan's DrMr (https://github.com/nicklan/drmr) and Filipe Coelho's DrMr (https://github.com/falkTX/drmr). The first one can save/load the preset by index, so when you install new kits or delete some, indexes are messing up. falkTX's DrMr deals with presets in more comfortable way, via the names. I (Peter Semiletov) used it everyday, but at the some point of time it becomes incompatible with new Hydrogen kits, and I've edited them manually to fix (removing some section in XML). Fresh install of Hydrogen converts my edited kits to the modern kit format again, and it was simplier to add some code than to edit the kits again. And when I've started to do that, I understand that I want to clean up the code, etc, etc. That how Drumrox continues DrMr...

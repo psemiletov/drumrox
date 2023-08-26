@@ -2,7 +2,7 @@
 
 Drumrox is aimed to be lightweight but powerful LV2 instrument to use selected Hydrogen or Drumrox drumkit on MIDI track in your DAW. With the current GTK2 interface, Drumrox can work normally with **Ardour and Mixbus**, but not with Reaper and Qtractor.
 
-To use Drumrox, you need to install some drumkits first. For Hydrogen drumkits, run Hydrogen, then go there to **Drumkits - Online import** menu and download kits from Hydrogen or Musical Artifacts repositories. To install Drumrox format kits, download them from [Drumrox kits](https://github.com/psemiletov/drumrox-kits) or [Drumrox kits at Telegram] (https://t.me/drumrox_kits), and copy or unpack drumkits folders to ```$HOME/drumrox-kits```. Each kit = one folder.
+To use Drumrox, you need to install some drumkits first. For Hydrogen drumkits, run Hydrogen, then go there to **Drumkits - Online import** menu and download kits from Hydrogen or Musical Artifacts repositories. To install Drumrox format kits, download them from [Drumrox kits](https://github.com/psemiletov/drum_sklad) or [Drumrox kits at Telegram] (https://t.me/drum_sklad), and copy or unpack drumkits folders to ```$HOME/drumrox-kits```. Each kit = one folder.
 
 
 ## Drumrox stereo
