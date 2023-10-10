@@ -6,7 +6,7 @@ Drumrox
 
 =======
 
-Drumrox is an easy way to write drum tracks as MIDI at your DAW, using Hydrogen and Drumrox kits.
+Drumrox is an easy way to write drum tracks as MIDI at your DAW, using Hydrogen and Drumrox kits. Consider to use my another drum machine, [Drumlabooh](https://psemiletov.github.io/drumlabooh/), that compatible with all DAW's.
 
 Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkits. Drumrox is compatible with MODERN Hydrogen kit format. More of that, Drumrox has own simple drumkit format and the repository with [Drumrox kits](https://github.com/psemiletov/drum_sklad)
 
