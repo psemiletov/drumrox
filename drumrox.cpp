@@ -1083,9 +1083,13 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                else
                    lim = drum_layer->samples_count - drum_layer->offset;
 
+
+               //current_sample->velocity;
+
+
                for (pos = datastart; pos < lim && pos < dataend; pos++)
                    {
-                    drumrox->channels[i][pos] += drum_layer->data[drum_layer->offset];
+                    drumrox->channels[i][pos] += drum_layer->data[drum_layer->offset] * current_sample->velocity;
                     //drumrox->left[pos] += drum_layer->data[drum_layer->offset] * coef_left;
                     //drumrox->right[pos] += drum_layer->data[drum_layer->offset] * coef_right;
                     drum_layer->offset++;
@@ -1103,8 +1107,8 @@ static void run (LV2_Handle instance, uint32_t n_samples)
                    {
                     //drumrox->left[pos] += drum_layer->data[drum_layer->offset++] * coef_left;
                     //drumrox->right[pos] += drum_layer->data[drum_layer->offset++] * coef_right;
-                   drumrox->channels[i][pos] += drum_layer->data[drum_layer->offset++];
-                   drumrox->channels[i][pos] += drum_layer->data[drum_layer->offset];
+                    drumrox->channels[i][pos] += drum_layer->data[drum_layer->offset++] * current_sample->velocity;
+                    drumrox->channels[i][pos] += drum_layer->data[drum_layer->offset] * current_sample->velocity;
 
                    }
                }
