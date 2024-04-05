@@ -15,25 +15,11 @@ Drumrox is LV2 drum machine (based on DrMr) to load Hydrogen and Drumrox drumkit
 
 ## News
 
-Drumrox 3.2.0 (SFZ support + GUI redesign)
+Drumrox 3.3.0 
 
-Hello!
+* MIDI velocity at Multi-channel fix
 
-* This release adds SFZ support.
-
-Actually I was eagered to play AVL Blonde Bop kit (avaliable as SFZ at http://www.bandshed.net/avldrumkits/) with Drumrox, so now it works! Needly to say, that it is not the best way to deal with AVL kits, and Avldrums.lv2 gives more features for them, because of built-in MIDNAM and more precise "exclusive groups" (hihats, crash cymbal, ride cymbal). Drumrox supports just hihats group for the auto-mute, and does it in the different way.
-
-Drumrox searches SFZ's at $HOME/sfz-kits.
-
-Besides AVL SFZ, you can try other SFZ drumkits, for example from musical-artifacts.com.
-
-Thus, currently Drumrox supports Hydrogen kits, Drumrox kits, and SFZ.
-
-* Another new thing is the redesigned GUI. Yes, it is still GTK2-based. I removed the clickable leds, frame captions, but added buttons instead. The buttons with sample names. You can click them to hear, you can watch how they are triggered from DAW, so buttons are just as good old leds, but bigger and with the labels. The plugin window now became wider, and fits to 1280p with big drum kits.
-
-Stay tuned!
-
-Peter Semiletov, Kiev, 04 july 2023
+Peter Semiletov, Kiev, 06 april 2024
 
 ## Features
 
