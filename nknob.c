@@ -35,6 +35,7 @@
 #include <stdlib.h>
 #include <gtk/gtkmain.h>
 #include <gtk/gtksignal.h>
+#include <gtk/gtktooltip.h>
 #include "nknob.h"
 
 #define SCROLL_DELAY_LENGTH     100
